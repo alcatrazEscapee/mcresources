@@ -48,7 +48,8 @@ class ResourceManager:
             'textures': textures
         }, self.indent)
 
-    def item_model(self, name_parts: str or list or tuple, *textures: str or dict, parent: str = 'item/generated'):
+    def item_model(self, name_parts: str or list or tuple, *textures: str or dict,
+                   parent: str = 'item/generated') -> None:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
@@ -64,7 +65,7 @@ class ResourceManager:
         }, self.indent)
 
     def crafting_shapeless(self, name_parts: str or list or tuple, ingredients: str or dict or list or tuple,
-                           result: str or dict, group: str = None, conditions: str or dict or list = None):
+                           result: str or dict, group: str = None, conditions: str or dict or list = None) -> None:
         """
         Creates a shapeless crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -156,7 +157,7 @@ def clean_generated_resources(path='src/main/resources') -> None:
             if subdir.endswith('.json'):
                 delete = False
                 with open(sub_path, 'r') as file:
-                    if '"__comment__": "This file was automatically created by mc_1_13.py"' in file.read():
+                    if '"__comment__": "This file was automatically created by mcresources"' in file.read():
                         delete = True
                 if delete:
                     os.remove(sub_path)
