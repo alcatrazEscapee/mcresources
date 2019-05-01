@@ -3,3 +3,7 @@ venv/
 .idea/
 *.iml
 *.xml
+
+# Python Packaging
+build/
+mcresources.egg-info/
