@@ -3,6 +3,11 @@
 #  For more information see the project LICENSE file
 
 from distutils.core import setup
+from os import path
+
+# Read README.md into the setuptools long description
+with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+    long_description = f.read()
 
 setup(
     name='mcresources',
@@ -10,6 +15,8 @@ setup(
     version='0.0.1',
     license='GPL-3.0',
     description='An automatic resource creation tool for Minecraft 1.13 Forge modding',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     author='Alex O\'Neill',
     author_email='alex@molleroneill.com',
     url='https://github.com/alcatrazEscapee/mcresources',
