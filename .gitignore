@@ -1,0 +1,5 @@
+# Intellij
+venv/
+.idea/
+*.iml
+*.xml
