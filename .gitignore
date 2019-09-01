@@ -1,9 +1,12 @@
 # Intellij
-venv/
-.idea/
+/venv/
+/.idea/
 *.iml
 *.xml
 
+# Auto generated test files
+generated/
+
 # Python Packaging
-build/
-mcresources.egg-info/
+/build/
+/mcresources.egg-info/
