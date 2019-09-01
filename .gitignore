@@ -9,4 +9,5 @@ generated/
 
 # Python Packaging
 /build/
+/dist/
 /mcresources.egg-info/
