@@ -31,7 +31,7 @@ class ResourceManager:
         }, self.indent)
 
     def block_model(self, name_parts: str or list or tuple, textures: str or dict = None,
-                    parent: str = 'cube_all') -> None:
+                    parent: str = 'block/cube_all') -> None:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
@@ -39,9 +39,9 @@ class ResourceManager:
         :param parent: the parent model.
         """
         if textures is None:
-            textures = {'texture': '%s:block/%s' % (self.domain, '/'.join(str_path(name_parts)))}
+            textures = {'all': '%s:block/%s' % (self.domain, '/'.join(str_path(name_parts)))}
         if type(textures) is str:
-            textures = {'texture': textures}
+            textures = {'all': textures}
         write((*self.resource_dir, 'assets', self.domain, 'models', 'block', *str_path(name_parts)), {
             'parent': parent,
             'textures': textures
