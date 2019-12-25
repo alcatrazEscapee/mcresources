@@ -1,6 +1,7 @@
 #  Part of mcresources by Alex O'Neill
 #  Work under copyright. Licensed under GPL-3.0
 #  For more information see the project LICENSE file
+
 from mcresources.parts import *
 
 
@@ -54,7 +55,6 @@ class ResourceManager:
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:item/name/parts'
         :param parent: the parent model.
-        :return:
         """
         if textures is None or len(textures) == 0:
             textures = '%s:item/%s' % (self.domain, '/'.join(str_path(name_parts)))
@@ -72,7 +72,6 @@ class ResourceManager:
         :param result: The result of crafting the recipe.
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
-        :return:
         """
         write((*self.resource_dir, 'data', self.domain, 'recipes', *str_path(name_parts)), {
             'type': 'crafting_shapeless',
@@ -149,7 +148,6 @@ class ResourceManager:
         :param name_parts: The resource location, including path elements.
         :param values: The resource location values for the tag
         :param replace: If the tag should replace previous values
-        :return:
         """
         write((*self.resource_dir, 'data', self.domain, 'tags', 'entity_types', *str_path(name_parts)), {
             'replace': replace,
@@ -192,29 +190,3 @@ class ResourceManager:
             'type': 'minecraft:block',
             'pools': loot_pool_list(loot_pools, 'block')
         })
-
-
-def clean_generated_resources(path='src/main/resources') -> None:
-    """
-    Recursively removes all files generated using by mcresources, as identified by the inserted comment.
-    Removes empty directories
-    :param path: the initial path to search through
-    """
-    for subdir in os.listdir(path):
-        sub_path = os.path.join(path, subdir)
-        if os.path.isfile(sub_path):
-            # File, check if valid and then delete
-            if subdir.endswith('.json'):
-                delete = False
-                with open(sub_path, 'r') as file:
-                    if '"__comment__": "This file was automatically created by mcresources"' in file.read():
-                        delete = True
-                if delete:
-                    os.remove(sub_path)
-        else:
-            # Folder, search recursively
-            clean_generated_resources(sub_path)
-
-        if not os.listdir(path):
-            # Delete empty folder
-            os.rmdir(path)

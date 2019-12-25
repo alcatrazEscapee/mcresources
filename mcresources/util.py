@@ -1,8 +1,36 @@
 #  Part of mcresources by Alex O'Neill
 #  Work under copyright. Licensed under GPL-3.0
 #  For more information see the project LICENSE file
-import json
-import os
+
+from json import dump as json_dump
+from os import makedirs, listdir, remove as rmfile, rmdir
+from os.path import join as path_join, dirname, isfile
+
+
+def clean_generated_resources(path='src/main/resources') -> None:
+    """
+    Recursively removes all files generated using by mcresources, as identified by the inserted comment.
+    Removes empty directories
+    :param path: the initial path to search through
+    """
+    for subdir in listdir(path):
+        sub_path = path_join(path, subdir)
+        if isfile(sub_path):
+            # File, check if valid and then delete
+            if subdir.endswith('.json'):
+                delete = False
+                with open(sub_path, 'r') as file:
+                    if '"__comment__": "This file was automatically created by mcresources"' in file.read():
+                        delete = True
+                if delete:
+                    rmfile(sub_path)
+        else:
+            # Folder, search recursively
+            clean_generated_resources(sub_path)
+
+        if not listdir(path):
+            # Delete empty folder
+            rmdir(path)
 
 
 def del_none(data_in: dict or list or tuple) -> object:
@@ -20,11 +48,11 @@ def del_none(data_in: dict or list or tuple) -> object:
 
 def write(path_parts: tuple, data: dict, indent: int = 2) -> None:
     # write output to json
-    path = os.path.join(*path_parts) + '.json'
-    os.makedirs(os.path.dirname(path), exist_ok=True)
+    path = path_join(*path_parts) + '.json'
+    makedirs(dirname(path), exist_ok=True)
     data = del_none({'__comment__': 'This file was automatically created by mcresources', **data})
     with open(path, 'w') as file:
-        json.dump(data, file, indent=indent)
+        json_dump(data, file, indent=indent)
 
 
 def str_path(data_in: str or list or tuple) -> list:
