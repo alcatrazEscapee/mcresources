@@ -2,12 +2,12 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from os import path
+from os.path import abspath, dirname, join as path_join
 
 from setuptools import setup
 
 # Read README.md into the setuptools long description
-with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+with open(path_join(abspath(dirname(__file__)), 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
