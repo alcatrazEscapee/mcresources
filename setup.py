@@ -13,9 +13,9 @@ with open(path.join(path.abspath(path.dirname(__file__)), 'README.md'), encoding
 setup(
     name='mcresources',
     packages=['mcresources'],
-    version='1.0.2',
-    license='GPL-3.0',
-    description='An automatic resource creation tool for Minecraft 1.14 Forge modding',
+    version='1.0.3',
+    license='MIT',
+    description='An automatic resource creation tool for Minecraft 1.13+ Forge modding',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='Alex O\'Neill',
@@ -27,7 +27,7 @@ setup(
         'Development Status :: 5 - Production/Stable',
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package
         'Intended Audience :: Developers',  # Define that your audience are developers
-        'License :: OSI Approved :: GNU General Public License v3 (GPLv3)',  # Again, pick a license
+        'License :: OSI Approved :: MIT License',  # Again, pick a license
         'Programming Language :: Python :: 3.7',
     ],
 )

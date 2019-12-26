@@ -2,7 +2,13 @@
 #  Work under copyright. Licensed under GPL-3.0
 #  For more information see the project LICENSE file
 
+from typing import Sequence, Dict, Any, Union
+
 from mcresources.parts import *
+
+NameParts = Union[Sequence[str], str]
+AnyJson = Union[Sequence[Any], Dict[str, Any], str]
+AnyDictStr = Union[Dict[str, Any], str]
 
 
 class ResourceManager:
@@ -16,7 +22,7 @@ class ResourceManager:
         self.domain = domain
         self.indent = indent
 
-    def blockstate(self, name_parts: str or list or tuple, model: str = None, variants: dict = None) -> None:
+    def blockstate(self, name_parts: NameParts, model: str = None, variants: Dict[str, Any] = None) -> None:
         """
         Creates a blockstate file
         :param name_parts: the resource location, including path elements.
@@ -31,8 +37,7 @@ class ResourceManager:
             'variants': variants
         }, self.indent)
 
-    def block_model(self, name_parts: str or list or tuple, textures: str or dict = None,
-                    parent: str = 'block/cube_all') -> None:
+    def block_model(self, name_parts: NameParts, textures: AnyDictStr = None, parent: str = 'block/cube_all') -> None:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
@@ -48,23 +53,33 @@ class ResourceManager:
             'textures': textures
         }, self.indent)
 
-    def item_model(self, name_parts: str or list or tuple, *textures: str or dict,
-                   parent: str = 'item/generated') -> None:
+    def block_item_model(self, name_parts: NameParts) -> None:
+        """
+        Shortcut for a block item model, which generates a model with a single parent reference to the block model of the same name
+        """
+        self.item_model(name_parts, parent='%s:block/%s' % (self.domain, '/'.join(str_path(name_parts))), no_textures=True)
+
+    def item_model(self, name_parts: NameParts, *textures: AnyDictStr, parent: str = 'item/generated', no_textures: bool = False) -> None:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:item/name/parts'
         :param parent: the parent model.
+        :param no_textures: if the textures element should be ignored
         """
-        if textures is None or len(textures) == 0:
-            textures = '%s:item/%s' % (self.domain, '/'.join(str_path(name_parts)))
+        if no_textures:
+            textures = None
+        else:
+            if textures is None or len(textures) == 0:
+                textures = '%s:item/%s' % (self.domain, '/'.join(str_path(name_parts)))
+            textures = item_model_textures(textures)
+
         write((*self.resource_dir, 'assets', self.domain, 'models', 'item', *str_path(name_parts)), {
             'parent': parent,
-            'textures': item_model_textures(textures)
+            'textures': textures
         }, self.indent)
 
-    def crafting_shapeless(self, name_parts: str or list or tuple, ingredients: str or dict or list or tuple,
-                           result: str or dict, group: str = None, conditions: str or dict or list = None) -> None:
+    def crafting_shapeless(self, name_parts: NameParts, ingredients: AnyJson, result: AnyDictStr, group: str = None, conditions: AnyJson = None) -> None:
         """
         Creates a shapeless crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -81,8 +96,7 @@ class ResourceManager:
             'conditions': recipe_condition(conditions)
         }, self.indent)
 
-    def crafting_shaped(self, name_parts: str or list or tuple, pattern: list, ingredients: str or dict,
-                        result: str or dict, group: str = None, conditions: str or dict or list = None) -> None:
+    def crafting_shaped(self, name_parts: NameParts, pattern: Sequence[str], ingredients: AnyDictStr, result: AnyJson, group: str = None, conditions: AnyJson = None) -> None:
         """
         Creates a shaped crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -101,8 +115,7 @@ class ResourceManager:
             'conditions': recipe_condition(conditions)
         }, self.indent)
 
-    def recipe(self, name_parts: str or list or tuple, type_in: str, data_in: dict, group: str = None,
-               conditions: str or dict or list = None) -> None:
+    def recipe(self, name_parts: NameParts, type_in: str, data_in: Dict[str, Any], group: str = None, conditions: AnyJson = None) -> None:
         """
         Creates a non-crafting recipe file, used for custom mod recipes using vanilla's data pack system
         :param name_parts: The resource location, including path elements.
@@ -118,7 +131,7 @@ class ResourceManager:
             'conditions': conditions
         }, self.indent)
 
-    def item_tag(self, name_parts: str or list or tuple, *values: str or list or tuple, replace: bool = False) -> None:
+    def item_tag(self, name_parts: NameParts, *values: Sequence[Any], replace: bool = False) -> None:
         """
         Creates an item tag file.
         :param name_parts: The resource location, including path elements.
@@ -130,7 +143,7 @@ class ResourceManager:
             'values': str_list(values)
         }, self.indent)
 
-    def block_tag(self, name_parts: str or list or tuple, *values: str or list, replace: bool = False) -> None:
+    def block_tag(self, name_parts: NameParts, *values: Sequence[Any], replace: bool = False) -> None:
         """
         Creates a block tag file.
         :param name_parts: The resource location, including path elements.
@@ -142,7 +155,7 @@ class ResourceManager:
             'values': str_list(values)
         }, self.indent)
 
-    def entity_tag(self, name_parts: str or list or tuple, *values: str or list, replace: bool = False) -> None:
+    def entity_tag(self, name_parts: NameParts, *values: Sequence[Any], replace: bool = False) -> None:
         """
         Creates an entity tag file
         :param name_parts: The resource location, including path elements.
@@ -154,7 +167,7 @@ class ResourceManager:
             'values': str_list(values)
         }, self.indent)
 
-    def fluid_tag(self, name_parts: str or list or tuple, *values: str or list, replace: bool = False) -> None:
+    def fluid_tag(self, name_parts: NameParts, *values: Sequence[Any], replace: bool = False) -> None:
         """
         Creates an fluid tag file
         :param name_parts: The resource location, including path elements.
@@ -166,7 +179,7 @@ class ResourceManager:
             'values': str_list(values)
         }, self.indent)
 
-    def block_loot(self, name_parts: str or list or tuple, loot_pools: list or tuple or dict or str) -> None:
+    def block_loot(self, name_parts: NameParts, loot_pools: AnyJson) -> None:
         """
         Creates a loot table for a block
         If loot_pools is passed in as a list or tuple, it will attempt to create a pool for each entry in the tuple

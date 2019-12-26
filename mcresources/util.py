@@ -3,7 +3,7 @@
 #  For more information see the project LICENSE file
 
 from json import dump as json_dump
-from os import makedirs, listdir, remove as rmfile, rmdir
+from os import makedirs, listdir, remove as rmf, rmdir
 from os.path import join as path_join, dirname, isfile
 
 
@@ -23,7 +23,7 @@ def clean_generated_resources(path='src/main/resources') -> None:
                     if '"__comment__": "This file was automatically created by mcresources"' in file.read():
                         delete = True
                 if delete:
-                    rmfile(sub_path)
+                    rmf(sub_path)
         else:
             # Folder, search recursively
             clean_generated_resources(sub_path)

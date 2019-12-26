@@ -6,7 +6,7 @@ from os import chdir
 from os.path import isfile
 from unittest import TestCase
 
-from mcresources.resources import ResourceManager, clean_generated_resources
+from mcresources.resource_manager import ResourceManager, clean_generated_resources
 
 
 class TestResourceManager(TestCase):
@@ -15,10 +15,16 @@ class TestResourceManager(TestCase):
         pass
 
     def test_block_model(self):
-        pass
+        self.rm.block_model('test_block')
+        self.assertFileEqual('assets/modid/models/block/test_block.json')
+
+    def test_block_item_model(self):
+        self.rm.block_item_model('test_block')
+        self.assertFileEqual('assets/modid/models/item/test_block.json')
 
     def test_item_model(self):
-        pass
+        self.rm.item_model('test_item')
+        self.assertFileEqual('assets/modid/models/item/test_item.json')
 
     def test_crafting_shapeless(self):
         pass
@@ -97,7 +103,6 @@ class TestResourceManager(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        cls.rm = None
         clean_generated_resources('generated')
 
     def assertFileEqual(self, path: str):
@@ -109,4 +114,4 @@ class TestResourceManager(TestCase):
             with open('generated/' + path) as actual:
                 self.assertEqual(actual.read(), expected)
         else:
-            print('Test ' + path + ' had no matching json')
+            self.fail('Test ' + path + ' had no matching json')

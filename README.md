@@ -6,7 +6,7 @@ This is a python module aimed to enable simple generation of the many json files
 
 This tool will be updated to support the latest version of minecraft as soon as possible. For now, the latest version of this tool available for past versions of Minecraft can be found below:
 
- - Minecraft 1.14.x: Current version (v1.0.0)
+ - Minecraft 1.14.x - 1.15.x: Latest
  - Minecraft 1.13.x: v0.0.2
  
 Note that unless the minecraft data format changes between versions, this tool will still work on older versions of minecraft.
@@ -27,33 +27,38 @@ A few elements are common to multiple methods:
  - `item stacks`: An item stack can be specified as a fully specified dictionary (which will be inserted into the json verbatim), or as a string. As a string, it must represent an item resource location, i.e. `minecraft:golden_boots` will create the json `{ 'item': 'minecraft:golden_boots' }`. Additionally, you can prefix the string with `tag!` to specify that it represents a tag, i.e. `tag!forge:rods/wooden` will create the json `{ 'tag': 'forge:rods/wooden' }`
 
 ##### Blockstates
-```python
-def blockstate(self, name_parts: str or list or tuple, model: str = None, variants: dict = None)
+```
+blockstate(name_parts, model = None, variants = None)
 ```
  - `name_parts` specifies the block resource location, as seen above
  - `model` specifies the model. If not present, it will default to `modid:block/name/parts`, meaning `blockstate('pink_grass')` will create the file `modid/blockstates/pink_grass.json`, which has a model of `modid:block/pink_grass`
  - `variants` specifies the variants as found in the json file. It should be a dictionary as per usual minecraft blockstate files. If it isn't present, it will default to an empty / single variant block: `'variants': { '': model }`
 
 ##### Block Models
-```python
-def block_model(self, name_parts: str or list or tuple, textures: str or dict = None,
-                    parent: str = 'cube_all')
+```
+block_model(name_parts, textures = None, parent = 'block/cube_all')
 ```
  - `name_parts` specifies the block resource location, as seen above
  - `textures` specifies the textures for this specific model. If it is a string, it will create the json: `'textures': { 'texture': textures }`. If provided as a dictionary, it will insert `'textures': textures`
  - `parent` specifies the parent model file
 
 ##### Item Models
-```python
-def item_model(self, name_parts: str or list or tuple, *textures: str or dict, parent: str = 'item/generated')
+```
+item_model(name_parts, textures, parent = 'item/generated', no_textures = False)
+block_item_model(name_parts)
 ```
  - `name_parts` specifies the item resource location, as seen above
  - `textures` specifies the textures. If textures are supplied as strings, i.e. `'base_layer', 'middle_layer' ...`, it will assign them sequentially to layers, i.e. `{ 'layer0': 'base_layer', 'layer1': 'middle_layer' ... }`. If a dictionary is provided, it will insert those in the same way as the block model
  - `parent` specifies the parent model file
+ - `no_textures`, if true, will cause the model to have no textures element
+
+`block_item_model` is an convenience method for creating models for BlockItems which have just a parent reference.
+
+
 
 ##### Shapeless Crafting Recipes
-```python
-def crafting_shapeless(self, name_parts: str or list or tuple, ingredients: str or dict or list or tuple, result: str or dict, group: str = None, conditions: str or dict or list = None)
+```
+crafting_shapeless(name_parts, ingredients, result, group = None, conditions = None)
 ```
  - `name_parts` specifies the recipe resource location. Note crafting recipes are automatically added to `modid/data/recipes`
  - `inredients` specifies the ingredients. It must be either a list / tuple of item stacks, or a string or dictionary representing an item stack. See above for valid item stack specifications.
@@ -62,8 +67,8 @@ def crafting_shapeless(self, name_parts: str or list or tuple, ingredients: str 
  - `conditions` specifies any conditions on the recipe being enabled. It must be a list / tuple of valid condition identifiers, or a string or dictionary representing an item stack
 
 ##### Shaped Crafting Recipes
-```python
-def crafting_shaped(self, name_parts: str or list or tuple, pattern: list, ingredients: str or dict, result, group: str = None, conditions: str or dict or list = None)
+```
+crafting_shaped(name_parts, pattern, ingredients, result, group = None, conditions = None)
 ```
  - `name_parts` specifies the recipe resource location. Note crafting recipes are automatically added to `modid/data/recipes`
  - `pattern` specifies the pattern. It must be a list of strings, i.e. `['XXX', ' S ', ' S ']` for a pickaxe pattern. The keys must be the same as used in the ingredients field.
@@ -73,8 +78,8 @@ def crafting_shaped(self, name_parts: str or list or tuple, pattern: list, ingre
  - `conditions` is as above
 
 ##### Other Recipes
-```python
-def recipe(self, name_parts: str or list or tuple, type_in: str, data_in: dict, group: str = None, conditions: str or dict or list = None)
+```
+recipe(name_parts, type_in, data_in, group conditions = None)
 ```
 This is used to create modded recipes that are loaded via custom deserializers. As such, `name_parts` needs to include a subdirectory for the recipe type
  - `name_parts` specifies the recipe resource location.
@@ -84,9 +89,9 @@ This is used to create modded recipes that are loaded via custom deserializers. 
  - `conditions` is as above
 
 ##### Tags
-```python
-def item_tag(self, name_parts: str or list or tuple, *values: str or list or tuple, replace: bool = False)
-def block_tag(self, name_parts: str or list or tuple, *values: str or list, replace: bool = False)
+```
+item_tag(name_parts, *values, replace = False)
+block_tag(name_parts, *values, replace = False)
 ```
 These are used to create item and block tags respectively
  - `name_parts` specifies the tag resource location, as seen above
