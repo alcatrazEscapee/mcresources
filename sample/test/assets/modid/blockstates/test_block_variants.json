@@ -1,0 +1,35 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "0": {
+      "model": "modid:block/test_block_variants"
+    },
+    "1": {
+      "model": "modid:block/test_block_variants"
+    },
+    "2": {
+      "model": "modid:block/test_block_variants"
+    },
+    "3": {
+      "model": "modid:block/test_block_variants"
+    },
+    "4": {
+      "model": "modid:block/test_block_variants"
+    },
+    "5": {
+      "model": "modid:block/test_block_variants"
+    },
+    "6": {
+      "model": "modid:block/test_block_variants"
+    },
+    "7": {
+      "model": "modid:block/test_block_variants"
+    },
+    "8": {
+      "model": "modid:block/test_block_variants"
+    },
+    "9": {
+      "model": "modid:block/test_block_variants"
+    }
+  }
+}

@@ -28,11 +28,11 @@ A few elements are common to multiple methods:
 
 ##### Blockstates
 ```
-blockstate(name_parts, model = None, variants = None)
+blockstate(name_parts, model = None, variants = None, use_default_model = True)
 ```
  - `name_parts` specifies the block resource location, as seen above
  - `model` specifies the model. If not present, it will default to `modid:block/name/parts`, meaning `blockstate('pink_grass')` will create the file `modid/blockstates/pink_grass.json`, which has a model of `modid:block/pink_grass`
- - `variants` specifies the variants as found in the json file. It should be a dictionary as per usual minecraft blockstate files. If it isn't present, it will default to an empty / single variant block: `'variants': { '': model }`
+ - `variants` specifies the variants as found in the json file. It should be a dictionary as per usual minecraft blockstate files. If it isn't present, it will default to an empty / single variant block: `'variants': { '': model }`. If present, each variant that does not specify a model will take the default model, unless `use_default_model` is false.
 
 ##### Block Models
 ```

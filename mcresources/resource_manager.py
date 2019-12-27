@@ -22,17 +22,21 @@ class ResourceManager:
         self.domain = domain
         self.indent = indent
 
-    def blockstate(self, name_parts: NameParts, model: str = None, variants: Dict[str, Any] = None) -> None:
+    def blockstate(self, name_parts: NameParts, model: str = None, variants: Dict[str, Any] = None, use_default_model: bool = True) -> None:
         """
         Creates a blockstate file
         :param name_parts: the resource location, including path elements.
         :param model: the model, used if there are no variants. Defaults to 'domain:block/name/parts'
         :param variants: the variants, as they would be present in json
+        :param use_default_model: if a model is missing for a variant, should this populate the variant using the assumed model
         """
         if model is None:
             model = '%s:block/%s' % (self.domain, '/'.join(str_list(name_parts)))
         if variants is None:
             variants = {'': {'model': model}}
+        for key, prop in variants.items():
+            if 'model' not in prop:
+                prop['model'] = model
         write((*self.resource_dir, 'assets', self.domain, 'blockstates', *str_path(name_parts)), {
             'variants': variants
         }, self.indent)

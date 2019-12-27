@@ -4,7 +4,7 @@
 
 from os import chdir
 from os.path import isfile
-from unittest import TestCase
+from unittest import TestCase, main
 
 from mcresources.resource_manager import ResourceManager, clean_generated_resources
 
@@ -12,7 +12,11 @@ from mcresources.resource_manager import ResourceManager, clean_generated_resour
 class TestResourceManager(TestCase):
 
     def test_blockstate(self):
-        pass
+        self.rm.blockstate('test_block')
+        self.assertFileEqual('assets/modid/blockstates/test_block.json')
+
+        self.rm.blockstate('test_block_variants', variants=dict((str(v), {}) for v in range(10)))
+        self.assertFileEqual('assets/modid/blockstates/test_block_variants.json')
 
     def test_block_model(self):
         self.rm.block_model('test_block')
@@ -115,3 +119,7 @@ class TestResourceManager(TestCase):
                 self.assertEqual(actual.read(), expected)
         else:
             self.fail('Test ' + path + ' had no matching json')
+
+
+if __name__ == '__main__':
+    main()
