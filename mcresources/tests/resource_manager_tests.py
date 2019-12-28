@@ -34,10 +34,13 @@ class TestResourceManager(TestCase):
         pass
 
     def test_crafting_shaped(self):
-        pass
+        self.rm.crafting_shaped('my_block', ('XBX', 'X  ', '  B'), {'X': 'domain:my_item', 'B': 'minecraft:stone'}, 'domain:my_block')
 
     def test_recipe(self):
         pass
+
+    def test_recipe_advancement(self):
+        self.rm.crafting_advancement(('crafting', 'my_block'), 'minecraft:stone', 'my_block')
 
     def test_item_tag(self):
         self.rm.item_tag('my_items', 'modid:item1')
@@ -50,21 +53,21 @@ class TestResourceManager(TestCase):
         self.rm.block_tag('my_blocks', 'modid:block1')
         self.assertFileEqual('data/modid/tags/blocks/my_blocks.json')
 
-        self.rm.block_tag('blocks/iron', ('modid:iron_block', 'othermod:iron_block'), replace=True)
+        self.rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', replace=True)
         self.assertFileEqual('data/modid/tags/blocks/blocks/iron.json')
 
     def test_entity_tag(self):
         self.rm.entity_tag('my_entities', 'modid:entity1')
         self.assertFileEqual('data/modid/tags/entity_types/my_entities.json')
 
-        self.rm.entity_tag(('things', 'stuff'), ['modid:my_entity', 'minecraft:other_entity'], replace=True)
+        self.rm.entity_tag(('things', 'stuff'), 'modid:my_entity', 'minecraft:other_entity', replace=True)
         self.assertFileEqual('data/modid/tags/entity_types/things/stuff.json')
 
     def test_fluid_tag(self):
         self.rm.fluid_tag('my_fluids', 'modid:fluid')
         self.assertFileEqual('data/modid/tags/fluids/my_fluids.json')
 
-        self.rm.fluid_tag(['special', 'lavas'], ('modid:lavathing', 'othermod:otherlava'), replace=True)
+        self.rm.fluid_tag(['special', 'lavas'], 'modid:lavathing', 'othermod:otherlava', replace=True)
         self.assertFileEqual('data/modid/tags/fluids/special/lavas.json')
 
     def test_block_loot(self):

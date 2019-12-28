@@ -1,0 +1,20 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:crafting_shaped",
+  "pattern": [
+    "XBX",
+    "X  ",
+    "  B"
+  ],
+  "key": {
+    "X": {
+      "item": "domain:my_item"
+    },
+    "B": {
+      "item": "minecraft:stone"
+    }
+  },
+  "result": {
+    "item": "domain:my_block"
+  }
+}
