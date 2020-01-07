@@ -77,9 +77,10 @@ crafting_shaped(name_parts, pattern, ingredients, result, group = None, conditio
  - `group` is as above
  - `conditions` is as above
 
-##### Other Recipes
+##### Other Recipes or Data
 ```
-recipe(name_parts, type_in, data_in, group conditions = None)
+recipe(name_parts, type_in, data_in, group, conditions = None)
+data(name_parts, data_in)
 ```
 This is used to create modded recipes that are loaded via custom deserializers. As such, `name_parts` needs to include a subdirectory for the recipe type
  - `name_parts` specifies the recipe resource location.

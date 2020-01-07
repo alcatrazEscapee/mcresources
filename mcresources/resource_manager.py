@@ -130,6 +130,15 @@ class ResourceManager:
             'conditions': conditions
         }, self.indent)
 
+    def data(self, name_parts: Sequence[str], data_in: Dict[str, Any], root_domain: str = 'data'):
+        """
+        Creates a generic data file. Used for anything and everything under the sun.
+        :param name_parts: The resource location, including path elements.
+        :param data_in: Data to be inserted into the json
+        :param root_domain: The root location (either data or assets) to insert into
+        """
+        write((*self.resource_dir, root_domain, self.domain, *str_path(name_parts)), data_in, self.indent)
+
     def crafting_advancement(self, name_parts: Sequence[str], unlock_item: Json, recipe_name_parts: Json = None, parent: str = 'minecraft:recipes/root') -> None:
         """
         Shortcut for a recipe advancements

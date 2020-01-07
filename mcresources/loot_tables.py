@@ -24,7 +24,7 @@ class LootTables:
         }
 
     @staticmethod
-    def fortune_bonus(multiplier: int = 0) -> Dict[str, Any]:
+    def fortune_bonus(multiplier: int = 1) -> Dict[str, Any]:
         """ `minecraft:apply_bonus` function with the fortune enchantment, with a uniform bonus count
         :param multiplier: the bonusMultiplier
         """
