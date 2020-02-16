@@ -36,12 +36,23 @@ class ResourceManager:
             'variants': variants
         }, self.indent)
 
-    def block_model(self, name_parts: Sequence[str], textures: Union[Dict[str, str], str] = None, parent: str = 'block/cube_all') -> None:
+    def blockstate_multipart(self, name_parts: Sequence[str], parts: Sequence[Json]):
+        """
+        Creates a blockstate file, using the multipart model syntax
+        :param name_parts: the resource location, including path elements.
+        :param parts: The parts. Each element can be a 2-element sequence of a 'when' and 'apply' json, or a single 'apply' json.
+        """
+        write((*self.resource_dir, 'assets', self.domain, 'blockstates', *str_path(name_parts)), {
+            'multipart': blockstate_multipart_parts(parts)
+        }, self.indent)
+
+    def block_model(self, name_parts: Sequence[str], textures: Union[Dict[str, str], str] = None, parent: str = 'block/cube_all', elements: Json = None) -> None:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:block/name/parts'
-        :param parent: the parent model.
+        :param parent: the parent model. If none, it is omitted
+        :param elements: elements of the model. Can be a single element, which will get expanded to a list of one element
         """
         if textures is None:
             textures = {'all': '%s:block/%s' % (self.domain, '/'.join(str_path(name_parts)))}
@@ -49,7 +60,8 @@ class ResourceManager:
             textures = {'all': textures}
         write((*self.resource_dir, 'assets', self.domain, 'models', 'block', *str_path(name_parts)), {
             'parent': parent,
-            'textures': textures
+            'textures': textures,
+            'elements': elements
         }, self.indent)
 
     def block_item_model(self, name_parts: Sequence[str]) -> None:
@@ -153,7 +165,7 @@ class ResourceManager:
         self.advancement(name_parts, parent=parent, criteria={
             'has_item': {
                 'trigger': 'minecraft:inventory_changed',
-                'conditions': {'items': [unlock_item]}
+                'conditions': {'items': [item_stack(unlock_item)]}
             },
             'has_the_recipe': {
                 'trigger': 'minecraft:recipe_unlocked',

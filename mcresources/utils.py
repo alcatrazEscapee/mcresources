@@ -169,6 +169,18 @@ def item_model_textures(data_in: Json) -> Dict[str, Any]:
         raise RuntimeError('Unknown object %s at item_model_textures' % str(data_in))
 
 
+def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[Dict[str, Any]]:
+    def part(p: Union[Sequence[Json], Json]) -> Dict[str, Any]:
+        if isinstance(p, Sequence) and len(p) == 2:
+            return {'when': p[0], 'apply': p[1]}
+        elif isinstance(p, Dict):
+            return {'apply': p}
+        else:
+            raise RuntimeError('Unknown object %s at blockstate_multipart_parts#part' % str(p))
+
+    return [part(p) for p in data_in]
+
+
 # ================== LOOT TABLES ===================
 
 

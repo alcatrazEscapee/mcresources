@@ -18,6 +18,10 @@ class TestResourceManager(TestCase):
         self.rm.blockstate('test_block_variants', variants=dict((str(v), {}) for v in range(10)))
         self.assertFileEqual('assets/modid/blockstates/test_block_variants.json')
 
+    def test_blockstate_multipart(self):
+        self.rm.blockstate_multipart('test_block_multipart', [{'model': 'stuff'}, ({'prop': True}, {'model': 'extra_stuff'})])
+        self.assertFileEqual('assets/modid/blockstates/test_block_multipart.json')
+
     def test_block_model(self):
         self.rm.block_model('test_block')
         self.assertFileEqual('assets/modid/models/block/test_block.json')

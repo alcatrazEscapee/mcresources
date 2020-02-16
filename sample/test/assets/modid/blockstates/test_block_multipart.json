@@ -1,0 +1,18 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "multipart": [
+    {
+      "apply": {
+        "model": "stuff"
+      }
+    },
+    {
+      "when": {
+        "prop": true
+      },
+      "apply": {
+        "model": "extra_stuff"
+      }
+    }
+  ]
+}
