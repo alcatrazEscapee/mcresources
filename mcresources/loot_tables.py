@@ -2,7 +2,7 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from mcresources.utils import *
+from typing import Dict, Any
 
 
 class LootTables:

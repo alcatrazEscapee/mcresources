@@ -26,6 +26,19 @@ A few elements are common to multiple methods:
  
  - `item stacks`: An item stack can be specified as a fully specified dictionary (which will be inserted into the json verbatim), or as a string. As a string, it must represent an item resource location, i.e. `minecraft:golden_boots` will create the json `{ 'item': 'minecraft:golden_boots' }`. Additionally, you can prefix the string with `tag!` to specify that it represents a tag, i.e. `tag!forge:rods/wooden` will create the json `{ 'tag': 'forge:rods/wooden' }`
 
+#### Contexts
+
+**New as of v1.1.0**: When calling various `ResourceManager` methods, they will often return a context object, one of `BlockContext`, `ItemContext`, or `RecipeContext`. This object can be used as a shortcut to add other files for a single block or item, for instance, adding a blockstate, model, item block model, and loot table with only specifying the name once:
+```
+rm.blockstate(...).with_item_block_model(...).with_block_model(...)
+```
+
+Contexts can also be obtained directly by calling `block(name_parts)`, or `item(name_parts)`.
+
+In addition, this delegated behavior has been expanded to tags. Tags no longer create single files every time the relevant `tag` method is called. Instead, they accumulate tag entries in a buffer, allowing multiple `tag` calls to append entries to a single tag.
+
+In order to finalize tag (and lang / translation) entries, a call to `ResourceManager#flush` is necessary, which will clear the current buffer for tags and translation entries and write all relevant files.
+
 ##### Blockstates
 ```
 blockstate(name_parts, model = None, variants = None, use_default_model = True)
@@ -33,6 +46,12 @@ blockstate(name_parts, model = None, variants = None, use_default_model = True)
  - `name_parts` specifies the block resource location, as seen above
  - `model` specifies the model. If not present, it will default to `modid:block/name/parts`, meaning `blockstate('pink_grass')` will create the file `modid/blockstates/pink_grass.json`, which has a model of `modid:block/pink_grass`
  - `variants` specifies the variants as found in the json file. It should be a dictionary as per usual minecraft blockstate files. If it isn't present, it will default to an empty / single variant block: `'variants': { '': model }`. If present, each variant that does not specify a model will take the default model, unless `use_default_model` is false.
+
+```
+blockstate_multipart(name_parts, parts)
+```
+ - `name_parts` specifies the block resource location, as seen above
+ - `parts` specifies the parts. It must be a sequence of part elements. Each part element can be a dictionary (which will be expanded as `{'apply': part}`), or a pair of a `when` and `apply` data, which will be expanded as `{'when': part[0], 'apply': part[1]}`
 
 ##### Block Models
 ```
@@ -45,14 +64,11 @@ block_model(name_parts, textures = None, parent = 'block/cube_all')
 ##### Item Models
 ```
 item_model(name_parts, textures, parent = 'item/generated', no_textures = False)
-block_item_model(name_parts)
 ```
  - `name_parts` specifies the item resource location, as seen above
  - `textures` specifies the textures. If textures are supplied as strings, i.e. `'base_layer', 'middle_layer' ...`, it will assign them sequentially to layers, i.e. `{ 'layer0': 'base_layer', 'layer1': 'middle_layer' ... }`. If a dictionary is provided, it will insert those in the same way as the block model
  - `parent` specifies the parent model file
  - `no_textures`, if true, will cause the model to have no textures element
-
-`block_item_model` is an convenience method for creating models for BlockItems which have just a parent reference.
 
 
 
@@ -93,6 +109,8 @@ This is used to create modded recipes that are loaded via custom deserializers. 
 ```
 item_tag(name_parts, *values, replace = False)
 block_tag(name_parts, *values, replace = False)
+fluid_tag(name_parts, *values, replace = False)
+entity_tag(name_parts, *values, replace = False)
 ```
 These are used to create item and block tags respectively
  - `name_parts` specifies the tag resource location, as seen above

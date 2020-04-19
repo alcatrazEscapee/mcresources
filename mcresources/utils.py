@@ -10,7 +10,7 @@ from typing import Union, Sequence, Any, Dict, List, Callable
 Json = Union[Dict[str, Any], Sequence[Any], str]
 
 
-def clean_generated_resources(path: str = 'src/main/resources') -> None:
+def clean_generated_resources(path: str = 'src/main/resources'):
     """
     Recursively removes all files generated using by mcresources, as identified by the inserted comment.
     Removes empty directories
@@ -48,7 +48,7 @@ def del_none(data_in: Json) -> Json:
         raise ValueError('None passed to `del_none`, should not be possible.')
 
 
-def write(path_parts: Sequence[str], data: Json, indent: int = 2) -> None:
+def write(path_parts: Sequence[str], data: Json, indent: int = 2):
     # write output to json
     path = path_join(*path_parts) + '.json'
     makedirs(dirname(path), exist_ok=True)
@@ -62,7 +62,7 @@ def str_path(data_in: Sequence[str]) -> List[str]:
     if isinstance(data_in, str):
         return [s for s in data_in.split('/')]
     elif isinstance(data_in, Sequence):
-        return [*flatten_list(data_in)]
+        return [*flatten_list([str_path(s) for s in data_in])]
     else:
         raise RuntimeError('Unknown object %s at str_path' % str(data_in))
 
@@ -89,11 +89,11 @@ def flatten_list(container: Sequence[Any]) -> Sequence[Any]:
             yield i
 
 
-def dict_get(data_in: Dict[str, Any], key: str, default: Any = None, map_function: Callable[[Any], Any] = None) -> Any:
+def dict_get(data_in: Dict[Any, Any], key: Any, default: Any = None, map_function: Callable[[Any], Any] = None) -> Any:
     # Gets an element from a dictionary by key
     # If the element is not present, it returns the default value
     # If the element is present, and a map function is supplied, it will apply the map function to the object
-    if key in data_in.keys():
+    if key in data_in:
         if map_function is None:
             return data_in[key]
         else:
@@ -106,6 +106,10 @@ def is_sequence(data_in: Any) -> bool:
     return isinstance(data_in, Sequence) and not isinstance(data_in, str)
 
 
+def resource_location(domain: str, path_parts: Sequence[str]) -> str:
+    return '%s:%s' % (domain, '/'.join(str_path(path_parts)))
+
+
 # ================== ASSET PARTS ===================
 
 def recipe_condition(data_in: Json, strict: bool = False) -> Union[List, None]:
@@ -115,8 +119,8 @@ def recipe_condition(data_in: Json, strict: bool = False) -> Union[List, None]:
         return [{'type': data_in}]
     elif isinstance(data_in, Dict):
         return [data_in]
-    elif isinstance(data_in, Sequence) and not strict:
-        return [recipe_condition(c, True) for c in data_in]
+    elif is_sequence(data_in) and not strict:
+        return [*flatten_list([recipe_condition(c, True) for c in data_in])]
     else:
         raise RuntimeError('Unknown object %s at recipe_condition' % str(data_in))
 
@@ -129,7 +133,7 @@ def item_stack(data_in: Json) -> Dict[str, Any]:
             return {'item': data_in}
     elif isinstance(data_in, Dict):
         return data_in
-    elif isinstance(data_in, Sequence):
+    elif is_sequence(data_in):
         if len(data_in) != 2:
             raise RuntimeError('An item stack as a sequence must have two entries (size, item)')
         return {
@@ -179,6 +183,26 @@ def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[Dict[str, Any]]:
             raise RuntimeError('Unknown object %s at blockstate_multipart_parts#part' % str(p))
 
     return [part(p) for p in data_in]
+
+
+def lang_parts(data_in: Sequence[Json], entries: Dict[str, str] = None) -> Dict[str, str]:
+    if entries is None:
+        entries = {}
+    i = 0
+    while i < len(data_in):
+        part = data_in[i]
+        if isinstance(part, str):
+            value = data_in[i + 1]
+            entries[part] = value
+            i += 1
+        elif isinstance(part, Sequence):
+            lang_parts(part, entries)
+        elif isinstance(part, Dict):
+            entries.update(part)
+        else:
+            raise RuntimeError('Unknown object %s at lang_parts' % str(part))
+        i += 1
+    return entries
 
 
 # ================== LOOT TABLES ===================

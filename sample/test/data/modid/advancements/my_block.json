@@ -6,7 +6,9 @@
       "trigger": "minecraft:inventory_changed",
       "conditions": {
         "items": [
-          "minecraft:stone"
+          {
+            "item": "minecraft:dirt"
+          }
         ]
       }
     },
