@@ -13,7 +13,7 @@ with open(path_join(abspath(dirname(__file__)), 'README.md'), encoding='utf-8') 
 setup(
     name='mcresources',
     packages=['mcresources'],
-    version='1.1.0',
+    version='1.1.1',
     license='MIT',
     description='An automatic resource creation tool for Minecraft 1.13+ Forge modding',
     long_description=long_description,

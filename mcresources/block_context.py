@@ -35,7 +35,7 @@ class BlockContext:
         """
         Shortcut for ResourceManager#block_model
         """
-        self.rm.block_model(textures, parent, elements)
+        self.rm.block_model(self.name_parts, textures, parent, elements)
         return self
 
     def with_block_loot(self, loot_pools: utils.Json) -> 'BlockContext':
@@ -52,9 +52,11 @@ class BlockContext:
         self.rm.item_model(self.name_parts, parent=utils.resource_location(self.rm.domain, ('block', *utils.str_path(self.name_parts))), no_textures=True)
         return self
 
-    def with_tag(self, replace: bool = None) -> 'BlockContext':
+    def with_tag(self, tag_name_parts: Sequence[str] = None, replace: bool = None) -> 'BlockContext':
         """
         Shortcut for ResourceManager#block_tag
         """
-        self.rm.block_tag(self.name_parts, utils.resource_location(self.rm.domain, self.name_parts), replace=replace)
+        if tag_name_parts is None:
+            tag_name_parts = self.name_parts
+        self.rm.block_tag(tag_name_parts, utils.resource_location(self.rm.domain, self.name_parts), replace=replace)
         return self

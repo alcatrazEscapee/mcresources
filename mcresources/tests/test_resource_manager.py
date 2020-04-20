@@ -19,12 +19,24 @@ class ResourceManagerTests(TestCase):
         self.rm.blockstate('test_block_variants', variants=dict((str(v), {}) for v in range(10)))
         self.assertFileEqual('assets/modid/blockstates/test_block_variants.json')
 
+        self.rm.block('test_block').with_blockstate()
+        self.assertFileEqual('assets/modid/blockstates/test_block.json')
+
+        self.rm.block('test_block_variants').with_blockstate(variants=dict((str(v), {}) for v in range(10)))
+        self.assertFileEqual('assets/modid/blockstates/test_block_variants.json')
+
     def test_blockstate_multipart(self):
         self.rm.blockstate_multipart('test_block_multipart', [{'model': 'stuff'}, ({'prop': True}, {'model': 'extra_stuff'})])
         self.assertFileEqual('assets/modid/blockstates/test_block_multipart.json')
 
+        self.rm.block('test_block_multipart').with_blockstate_multipart([{'model': 'stuff'}, ({'prop': True}, {'model': 'extra_stuff'})])
+        self.assertFileEqual('assets/modid/blockstates/test_block_multipart.json')
+
     def test_block_model(self):
         self.rm.block_model('test_block')
+        self.assertFileEqual('assets/modid/models/block/test_block.json')
+
+        self.rm.block('test_block').with_block_model()
         self.assertFileEqual('assets/modid/models/block/test_block.json')
 
     def test_block_item_model(self):
@@ -33,6 +45,9 @@ class ResourceManagerTests(TestCase):
 
     def test_item_model(self):
         self.rm.item_model('test_item')
+        self.assertFileEqual('assets/modid/models/item/test_item.json')
+
+        self.rm.item('test_item').with_item_model()
         self.assertFileEqual('assets/modid/models/item/test_item.json')
 
     def test_crafting_shapeless(self):
@@ -48,6 +63,10 @@ class ResourceManagerTests(TestCase):
 
     def test_item_tag(self):
         self.rm.item_tag('my_items', 'modid:item1')
+        self.rm.flush()
+        self.assertFileEqual('data/modid/tags/items/my_items.json')
+
+        self.rm.item('item1').with_tag('my_items')
         self.rm.flush()
         self.assertFileEqual('data/modid/tags/items/my_items.json')
 

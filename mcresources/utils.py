@@ -5,7 +5,7 @@
 from json import dump as json_dump
 from os import makedirs, listdir, remove as rmf, rmdir
 from os.path import join as path_join, dirname, isfile
-from typing import Union, Sequence, Any, Dict, List, Callable
+from typing import Union, Sequence, Any, Dict, List, Callable, Tuple
 
 Json = Union[Dict[str, Any], Sequence[Any], str]
 
@@ -75,6 +75,16 @@ def str_list(data_in: Sequence[str]) -> List[str]:
         return [*flatten_list(data_in)]
     else:
         raise RuntimeError('Unknown object %s at str_list' % str(data_in))
+
+
+def domain_path_parts(name_parts: Sequence[str], default_domain: str) -> Tuple[str, List[str]]:
+    joined = '/'.join(str_path(name_parts))
+    if ':' in joined:
+        i = joined.index(':')
+        return joined[:i], joined[i + 1:].split('/')
+    else:
+        return default_domain, str_path(joined)
+    pass
 
 
 def flatten_list(container: Sequence[Any]) -> Sequence[Any]:

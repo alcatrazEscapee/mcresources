@@ -42,6 +42,9 @@ class ResourceManager:
                     'values': tag_instance.values
                 }, self.indent)
 
+        self.lang_buffer.clear()
+        self.tags_buffer.clear()
+
     def block(self, name_parts: Sequence[str]) -> BlockContext:
         return BlockContext(self, name_parts)
 
@@ -64,7 +67,8 @@ class ResourceManager:
             for key, prop in variants.items():
                 if 'model' not in prop:
                     prop['model'] = model
-        utils.write((*self.resource_dir, 'assets', self.domain, 'blockstates', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'assets', actual_domain, 'blockstates', *path_elements), {
             'variants': variants
         }, self.indent)
         return BlockContext(self, name_parts)
@@ -75,7 +79,8 @@ class ResourceManager:
         :param name_parts: the resource location, including path elements.
         :param parts: The parts. Each element can be a 2-element sequence of a 'when' and 'apply' json, or a single 'apply' json.
         """
-        utils.write((*self.resource_dir, 'assets', self.domain, 'blockstates', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'assets', actual_domain, 'blockstates', *path_elements), {
             'multipart': utils.blockstate_multipart_parts(parts)
         }, self.indent)
         return BlockContext(self, name_parts)
@@ -94,7 +99,8 @@ class ResourceManager:
             textures = {'all': textures}
         if isinstance(elements, Dict):
             elements = [elements]
-        utils.write((*self.resource_dir, 'assets', self.domain, 'models', 'block', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'assets', actual_domain, 'models', 'block', *path_elements), {
             'parent': parent,
             'textures': textures,
             'elements': elements
@@ -115,8 +121,8 @@ class ResourceManager:
             if textures is None or len(textures) == 0:
                 textures = '%s:item/%s' % (self.domain, '/'.join(utils.str_path(name_parts)))
             textures = utils.item_model_textures(textures)
-
-        utils.write((*self.resource_dir, 'assets', self.domain, 'models', 'item', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'assets', actual_domain, 'models', 'item', *path_elements), {
             'parent': parent,
             'textures': textures
         }, self.indent)
@@ -131,7 +137,8 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
-        utils.write((*self.resource_dir, 'data', self.domain, 'recipes', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'data', actual_domain, 'recipes', *path_elements), {
             'type': 'minecraft:crafting_shapeless',
             'group': group,
             'ingredients': utils.item_stack_list(ingredients),
@@ -150,7 +157,8 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
-        utils.write((*self.resource_dir, 'data', self.domain, 'recipes', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'data', actual_domain, 'recipes', *path_elements), {
             'type': 'minecraft:crafting_shaped',
             'group': group,
             'pattern': pattern,
@@ -169,7 +177,8 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
-        utils.write((*self.resource_dir, 'data', self.domain, 'recipes', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'data', actual_domain, 'recipes', *path_elements), {
             'type': type_in,
             'group': group,
             **data_in,
@@ -184,7 +193,8 @@ class ResourceManager:
         :param data_in: Data to be inserted into the json
         :param root_domain: The root location (either data or assets) to insert into
         """
-        utils.write((*self.resource_dir, root_domain, self.domain, *utils.str_path(name_parts)), data_in, self.indent)
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, root_domain, actual_domain, *path_elements), data_in, self.indent)
 
     def advancement(self, name_parts: Sequence[str], display: utils.Json = None, parent: str = None, criteria: Dict[str, Dict[str, utils.Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, utils.Json] = None):
         """
@@ -198,7 +208,8 @@ class ResourceManager:
         """
         if requirements is None:
             requirements = [[k for k in criteria.keys()]]
-        utils.write((*self.resource_dir, 'data', self.domain, 'advancements', *utils.str_path(name_parts)), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'data', actual_domain, 'advancements', *path_elements), {
             'parent': parent,
             'criteria': criteria,
             'display': display,
@@ -255,8 +266,8 @@ class ResourceManager:
         :param name_parts: The resource location, including path elements.
         :param loot_pools: The loot table elements
         """
-        name = utils.str_path(name_parts)
-        utils.write((*self.resource_dir, 'data', self.domain, 'loot_tables', 'blocks', *name), {
+        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
+        utils.write((*self.resource_dir, 'data', actual_domain, 'loot_tables', 'blocks', *path_elements), {
             'type': 'minecraft:block',
             'pools': utils.loot_pool_list(loot_pools, 'block')
         })

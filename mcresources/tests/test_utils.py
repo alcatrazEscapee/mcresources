@@ -21,6 +21,12 @@ class UtilsTests(TestCase):
         self.assertEqual(['a/b/c/d'], utils.str_list('a/b/c/d'))
         self.assertEqual(['a', 'b', 'c/d'], utils.str_list(['a', ['b', 'c/d']]))
 
+    def test_domain_path_parts(self):
+        self.assertEqual(('modid', ['block', 'dirt']), utils.domain_path_parts('block/dirt', 'modid'))
+        self.assertEqual(('modid', ['block', 'dirt']), utils.domain_path_parts(('block', 'dirt'), 'modid'))
+        self.assertEqual(('minecraft', ['block', 'dirt']), utils.domain_path_parts('minecraft:block/dirt', 'modid'))
+        self.assertEqual(('minecraft', ['block', 'dirt']), utils.domain_path_parts(('minecraft:block', 'dirt'), 'modid'))
+
     def test_flatten_list(self):
         self.assertEqual([1, 2, 3, 4, 5], [*utils.flatten_list([1, [2, 3, [4, 5]]])])
 
