@@ -2,7 +2,7 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from typing import Sequence, Dict, Union
+from typing import Sequence, Dict, Union, Optional
 
 import mcresources.resource_manager as resource_manager
 import mcresources.utils as utils
@@ -59,4 +59,12 @@ class BlockContext:
         if tag_name_parts is None:
             tag_name_parts = self.name_parts
         self.rm.block_tag(tag_name_parts, utils.resource_location(self.rm.domain, self.name_parts), replace=replace)
+        return self
+
+    def with_lang(self, block_name: str, language: Optional[str] = None) -> 'BlockContext':
+        """
+        Shortcut for ResourceManager#lang using the block name
+        """
+        domain, name_parts = utils.domain_path_parts(self.name_parts, self.rm.domain)
+        self.rm.lang('block.%s.%s' % (domain, '.'.join(name_parts)), block_name, language=language)
         return self

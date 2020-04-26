@@ -79,6 +79,9 @@ class ResourceManagerTests(TestCase):
         self.rm.flush()
         self.assertFileEqual('data/modid/tags/blocks/my_blocks.json')
 
+        self.rm.block('block1').with_tag('othermod:their_blocks')
+        self.rm.flush()
+
         self.rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', replace=True)
         self.rm.flush()
         self.assertFileEqual('data/modid/tags/blocks/blocks/iron.json')
@@ -142,6 +145,20 @@ class ResourceManagerTests(TestCase):
         self.rm.flush()
         self.assertFileEqual('assets/modid/lang/en_us.json')
         self.assertFileEqual('assets/modid/lang/not_en_us.json')
+
+    def test_block_lang(self):
+        self.rm.block('sample_block').with_lang('Sample Block', 'en_us2')
+        self.rm.block('othermod:stuff_block').with_lang('Other Block', 'en_us2')
+        self.rm.block('sample/slash/block').with_lang('Sample Slash Block', 'en_us2')
+        self.rm.flush()
+        self.assertFileEqual('assets/modid/lang/en_us2.json')
+
+    def test_item_lang(self):
+        self.rm.item('sample_item').with_lang('Sample Item', 'en_us3')
+        self.rm.item('othermod:stuff_item').with_lang('Other Item', 'en_us3')
+        self.rm.item('sample/slash/item').with_lang('Sample Slash Item', 'en_us3')
+        self.rm.flush()
+        self.assertFileEqual('assets/modid/lang/en_us3.json')
 
     @classmethod
     def setUpClass(cls):

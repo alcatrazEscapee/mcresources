@@ -37,7 +37,8 @@ class ResourceManager:
 
         for tag_type, tags in self.tags_buffer.items():
             for tag_name, tag_instance in tags.items():
-                utils.write((*self.resource_dir, 'data', self.domain, 'tags', tag_type, *utils.str_path(tag_instance.name_parts)), {
+                actual_domain, path_elements = utils.domain_path_parts(tag_instance.name_parts, self.domain)
+                utils.write((*self.resource_dir, 'data', actual_domain, 'tags', tag_type, *path_elements), {
                     'replace': tag_instance.replace,
                     'values': tag_instance.values
                 }, self.indent)
