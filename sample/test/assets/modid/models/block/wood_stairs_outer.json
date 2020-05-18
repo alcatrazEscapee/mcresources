@@ -1,0 +1,9 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "block/stairs_outer",
+  "textures": {
+    "bottom": "modid:block/wood",
+    "top": "modid:block/wood",
+    "side": "modid:block/wood"
+  }
+}

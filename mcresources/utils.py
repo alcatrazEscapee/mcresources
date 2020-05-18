@@ -8,6 +8,7 @@ from os import makedirs, listdir, remove as rmf, rmdir
 from os.path import join as path_join, dirname, isfile
 from typing import Union, Sequence, Any, Dict, List, Callable, Tuple
 
+
 ResourceLocation = namedtuple('ResourceLocation', ('domain', 'path'))
 ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
 Json = Union[Dict[str, Any], Sequence[Any], str]
@@ -63,7 +64,6 @@ def write(path_parts: Sequence[str], data: Json, indent: int = 2):
 def resource_location(*elements) -> ResourceLocation:
     if len(elements) not in {1, 2}:
         raise RuntimeError('Must take one or two arguments: [optional] domain, and path elements')
-    data = elements[0]
     if len(elements) == 1:
         domain, data = 'minecraft', elements[0]
     else:
@@ -338,46 +338,85 @@ def loot_default_conditions(loot_type: str) -> Union[List[Dict[str, Any]], None]
 # ================== STANDARD BLOCKSTATES ===================
 
 
-def stairs_blockstate(name: str) -> Dict[str, Any]:
+def slab_variants(block: str, block_slab: str, block_slab_top: str):
     return {
-        'facing=east,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name},
-        'facing=west,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name, 'y': 180, 'uvlock': True},
-        'facing=south,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name, 'y': 90, 'uvlock': True},
-        'facing=north,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name, 'y': 270, 'uvlock': True},
-        'facing=east,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name},
-        'facing=west,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'y': 180, 'uvlock': True},
-        'facing=south,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'y': 90, 'uvlock': True},
-        'facing=north,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'y': 270, 'uvlock': True},
-        'facing=east,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'y': 270, 'uvlock': True},
-        'facing=west,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'y': 90, 'uvlock': True},
-        'facing=south,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name},
-        'facing=north,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'y': 180, 'uvlock': True},
-        'facing=east,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name},
-        'facing=west,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'y': 180, 'uvlock': True},
-        'facing=south,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'y': 90, 'uvlock': True},
-        'facing=north,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'y': 270, 'uvlock': True},
-        'facing=east,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'y': 270, 'uvlock': True},
-        'facing=west,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'y': 90, 'uvlock': True},
-        'facing=south,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name},
-        'facing=north,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'y': 180, 'uvlock': True},
-        'facing=east,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'uvlock': True},
-        'facing=west,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'y': 180, 'uvlock': True},
-        'facing=south,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'y': 90, 'uvlock': True},
-        'facing=north,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'y': 270, 'uvlock': True},
-        'facing=east,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 90, 'uvlock': True},
-        'facing=west,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 270, 'uvlock': True},
-        'facing=south,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 180, 'uvlock': True},
-        'facing=north,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'uvlock': True},
-        'facing=east,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'uvlock': True},
-        'facing=west,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 180, 'uvlock': True},
-        'facing=south,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 90, 'uvlock': True},
-        'facing=north,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 270, 'uvlock': True},
-        'facing=east,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 90, 'uvlock': True},
-        'facing=west,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 270, 'uvlock': True},
-        'facing=south,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 180, 'uvlock': True},
-        'facing=north,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'uvlock': True},
-        'facing=east,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'uvlock': True},
-        'facing=west,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 180, 'uvlock': True},
-        'facing=south,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 90, 'uvlock': True},
-        'facing=north,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 270, 'uvlock': True}
+        'type=bottom': {'model': block_slab},
+        'type=top': {'model': block_slab_top},
+        'type=double': {'model': block}
+    }
+
+
+def stairs_variants(stairs: str, stairs_inner: str, stairs_outer: str) -> Dict[str, Any]:
+    return {
+        'facing=east,half=bottom,shape=straight': {'model': stairs},
+        'facing=west,half=bottom,shape=straight': {'model': stairs, 'y': 180, 'uvlock': True},
+        'facing=south,half=bottom,shape=straight': {'model': stairs, 'y': 90, 'uvlock': True},
+        'facing=north,half=bottom,shape=straight': {'model': stairs, 'y': 270, 'uvlock': True},
+        'facing=east,half=bottom,shape=outer_right': {'model': stairs_outer},
+        'facing=west,half=bottom,shape=outer_right': {'model': stairs_outer, 'y': 180, 'uvlock': True},
+        'facing=south,half=bottom,shape=outer_right': {'model': stairs_outer, 'y': 90, 'uvlock': True},
+        'facing=north,half=bottom,shape=outer_right': {'model': stairs_outer, 'y': 270, 'uvlock': True},
+        'facing=east,half=bottom,shape=outer_left': {'model': stairs_outer, 'y': 270, 'uvlock': True},
+        'facing=west,half=bottom,shape=outer_left': {'model': stairs_outer, 'y': 90, 'uvlock': True},
+        'facing=south,half=bottom,shape=outer_left': {'model': stairs_outer},
+        'facing=north,half=bottom,shape=outer_left': {'model': stairs_outer, 'y': 180, 'uvlock': True},
+        'facing=east,half=bottom,shape=inner_right': {'model': stairs_inner},
+        'facing=west,half=bottom,shape=inner_right': {'model': stairs_inner, 'y': 180, 'uvlock': True},
+        'facing=south,half=bottom,shape=inner_right': {'model': stairs_inner, 'y': 90, 'uvlock': True},
+        'facing=north,half=bottom,shape=inner_right': {'model': stairs_inner, 'y': 270, 'uvlock': True},
+        'facing=east,half=bottom,shape=inner_left': {'model': stairs_inner, 'y': 270, 'uvlock': True},
+        'facing=west,half=bottom,shape=inner_left': {'model': stairs_inner, 'y': 90, 'uvlock': True},
+        'facing=south,half=bottom,shape=inner_left': {'model': stairs_inner},
+        'facing=north,half=bottom,shape=inner_left': {'model': stairs_inner, 'y': 180, 'uvlock': True},
+        'facing=east,half=top,shape=straight': {'model': stairs, 'x': 180, 'uvlock': True},
+        'facing=west,half=top,shape=straight': {'model': stairs, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=south,half=top,shape=straight': {'model': stairs, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=north,half=top,shape=straight': {'model': stairs, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=east,half=top,shape=outer_right': {'model': stairs_outer, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=west,half=top,shape=outer_right': {'model': stairs_outer, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=south,half=top,shape=outer_right': {'model': stairs_outer, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=north,half=top,shape=outer_right': {'model': stairs_outer, 'x': 180, 'uvlock': True},
+        'facing=east,half=top,shape=outer_left': {'model': stairs_outer, 'x': 180, 'uvlock': True},
+        'facing=west,half=top,shape=outer_left': {'model': stairs_outer, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=south,half=top,shape=outer_left': {'model': stairs_outer, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=north,half=top,shape=outer_left': {'model': stairs_outer, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=east,half=top,shape=inner_right': {'model': stairs_inner, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=west,half=top,shape=inner_right': {'model': stairs_inner, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=south,half=top,shape=inner_right': {'model': stairs_inner, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=north,half=top,shape=inner_right': {'model': stairs_inner, 'x': 180, 'uvlock': True},
+        'facing=east,half=top,shape=inner_left': {'model': stairs_inner, 'x': 180, 'uvlock': True},
+        'facing=west,half=top,shape=inner_left': {'model': stairs_inner, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=south,half=top,shape=inner_left': {'model': stairs_inner, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=north,half=top,shape=inner_left': {'model': stairs_inner, 'x': 180, 'y': 270, 'uvlock': True}
+    }
+
+
+def fence_multipart(fence_post: str, fence_side) -> List[Any]:
+    return [
+        {'model': fence_post},
+        ({'north': 'True'}, {'model': fence_side, 'uvlock': True}),
+        ({'east': 'True'}, {'model': fence_side, 'y': 90, 'uvlock': True}),
+        ({'south': 'True'}, {'model': fence_side, 'y': 180, 'uvlock': True}),
+        ({'west': 'True'}, {'model': fence_side, 'y': 270, 'uvlock': True})
+    ]
+
+
+def fence_gate_variants(fence_gate: str, fence_gate_open: str, fence_gate_wall: str, fence_gate_wall_open: str) -> Dict[str, Any]:
+    return {
+        'facing=south,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True},
+        'facing=west,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 270},
+        'facing=south,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True},
+        'facing=west,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True, 'y': 270},
+        'facing=south,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True},
+        'facing=west,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 270},
+        'facing=south,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True},
+        'facing=west,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 270}
     }

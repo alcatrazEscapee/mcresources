@@ -7,7 +7,6 @@ from os.path import isfile
 from unittest import TestCase, main
 
 from mcresources.resource_manager import ResourceManager
-from mcresources.utils import clean_generated_resources
 
 
 class ResourceManagerTests(TestCase):
@@ -160,6 +159,37 @@ class ResourceManagerTests(TestCase):
         self.rm.flush()
         self.assertFileEqual('assets/modid/lang/en_us3.json')
 
+    def test_block_slab(self):
+        self.rm.block('wood').make_slab()
+        self.assertFileEqual('assets/modid/blockstates/wood_slab.json')
+        self.assertFileEqual('assets/modid/models/block/wood_slab.json')
+        self.assertFileEqual('assets/modid/models/block/wood_slab_top.json')
+        self.assertFileEqual('assets/modid/models/item/wood_slab.json')
+
+    def test_block_stairs(self):
+        self.rm.block('wood').make_stairs()
+        self.assertFileEqual('assets/modid/blockstates/wood_stairs.json')
+        self.assertFileEqual('assets/modid/models/block/wood_stairs.json')
+        self.assertFileEqual('assets/modid/models/block/wood_stairs_inner.json')
+        self.assertFileEqual('assets/modid/models/block/wood_stairs_outer.json')
+        self.assertFileEqual('assets/modid/models/item/wood_stairs.json')
+
+    def test_block_fence(self):
+        self.rm.block('wood').make_fence()
+        self.assertFileEqual('assets/modid/blockstates/wood_fence.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_post.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_side.json')
+        self.assertFileEqual('assets/modid/models/item/wood_fence.json')
+
+    def test_block_fence_gate(self):
+        self.rm.block('wood').make_fence_gate()
+        self.assertFileEqual('assets/modid/blockstates/wood_fence_gate.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_gate.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_gate_open.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_gate_wall.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_gate_wall_open.json')
+        self.assertFileEqual('assets/modid/models/item/wood_fence_gate.json')
+
     @classmethod
     def setUpClass(cls):
         cls.rm = ResourceManager(domain='modid', resource_dir='generated', indent=2)
@@ -167,7 +197,7 @@ class ResourceManagerTests(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        clean_generated_resources('generated')
+        pass  # clean_generated_resources('generated')
 
     def assertFileEqual(self, path: str):
         if isfile('test/' + path):

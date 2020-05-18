@@ -1,0 +1,14 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "variants": {
+    "type=bottom": {
+      "model": "modid:block/wood_slab"
+    },
+    "type=top": {
+      "model": "modid:block/wood_slab_top"
+    },
+    "type=double": {
+      "model": "modid:block/wood"
+    }
+  }
+}

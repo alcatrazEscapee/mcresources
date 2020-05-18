@@ -1,0 +1,49 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "multipart": [
+    {
+      "apply": {
+        "model": "modid:block/wood_fence_post"
+      }
+    },
+    {
+      "when": {
+        "north": "True"
+      },
+      "apply": {
+        "model": "modid:block/wood_fence_side",
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "east": "True"
+      },
+      "apply": {
+        "model": "modid:block/wood_fence_side",
+        "y": 90,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "south": "True"
+      },
+      "apply": {
+        "model": "modid:block/wood_fence_side",
+        "y": 180,
+        "uvlock": true
+      }
+    },
+    {
+      "when": {
+        "west": "True"
+      },
+      "apply": {
+        "model": "modid:block/wood_fence_side",
+        "y": 270,
+        "uvlock": true
+      }
+    }
+  ]
+}

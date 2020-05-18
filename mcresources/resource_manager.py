@@ -86,7 +86,7 @@ class ResourceManager:
         }, self.indent)
         return BlockContext(self, res)
 
-    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], str] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None) -> BlockContext:
+    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None) -> BlockContext:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
@@ -97,8 +97,10 @@ class ResourceManager:
         res = utils.resource_location(self.domain, name_parts)
         if textures is None:
             textures = {'all': '%s:block/%s' % res}
-        if isinstance(textures, str):
+        elif isinstance(textures, str):
             textures = {'all': textures}
+        elif isinstance(textures, Sequence):
+            textures = dict((k, '%s:block/%s' % res) for k in textures)
         if isinstance(elements, Dict):
             elements = [elements]
         utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
