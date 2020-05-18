@@ -2,11 +2,14 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
+from collections import namedtuple
 from json import dump as json_dump
 from os import makedirs, listdir, remove as rmf, rmdir
 from os.path import join as path_join, dirname, isfile
 from typing import Union, Sequence, Any, Dict, List, Callable, Tuple
 
+ResourceLocation = namedtuple('ResourceLocation', ('domain', 'path'))
+ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
 Json = Union[Dict[str, Any], Sequence[Any], str]
 
 
@@ -57,6 +60,33 @@ def write(path_parts: Sequence[str], data: Json, indent: int = 2):
         json_dump(data, file, indent=indent)
 
 
+def resource_location(*elements) -> ResourceLocation:
+    if len(elements) not in {1, 2}:
+        raise RuntimeError('Must take one or two arguments: [optional] domain, and path elements')
+    data = elements[0]
+    if len(elements) == 1:
+        domain, data = 'minecraft', elements[0]
+    else:
+        domain, data = elements[0], elements[1]
+    if isinstance(data, ResourceLocation):
+        return data
+    else:
+        joined = '/'.join(str_path(data))
+        if ':' in joined:
+            i = joined.index(':')
+            return ResourceLocation(joined[:i], joined[i + 1:])
+        else:
+            return ResourceLocation(domain, joined)
+
+
+def simple_resource_location(data: ResourceIdentifier, use_minecraft_domain: bool = False) -> str:
+    res = resource_location('minecraft', data)
+    if res.domain == 'minecraft' and not use_minecraft_domain:
+        return res.path
+    else:
+        return '%s:%s' % res
+
+
 def str_path(data_in: Sequence[str]) -> List[str]:
     # Converts an iterable or string to a string list, but respects '/', for use in path construction
     if isinstance(data_in, str):
@@ -84,7 +114,6 @@ def domain_path_parts(name_parts: Sequence[str], default_domain: str) -> Tuple[s
         return joined[:i], joined[i + 1:].split('/')
     else:
         return default_domain, str_path(joined)
-    pass
 
 
 def flatten_list(container: Sequence[Any]) -> Sequence[Any]:
@@ -115,12 +144,8 @@ def dict_get(data_in: Dict[Any, Any], key: Any, default: Any = None, map_functio
 def is_sequence(data_in: Any) -> bool:
     return isinstance(data_in, Sequence) and not isinstance(data_in, str)
 
-
-def resource_location(domain: str, path_parts: Sequence[str]) -> str:
-    return '%s:%s' % (domain, '/'.join(str_path(path_parts)))
-
-
 # ================== ASSET PARTS ===================
+
 
 def recipe_condition(data_in: Json, strict: bool = False) -> Union[List, None]:
     if data_in is None:
@@ -308,3 +333,51 @@ def loot_default_conditions(loot_type: str) -> Union[List[Dict[str, Any]], None]
         return [{'condition': 'minecraft:survives_explosion'}]
     else:
         return None
+
+
+# ================== STANDARD BLOCKSTATES ===================
+
+
+def stairs_blockstate(name: str) -> Dict[str, Any]:
+    return {
+        'facing=east,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name},
+        'facing=west,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name, 'y': 180, 'uvlock': True},
+        'facing=south,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name, 'y': 90, 'uvlock': True},
+        'facing=north,half=bottom,shape=straight': {'model': 'block/%s_stairs' % name, 'y': 270, 'uvlock': True},
+        'facing=east,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name},
+        'facing=west,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'y': 180, 'uvlock': True},
+        'facing=south,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'y': 90, 'uvlock': True},
+        'facing=north,half=bottom,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'y': 270, 'uvlock': True},
+        'facing=east,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'y': 270, 'uvlock': True},
+        'facing=west,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'y': 90, 'uvlock': True},
+        'facing=south,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name},
+        'facing=north,half=bottom,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'y': 180, 'uvlock': True},
+        'facing=east,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name},
+        'facing=west,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'y': 180, 'uvlock': True},
+        'facing=south,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'y': 90, 'uvlock': True},
+        'facing=north,half=bottom,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'y': 270, 'uvlock': True},
+        'facing=east,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'y': 270, 'uvlock': True},
+        'facing=west,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'y': 90, 'uvlock': True},
+        'facing=south,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name},
+        'facing=north,half=bottom,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'y': 180, 'uvlock': True},
+        'facing=east,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'uvlock': True},
+        'facing=west,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=south,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=north,half=top,shape=straight': {'model': 'block/%s_stairs' % name, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=east,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=west,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=south,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=north,half=top,shape=outer_right': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'uvlock': True},
+        'facing=east,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'uvlock': True},
+        'facing=west,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=south,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=north,half=top,shape=outer_left': {'model': 'block/%s_stairs_outer' % name, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=east,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=west,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 270, 'uvlock': True},
+        'facing=south,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=north,half=top,shape=inner_right': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'uvlock': True},
+        'facing=east,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'uvlock': True},
+        'facing=west,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 180, 'uvlock': True},
+        'facing=south,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 90, 'uvlock': True},
+        'facing=north,half=top,shape=inner_left': {'model': 'block/%s_stairs_inner' % name, 'x': 180, 'y': 270, 'uvlock': True}
+    }

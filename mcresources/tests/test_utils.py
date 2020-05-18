@@ -42,7 +42,13 @@ class UtilsTests(TestCase):
         self.assertFalse(utils.is_sequence('12'))
 
     def test_resource_location(self):
-        self.assertEqual('a:b/c/d', utils.resource_location('a', ['b', 'c/d']))
+        self.assertEqual(utils.ResourceLocation('minecraft', 'stone'), utils.resource_location('stone'))
+        self.assertEqual(utils.ResourceLocation('minecraft', 'stone/special'), utils.resource_location(('stone', 'special')))
+        self.assertEqual(utils.ResourceLocation('mymod', 'stone'), utils.resource_location('mymod', 'stone'))
+        self.assertEqual(utils.ResourceLocation('mymod', 'stone/special'), utils.resource_location('mymod', ('stone', 'special')))
+        self.assertEqual(utils.ResourceLocation('mymod', 'stone/special'), utils.resource_location('mymod', 'stone/special'))
+        self.assertEqual(utils.ResourceLocation('mymod', 'stone/special'), utils.resource_location('mymod:stone/special'))
+        self.assertEqual(utils.ResourceLocation('mymod', 'stone/special'), utils.resource_location('mymod:stone/special'), 'myothermod')
 
     def test_recipe_condition(self):
         self.assertEqual([{'type': 'stuff'}], utils.recipe_condition('stuff'))

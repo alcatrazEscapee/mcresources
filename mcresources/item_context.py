@@ -13,15 +13,15 @@ class ItemContext:
     Contextual information about an item, used to simplify similar json calls
     """
 
-    def __init__(self, rm: 'resource_manager.ResourceManager', name_parts: Sequence[str]):
-        self.name_parts: Sequence[str] = name_parts
+    def __init__(self, rm: 'resource_manager.ResourceManager', res: utils.ResourceLocation):
         self.rm: resource_manager.ResourceManager = rm
+        self.res: utils.ResourceLocation = res
 
     def with_item_model(self, *textures: Union[utils.Json, str], parent: str = 'item/generated', no_textures: bool = False) -> 'ItemContext':
         """
         Shortcut for ResourceManager#item_model
         """
-        self.rm.item_model(self.name_parts, *textures, parent=parent, no_textures=no_textures)
+        self.rm.item_model(self.res, *textures, parent=parent, no_textures=no_textures)
         return self
 
     def with_tag(self, tag_name_parts: Sequence[str] = None, replace: bool = None) -> 'ItemContext':
@@ -29,14 +29,13 @@ class ItemContext:
         Shortcut for ResourceManager#item_tag
         """
         if tag_name_parts is None:
-            tag_name_parts = self.name_parts
-        self.rm.item_tag(tag_name_parts, utils.resource_location(self.rm.domain, self.name_parts), replace=replace)
+            tag_name_parts = self.res
+        self.rm.item_tag(tag_name_parts, utils.resource_location(self.rm.domain, self.res), replace=replace)
         return self
 
     def with_lang(self, item_name: str, language: Optional[str] = None) -> 'ItemContext':
         """
         Shortcut for ResourceManager#lang with the item name
         """
-        domain, name_parts = utils.domain_path_parts(self.name_parts, self.rm.domain)
-        self.rm.lang('item.%s.%s' % (domain, '.'.join(name_parts)), item_name, language=language)
+        self.rm.lang(('item.%s.%s' % self.res).replace('/', '.'), item_name, language=language)
         return self

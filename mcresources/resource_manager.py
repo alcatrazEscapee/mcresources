@@ -37,8 +37,8 @@ class ResourceManager:
 
         for tag_type, tags in self.tags_buffer.items():
             for tag_name, tag_instance in tags.items():
-                actual_domain, path_elements = utils.domain_path_parts(tag_instance.name_parts, self.domain)
-                utils.write((*self.resource_dir, 'data', actual_domain, 'tags', tag_type, *path_elements), {
+                res = utils.resource_location(self.domain, tag_instance.name_parts)
+                utils.write((*self.resource_dir, 'data', res.domain, 'tags', tag_type, res.path), {
                     'replace': tag_instance.replace,
                     'values': tag_instance.values
                 }, self.indent)
@@ -46,13 +46,13 @@ class ResourceManager:
         self.lang_buffer.clear()
         self.tags_buffer.clear()
 
-    def block(self, name_parts: Sequence[str]) -> BlockContext:
-        return BlockContext(self, name_parts)
+    def block(self, name_parts: utils.ResourceIdentifier) -> BlockContext:
+        return BlockContext(self, utils.resource_location(self.domain, name_parts))
 
-    def item(self, name_parts: Sequence[str]) -> ItemContext:
-        return ItemContext(self, name_parts)
+    def item(self, name_parts: utils.ResourceIdentifier) -> ItemContext:
+        return ItemContext(self, utils.resource_location(self.domain, name_parts))
 
-    def blockstate(self, name_parts: Sequence[str], model: str = None, variants: Dict[str, utils.Json] = None, use_default_model: bool = True) -> BlockContext:
+    def blockstate(self, name_parts: utils.ResourceIdentifier, model: str = None, variants: Dict[str, utils.Json] = None, use_default_model: bool = True) -> BlockContext:
         """
         Creates a blockstate file
         :param name_parts: the resource location, including path elements.
@@ -60,33 +60,33 @@ class ResourceManager:
         :param variants: the variants, as they would be present in json
         :param use_default_model: if a model is missing for a variant, should this populate the variant using the assumed model
         """
+        res = utils.resource_location(self.domain, name_parts)
         if model is None:
-            model = '%s:block/%s' % (self.domain, '/'.join(utils.str_list(name_parts)))
+            model = '%s:block/%s' % res
         if variants is None:
             variants = {'': {'model': model}}
         if use_default_model:
             for key, prop in variants.items():
                 if 'model' not in prop:
                     prop['model'] = model
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'assets', actual_domain, 'blockstates', *path_elements), {
+        utils.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
             'variants': variants
         }, self.indent)
-        return BlockContext(self, name_parts)
+        return BlockContext(self, res)
 
-    def blockstate_multipart(self, name_parts: Sequence[str], parts: Sequence[utils.Json]) -> BlockContext:
+    def blockstate_multipart(self, name_parts: utils.ResourceIdentifier, parts: Sequence[utils.Json]) -> BlockContext:
         """
         Creates a blockstate file, using the multipart model syntax
         :param name_parts: the resource location, including path elements.
         :param parts: The parts. Each element can be a 2-element sequence of a 'when' and 'apply' json, or a single 'apply' json.
         """
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'assets', actual_domain, 'blockstates', *path_elements), {
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
             'multipart': utils.blockstate_multipart_parts(parts)
         }, self.indent)
-        return BlockContext(self, name_parts)
+        return BlockContext(self, res)
 
-    def block_model(self, name_parts: Sequence[str], textures: Union[Dict[str, str], str] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None) -> BlockContext:
+    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], str] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None) -> BlockContext:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
@@ -94,21 +94,21 @@ class ResourceManager:
         :param parent: the parent model. If none, it is omitted
         :param elements: elements of the model. Can be a single element, which will get expanded to a list of one element
         """
+        res = utils.resource_location(self.domain, name_parts)
         if textures is None:
-            textures = {'all': '%s:block/%s' % (self.domain, '/'.join(utils.str_path(name_parts)))}
+            textures = {'all': '%s:block/%s' % res}
         if isinstance(textures, str):
             textures = {'all': textures}
         if isinstance(elements, Dict):
             elements = [elements]
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'assets', actual_domain, 'models', 'block', *path_elements), {
+        utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
             'parent': parent,
             'textures': textures,
             'elements': elements
         }, self.indent)
-        return BlockContext(self, name_parts)
+        return BlockContext(self, res)
 
-    def item_model(self, name_parts: Sequence[str], *textures: Union[utils.Json, str], parent: str = 'item/generated', no_textures: bool = False) -> ItemContext:
+    def item_model(self, name_parts: utils.ResourceIdentifier, *textures: Union[utils.Json, str], parent: utils.ResourceIdentifier = 'item/generated', no_textures: bool = False) -> ItemContext:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
@@ -116,20 +116,20 @@ class ResourceManager:
         :param parent: the parent model.
         :param no_textures: if the textures element should be ignored
         """
+        res = utils.resource_location(self.domain, name_parts)
         if no_textures:
             textures = None
         else:
             if textures is None or len(textures) == 0:
-                textures = '%s:item/%s' % (self.domain, '/'.join(utils.str_path(name_parts)))
+                textures = '%s:item/%s' % res
             textures = utils.item_model_textures(textures)
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'assets', actual_domain, 'models', 'item', *path_elements), {
-            'parent': parent,
+        utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
+            'parent': utils.simple_resource_location(parent),
             'textures': textures
         }, self.indent)
-        return ItemContext(self, name_parts)
+        return ItemContext(self, res)
 
-    def crafting_shapeless(self, name_parts: Sequence[str], ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
+    def crafting_shapeless(self, name_parts: utils.ResourceIdentifier, ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
         """
         Creates a shapeless crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -138,17 +138,17 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'data', actual_domain, 'recipes', *path_elements), {
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shapeless',
             'group': group,
             'ingredients': utils.item_stack_list(ingredients),
             'result': utils.item_stack(result),
             'conditions': utils.recipe_condition(conditions)
         }, self.indent)
-        return RecipeContext(self, name_parts)
+        return RecipeContext(self, res)
 
-    def crafting_shaped(self, name_parts: Sequence[str], pattern: Sequence[str], ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
+    def crafting_shaped(self, name_parts: utils.ResourceIdentifier, pattern: Sequence[str], ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
         """
         Creates a shaped crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -158,8 +158,8 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'data', actual_domain, 'recipes', *path_elements), {
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shaped',
             'group': group,
             'pattern': pattern,
@@ -167,9 +167,9 @@ class ResourceManager:
             'result': utils.item_stack(result),
             'conditions': utils.recipe_condition(conditions)
         }, self.indent)
-        return RecipeContext(self, name_parts)
+        return RecipeContext(self, res)
 
-    def recipe(self, name_parts: Sequence[str], type_in: str, data_in: Dict[str, Any], group: str = None, conditions: utils.Json = None) -> RecipeContext:
+    def recipe(self, name_parts: utils.ResourceIdentifier, type_in: str, data_in: Dict[str, Any], group: str = None, conditions: utils.Json = None) -> RecipeContext:
         """
         Creates a non-crafting recipe file, used for custom mod recipes using vanilla's data pack system
         :param name_parts: The resource location, including path elements.
@@ -178,26 +178,26 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'data', actual_domain, 'recipes', *path_elements), {
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': type_in,
             'group': group,
             **data_in,
             'conditions': conditions
         }, self.indent)
-        return RecipeContext(self, name_parts)
+        return RecipeContext(self, res)
 
-    def data(self, name_parts: Sequence[str], data_in: Dict[str, Any], root_domain: str = 'data'):
+    def data(self, name_parts: utils.ResourceIdentifier, data_in: Dict[str, Any], root_domain: str = 'data'):
         """
         Creates a generic data file. Used for anything and everything under the sun.
         :param name_parts: The resource location, including path elements.
         :param data_in: Data to be inserted into the json
         :param root_domain: The root location (either data or assets) to insert into
         """
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, root_domain, actual_domain, *path_elements), data_in, self.indent)
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, root_domain, res.domain, res.path), data_in, self.indent)
 
-    def advancement(self, name_parts: Sequence[str], display: utils.Json = None, parent: str = None, criteria: Dict[str, Dict[str, utils.Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, utils.Json] = None):
+    def advancement(self, name_parts: utils.ResourceIdentifier, display: utils.Json = None, parent: str = None, criteria: Dict[str, Dict[str, utils.Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, utils.Json] = None):
         """
         Creates a generic advancement. Performs basic filling in of data types
         :param name_parts: The resource location, including path elements.
@@ -207,10 +207,10 @@ class ResourceManager:
         :param requirements: The requirements. If None, will default to a list of all the requirements (OR'd together).
         :param rewards: The rewards. Inserted as is.
         """
+        res = utils.resource_location(self.domain, name_parts)
         if requirements is None:
             requirements = [[k for k in criteria.keys()]]
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'data', actual_domain, 'advancements', *path_elements), {
+        utils.write((*self.resource_dir, 'data', res.domain, 'advancements', res.path), {
             'parent': parent,
             'criteria': criteria,
             'display': display,
@@ -218,7 +218,7 @@ class ResourceManager:
             'rewards': rewards
         }, self.indent)
 
-    def tag(self, name_parts: Sequence[str], root_domain: str, *values: str, replace: bool = None):
+    def tag(self, name_parts: utils.ResourceIdentifier, root_domain: str, *values: utils.ResourceIdentifier, replace: bool = None):
         """
         Creates or appends to a tag entry
         :param name_parts: The resource location, including path elements.
@@ -226,29 +226,30 @@ class ResourceManager:
         :param values: The resource location values for the tag
         :param replace: If the tag should replace previous values
         """
-        tag_name = utils.resource_location(self.domain, name_parts)
-        if tag_name not in self.tags_buffer[root_domain]:
+        res = utils.resource_location(self.domain, name_parts)
+        values = [utils.simple_resource_location(v, True) for v in values]
+        if res not in self.tags_buffer[root_domain]:
             if replace is None:
                 replace = False
-            self.tags_buffer[root_domain][tag_name] = Tag(name_parts, replace, utils.str_list(values))
+            self.tags_buffer[root_domain][res] = Tag(name_parts, replace, utils.str_list(values))
         else:
-            self.tags_buffer[root_domain][tag_name].values += values
+            self.tags_buffer[root_domain][res].values += values
             if replace is not None:
-                self.tags_buffer[root_domain][tag_name].replace = replace
+                self.tags_buffer[root_domain][res].replace = replace
 
-    def item_tag(self, name_parts: Sequence[str], *values: str, replace: bool = None):
+    def item_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'items', *values, replace=replace)
 
-    def block_tag(self, name_parts: Sequence[str], *values: str, replace: bool = None):
+    def block_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'blocks', *values, replace=replace)
 
-    def entity_tag(self, name_parts: Sequence[str], *values: str, replace: bool = None):
+    def entity_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'entity_types', *values, replace=replace)
 
-    def fluid_tag(self, name_parts: Sequence[str], *values: str, replace: bool = None):
+    def fluid_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'fluids', *values, replace=replace)
 
-    def block_loot(self, name_parts: Sequence[str], loot_pools: utils.Json):
+    def block_loot(self, name_parts: utils.ResourceIdentifier, loot_pools: utils.Json):
         """
         Creates a loot table for a block
         If loot_pools is passed in as a list or tuple, it will attempt to create a pool for each entry in the tuple
@@ -267,8 +268,8 @@ class ResourceManager:
         :param name_parts: The resource location, including path elements.
         :param loot_pools: The loot table elements
         """
-        actual_domain, path_elements = utils.domain_path_parts(name_parts, self.domain)
-        utils.write((*self.resource_dir, 'data', actual_domain, 'loot_tables', 'blocks', *path_elements), {
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'loot_tables', 'blocks', res.path), {
             'type': 'minecraft:block',
             'pools': utils.loot_pool_list(loot_pools, 'block')
         })
