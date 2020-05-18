@@ -2,6 +2,7 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
+from os import environ
 from os.path import abspath, dirname, join as path_join
 
 from setuptools import setup
@@ -10,10 +11,13 @@ from setuptools import setup
 with open(path_join(abspath(dirname(__file__)), 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
+# Obtain version from environment variable
+version = environ['VERSION']
+
 setup(
     name='mcresources',
     packages=['mcresources'],
-    version='1.1.2',
+    version=version,
     license='MIT',
     description='An automatic resource creation tool for Minecraft 1.13+ Forge modding',
     long_description=long_description,
