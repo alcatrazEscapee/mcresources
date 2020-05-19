@@ -1,4 +1,7 @@
 {
   "__comment__": "This file was automatically created by mcresources",
-  "parent": "modid:block/wood_fence_inventory"
+  "replace": false,
+  "values": [
+    "modid:block1"
+  ]
 }

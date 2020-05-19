@@ -61,7 +61,16 @@ def write(path_parts: Sequence[str], data: Json, indent: int = 2):
         json_dump(data, file, indent=indent)
 
 
-def resource_location(*elements) -> ResourceLocation:
+def resource_location(*elements: ResourceIdentifier) -> ResourceLocation:
+    """
+    Parses a ResourceLocation from a series of elements. Can accept:
+    - A ResourceLocation, return it
+    - A Sequence[str], representing a '/' joined resource path.
+    - A 'domain:path' representing a domain specification
+    Then either a single element, or an optional domain followed by data element.
+    If a domain is present in the data, the first optional domain is ignored.
+    If no domain is present, the `minecraft` domain is inferred.
+    """
     if len(elements) not in {1, 2}:
         raise RuntimeError('Must take one or two arguments: [optional] domain, and path elements')
     if len(elements) == 1:
@@ -394,10 +403,10 @@ def stairs_variants(stairs: str, stairs_inner: str, stairs_outer: str) -> Dict[s
 def fence_multipart(fence_post: str, fence_side) -> List[Any]:
     return [
         {'model': fence_post},
-        ({'north': 'True'}, {'model': fence_side, 'uvlock': True}),
-        ({'east': 'True'}, {'model': fence_side, 'y': 90, 'uvlock': True}),
-        ({'south': 'True'}, {'model': fence_side, 'y': 180, 'uvlock': True}),
-        ({'west': 'True'}, {'model': fence_side, 'y': 270, 'uvlock': True})
+        ({'north': 'true'}, {'model': fence_side, 'uvlock': True}),
+        ({'east': 'true'}, {'model': fence_side, 'y': 90, 'uvlock': True}),
+        ({'south': 'true'}, {'model': fence_side, 'y': 180, 'uvlock': True}),
+        ({'west': 'true'}, {'model': fence_side, 'y': 270, 'uvlock': True})
     ]
 
 
@@ -407,16 +416,26 @@ def fence_gate_variants(fence_gate: str, fence_gate_open: str, fence_gate_wall: 
         'facing=west,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 90},
         'facing=north,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 180},
         'facing=east,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 270},
-        'facing=south,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True},
-        'facing=west,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True, 'y': 90},
-        'facing=north,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True, 'y': 180},
-        'facing=east,in_wall=false,open=True': {'model': fence_gate_open, 'uvlock': True, 'y': 270},
-        'facing=south,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True},
-        'facing=west,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 90},
-        'facing=north,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 180},
-        'facing=east,in_wall=True,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 270},
-        'facing=south,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True},
-        'facing=west,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 90},
-        'facing=north,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 180},
-        'facing=east,in_wall=True,open=True': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 270}
+        'facing=south,in_wall=false,open=true': {'model': fence_gate_open, 'uvlock': True},
+        'facing=west,in_wall=false,open=true': {'model': fence_gate_open, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=false,open=true': {'model': fence_gate_open, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=false,open=true': {'model': fence_gate_open, 'uvlock': True, 'y': 270},
+        'facing=south,in_wall=true,open=false': {'model': fence_gate_wall, 'uvlock': True},
+        'facing=west,in_wall=true,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=true,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=true,open=false': {'model': fence_gate_wall, 'uvlock': True, 'y': 270},
+        'facing=south,in_wall=true,open=true': {'model': fence_gate_wall_open, 'uvlock': True},
+        'facing=west,in_wall=true,open=true': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 90},
+        'facing=north,in_wall=true,open=true': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 180},
+        'facing=east,in_wall=true,open=true': {'model': fence_gate_wall_open, 'uvlock': True, 'y': 270}
     }
+
+
+def wall_multipart(wall_post: str, wall_side: str) -> List[Any]:
+    return [
+        ({'up': 'true'}, {'model': wall_post}),
+        ({'north': 'true'}, {'model': wall_side, 'uvlock': True}),
+        ({'east': 'true'}, {'model': wall_side, 'y': 90, 'uvlock': True}),
+        ({'south': 'true'}, {'model': wall_side, 'y': 180, 'uvlock': True}),
+        ({'west': 'true'}, {'model': wall_side, 'y': 270, 'uvlock': True})
+    ]

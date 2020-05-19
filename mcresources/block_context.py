@@ -58,7 +58,8 @@ class BlockContext:
         """
         if tag_name_parts is None:
             tag_name_parts = self.res
-        self.rm.block_tag(tag_name_parts, utils.resource_location(self.res, self.rm.domain), replace=replace)
+        tag_res = utils.resource_location(self.rm.domain, tag_name_parts)
+        self.rm.block_tag(tag_res, self.res, replace=replace)
         return self
 
     def with_lang(self, block_name: str, language: Optional[str] = None) -> 'BlockContext':
@@ -68,7 +69,7 @@ class BlockContext:
         self.rm.lang(('block.%s.%s' % self.res).replace('/', '.'), block_name, language=language)
         return self
 
-    def make_slab(self):
+    def make_slab(self) -> 'BlockContext':
         """
         Generates all blockstates and models required for a standard slab block
         """
@@ -79,8 +80,9 @@ class BlockContext:
         self.rm.block_model('%s:%s_slab' % self.res, {'bottom': block, 'top': block, 'side': block}, parent='block/slab')
         self.rm.block_model('%s:%s_slab_top' % self.res, {'bottom': block, 'top': block, 'side': block}, parent='block/slab_top')
         self.rm.item_model('%s:%s_slab' % self.res, parent=block_slab, no_textures=True)
+        return self
 
-    def make_stairs(self):
+    def make_stairs(self) -> 'BlockContext':
         """
         Generates all blockstates and models required for a standard stair block
         """
@@ -90,22 +92,25 @@ class BlockContext:
         stairs_outer = utils.simple_resource_location('%s:block/%s_stairs_outer' % self.res)
         self.rm.blockstate('%s:%s_stairs' % self.res, variants=utils.stairs_variants(stairs, stairs_inner, stairs_outer))
         self.rm.block_model('%s:%s_stairs' % self.res, textures={'bottom': block, 'top': block, 'side': block}, parent='block/stairs')
-        self.rm.block_model('%s:%s_stairs_inner' % self.res, textures={'bottom': block, 'top': block, 'side': block}, parent='block/stairs_inner')
-        self.rm.block_model('%s:%s_stairs_outer' % self.res, textures={'bottom': block, 'top': block, 'side': block}, parent='block/stairs_outer')
+        self.rm.block_model('%s:%s_stairs_inner' % self.res, textures={'bottom': block, 'top': block, 'side': block}, parent='block/inner_stairs')
+        self.rm.block_model('%s:%s_stairs_outer' % self.res, textures={'bottom': block, 'top': block, 'side': block}, parent='block/outer_stairs')
         self.rm.item_model('%s:%s_stairs' % self.res, parent=stairs, no_textures=True)
+        return self
 
-    def make_fence(self):
+    def make_fence(self) -> 'BlockContext':
         """
         Generates all blockstates and models required for a standard (wooden) fence
         """
         block = utils.simple_resource_location('%s:block/%s' % self.res)
-        fence = utils.simple_resource_location('%s:block/%s_fence' % self.res)
         fence_post = utils.simple_resource_location('%s:block/%s_fence_post' % self.res)
         fence_side = utils.simple_resource_location('%s:block/%s_fence_side' % self.res)
+        fence_inv = utils.simple_resource_location('%s:block/%s_fence_inventory' % self.res)
         self.rm.blockstate_multipart('%s:%s_fence' % self.res, parts=utils.fence_multipart(fence_post, fence_side))
         self.rm.block_model('%s:%s_fence_post' % self.res, textures={'texture': block}, parent='block/fence_post')
         self.rm.block_model('%s:%s_fence_side' % self.res, textures={'texture': block}, parent='block/fence_side')
-        self.rm.item_model('%s:%s_fence' % self.res, parent=fence, no_textures=True)
+        self.rm.block_model('%s:%s_fence_inventory' % self.res, textures={'texture': block}, parent='block/fence_inventory')
+        self.rm.item_model('%s:%s_fence' % self.res, parent=fence_inv, no_textures=True)
+        return self
 
     def make_fence_gate(self):
         """
@@ -122,12 +127,22 @@ class BlockContext:
         self.rm.block_model('%s:%s_fence_gate_wall' % self.res, textures={'texture': block}, parent='block/template_fence_gate_wall')
         self.rm.block_model('%s:%s_fence_gate_wall_open' % self.res, textures={'texture': block}, parent='block/template_fence_gate_wall_open')
         self.rm.item_model('%s:%s_fence_gate' % self.res, parent=gate, no_textures=True)
+        return self
 
     def make_wall(self):
         """
         Generates all blockstates and models required for a standard (stone) wall
         """
-        raise NotImplementedError('todo')
+        block = utils.simple_resource_location('%s:block/%s' % self.res)
+        wall_post = utils.simple_resource_location('%s:block/%s_wall_post' % self.res)
+        wall_side = utils.simple_resource_location('%s:block/%s_wall_side' % self.res)
+        wall_inv = utils.simple_resource_location('%s:block/%s_wall_inventory' % self.res)
+        self.rm.blockstate_multipart('%s:%s_wall' % self.res, utils.wall_multipart(wall_post, wall_side))
+        self.rm.block_model('%s:%s_wall_post' % self.res, textures={'wall': block}, parent='block/template_wall_post')
+        self.rm.block_model('%s:%s_wall_side' % self.res, textures={'wall': block}, parent='block/template_wall_side')
+        self.rm.block_model('%s:%s_wall_side' % self.res, textures={'wall': block}, parent='block/template_wall_side')
+        self.rm.block_model('%s:%s_wall_inventory' % self.res, textures={'wall': block}, parent='block/wall_inventory')
+        self.rm.item_model('%s:%s_wall_inventory' % self.res, parent=wall_inv, no_textures=True)
 
     def make_door(self):
         """

@@ -80,6 +80,11 @@ class ResourceManagerTests(TestCase):
 
         self.rm.block('block1').with_tag('othermod:their_blocks')
         self.rm.flush()
+        self.assertFileEqual('data/othermod/tags/blocks/their_blocks.json')
+
+        self.rm.block('block2').with_tag('someones/block')
+        self.rm.flush()
+        self.assertFileEqual('data/modid/tags/blocks/someones/block.json')
 
         self.rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', replace=True)
         self.rm.flush()
@@ -179,6 +184,7 @@ class ResourceManagerTests(TestCase):
         self.assertFileEqual('assets/modid/blockstates/wood_fence.json')
         self.assertFileEqual('assets/modid/models/block/wood_fence_post.json')
         self.assertFileEqual('assets/modid/models/block/wood_fence_side.json')
+        self.assertFileEqual('assets/modid/models/block/wood_fence_inventory.json')
         self.assertFileEqual('assets/modid/models/item/wood_fence.json')
 
     def test_block_fence_gate(self):
@@ -189,6 +195,14 @@ class ResourceManagerTests(TestCase):
         self.assertFileEqual('assets/modid/models/block/wood_fence_gate_wall.json')
         self.assertFileEqual('assets/modid/models/block/wood_fence_gate_wall_open.json')
         self.assertFileEqual('assets/modid/models/item/wood_fence_gate.json')
+
+    def test_block_wall(self):
+        self.rm.block('stone').make_wall()
+        self.assertFileEqual('assets/modid/blockstates/stone_wall.json')
+        self.assertFileEqual('assets/modid/models/block/stone_wall_post.json')
+        self.assertFileEqual('assets/modid/models/block/stone_wall_side.json')
+        self.assertFileEqual('assets/modid/models/block/stone_wall_inventory.json')
+        self.assertFileEqual('assets/modid/models/item/stone_wall.json')
 
     @classmethod
     def setUpClass(cls):

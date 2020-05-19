@@ -20,59 +20,59 @@
       "uvlock": true,
       "y": 270
     },
-    "facing=south,in_wall=false,open=True": {
+    "facing=south,in_wall=false,open=true": {
       "model": "modid:block/wood_fence_gate_open",
       "uvlock": true
     },
-    "facing=west,in_wall=false,open=True": {
+    "facing=west,in_wall=false,open=true": {
       "model": "modid:block/wood_fence_gate_open",
       "uvlock": true,
       "y": 90
     },
-    "facing=north,in_wall=false,open=True": {
+    "facing=north,in_wall=false,open=true": {
       "model": "modid:block/wood_fence_gate_open",
       "uvlock": true,
       "y": 180
     },
-    "facing=east,in_wall=false,open=True": {
+    "facing=east,in_wall=false,open=true": {
       "model": "modid:block/wood_fence_gate_open",
       "uvlock": true,
       "y": 270
     },
-    "facing=south,in_wall=True,open=false": {
+    "facing=south,in_wall=true,open=false": {
       "model": "modid:block/wood_fence_gate_wall",
       "uvlock": true
     },
-    "facing=west,in_wall=True,open=false": {
+    "facing=west,in_wall=true,open=false": {
       "model": "modid:block/wood_fence_gate_wall",
       "uvlock": true,
       "y": 90
     },
-    "facing=north,in_wall=True,open=false": {
+    "facing=north,in_wall=true,open=false": {
       "model": "modid:block/wood_fence_gate_wall",
       "uvlock": true,
       "y": 180
     },
-    "facing=east,in_wall=True,open=false": {
+    "facing=east,in_wall=true,open=false": {
       "model": "modid:block/wood_fence_gate_wall",
       "uvlock": true,
       "y": 270
     },
-    "facing=south,in_wall=True,open=True": {
+    "facing=south,in_wall=true,open=true": {
       "model": "modid:block/wood_fence_gate_wall_open",
       "uvlock": true
     },
-    "facing=west,in_wall=True,open=True": {
+    "facing=west,in_wall=true,open=true": {
       "model": "modid:block/wood_fence_gate_wall_open",
       "uvlock": true,
       "y": 90
     },
-    "facing=north,in_wall=True,open=True": {
+    "facing=north,in_wall=true,open=true": {
       "model": "modid:block/wood_fence_gate_wall_open",
       "uvlock": true,
       "y": 180
     },
-    "facing=east,in_wall=True,open=True": {
+    "facing=east,in_wall=true,open=true": {
       "model": "modid:block/wood_fence_gate_wall_open",
       "uvlock": true,
       "y": 270

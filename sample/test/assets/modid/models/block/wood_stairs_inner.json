@@ -1,6 +1,6 @@
 {
   "__comment__": "This file was automatically created by mcresources",
-  "parent": "block/stairs_inner",
+  "parent": "block/inner_stairs",
   "textures": {
     "bottom": "modid:block/wood",
     "top": "modid:block/wood",

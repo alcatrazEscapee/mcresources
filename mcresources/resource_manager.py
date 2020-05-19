@@ -26,7 +26,7 @@ class ResourceManager:
 
         # Internal buffers, used for tags and lang entries, which are all written at the same time
         self.lang_buffer: Dict[str, Dict[str, str]] = defaultdict(dict)  # Keys are (language, translation key)
-        self.tags_buffer: Dict[str, Dict[str, Tag]] = defaultdict(dict)  # Keys are (tag type, tag name)
+        self.tags_buffer: Dict[str, Dict[utils.ResourceLocation, Tag]] = defaultdict(dict)  # Keys are (tag type, tag name)
 
     def flush(self):
         """
@@ -36,11 +36,10 @@ class ResourceManager:
             utils.write((*self.resource_dir, 'assets', self.domain, 'lang', language), contents, self.indent)
 
         for tag_type, tags in self.tags_buffer.items():
-            for tag_name, tag_instance in tags.items():
-                res = utils.resource_location(self.domain, tag_instance.name_parts)
-                utils.write((*self.resource_dir, 'data', res.domain, 'tags', tag_type, res.path), {
-                    'replace': tag_instance.replace,
-                    'values': tag_instance.values
+            for tag_res, tag in tags.items():
+                utils.write((*self.resource_dir, 'data', tag_res.domain, 'tags', tag_type, tag_res.path), {
+                    'replace': tag.replace,
+                    'values': [utils.simple_resource_location(v, True) for v in tag.values]
                 }, self.indent)
 
         self.lang_buffer.clear()
@@ -185,7 +184,7 @@ class ResourceManager:
             'type': type_in,
             'group': group,
             **data_in,
-            'conditions': conditions
+            'conditions': utils.recipe_condition(conditions)
         }, self.indent)
         return RecipeContext(self, res)
 
@@ -229,11 +228,11 @@ class ResourceManager:
         :param replace: If the tag should replace previous values
         """
         res = utils.resource_location(self.domain, name_parts)
-        values = [utils.simple_resource_location(v, True) for v in values]
+        values = [utils.resource_location(self.domain, v) for v in values]
         if res not in self.tags_buffer[root_domain]:
             if replace is None:
                 replace = False
-            self.tags_buffer[root_domain][res] = Tag(name_parts, replace, utils.str_list(values))
+            self.tags_buffer[root_domain][res] = Tag(replace, values)
         else:
             self.tags_buffer[root_domain][res].values += values
             if replace is not None:

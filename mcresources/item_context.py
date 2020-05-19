@@ -30,7 +30,8 @@ class ItemContext:
         """
         if tag_name_parts is None:
             tag_name_parts = self.res
-        self.rm.item_tag(tag_name_parts, utils.resource_location(self.rm.domain, self.res), replace=replace)
+        tag_res = utils.resource_location(self.rm.domain, tag_name_parts)
+        self.rm.item_tag(tag_res, self.res, replace=replace)
         return self
 
     def with_lang(self, item_name: str, language: Optional[str] = None) -> 'ItemContext':

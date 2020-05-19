@@ -2,8 +2,11 @@
   "__comment__": "This file was automatically created by mcresources",
   "multipart": [
     {
+      "when": {
+        "up": "true"
+      },
       "apply": {
-        "model": "modid:block/wood_fence_post"
+        "model": "modid:block/stone_wall_post"
       }
     },
     {
@@ -11,7 +14,7 @@
         "north": "true"
       },
       "apply": {
-        "model": "modid:block/wood_fence_side",
+        "model": "modid:block/stone_wall_side",
         "uvlock": true
       }
     },
@@ -20,7 +23,7 @@
         "east": "true"
       },
       "apply": {
-        "model": "modid:block/wood_fence_side",
+        "model": "modid:block/stone_wall_side",
         "y": 90,
         "uvlock": true
       }
@@ -30,7 +33,7 @@
         "south": "true"
       },
       "apply": {
-        "model": "modid:block/wood_fence_side",
+        "model": "modid:block/stone_wall_side",
         "y": 180,
         "uvlock": true
       }
@@ -40,7 +43,7 @@
         "west": "true"
       },
       "apply": {
-        "model": "modid:block/wood_fence_side",
+        "model": "modid:block/stone_wall_side",
         "y": 270,
         "uvlock": true
       }
