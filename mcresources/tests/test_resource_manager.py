@@ -204,6 +204,14 @@ class ResourceManagerTests(TestCase):
         self.assertFileEqual('assets/modid/models/block/stone_wall_inventory.json')
         self.assertFileEqual('assets/modid/models/item/stone_wall.json')
 
+    def test_block_door(self):
+        self.rm.block('wood').make_door()
+        self.assertFileEqual('assets/modid/blockstates/wood_door.json')
+        self.assertFileEqual('assets/modid/models/block/wood_door_bottom.json')
+        self.assertFileEqual('assets/modid/models/block/wood_door_bottom_hinge.json')
+        self.assertFileEqual('assets/modid/models/block/wood_door_top.json')
+        self.assertFileEqual('assets/modid/models/block/wood_door_top_hinge.json')
+
     @classmethod
     def setUpClass(cls):
         cls.rm = ResourceManager(domain='modid', resource_dir='generated', indent=2)

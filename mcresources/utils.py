@@ -439,3 +439,40 @@ def wall_multipart(wall_post: str, wall_side: str) -> List[Any]:
         ({'south': 'true'}, {'model': wall_side, 'y': 180, 'uvlock': True}),
         ({'west': 'true'}, {'model': wall_side, 'y': 270, 'uvlock': True})
     ]
+
+
+def door_blockstate(door_bottom: str, door_bottom_hinge: str, door_top: str, door_top_hinge: str):
+    return {
+        'facing=east,half=lower,hinge=left,open=false': {'model': door_bottom},
+        'facing=south,half=lower,hinge=left,open=false': {'model': door_bottom, 'y': 90},
+        'facing=west,half=lower,hinge=left,open=false': {'model': door_bottom, 'y': 180},
+        'facing=north,half=lower,hinge=left,open=false': {'model': door_bottom, 'y': 270},
+        'facing=east,half=lower,hinge=right,open=false': {'model': door_bottom_hinge},
+        'facing=south,half=lower,hinge=right,open=false': {'model': door_bottom_hinge, 'y': 90},
+        'facing=west,half=lower,hinge=right,open=false': {'model': door_bottom_hinge, 'y': 180},
+        'facing=north,half=lower,hinge=right,open=false': {'model': door_bottom_hinge, 'y': 270},
+        'facing=east,half=lower,hinge=left,open=true': {'model': door_bottom_hinge, 'y': 90},
+        'facing=south,half=lower,hinge=left,open=true': {'model': door_bottom_hinge, 'y': 180},
+        'facing=west,half=lower,hinge=left,open=true': {'model': door_bottom_hinge, 'y': 270},
+        'facing=north,half=lower,hinge=left,open=true': {'model': door_bottom_hinge},
+        'facing=east,half=lower,hinge=right,open=true': {'model': door_bottom, 'y': 270},
+        'facing=south,half=lower,hinge=right,open=true': {'model': door_bottom},
+        'facing=west,half=lower,hinge=right,open=true': {'model': door_bottom, 'y': 90},
+        'facing=north,half=lower,hinge=right,open=true': {'model': door_bottom, 'y': 180},
+        'facing=east,half=upper,hinge=left,open=false': {'model': door_top},
+        'facing=south,half=upper,hinge=left,open=false': {'model': door_top, 'y': 90},
+        'facing=west,half=upper,hinge=left,open=false': {'model': door_top, 'y': 180},
+        'facing=north,half=upper,hinge=left,open=false': {'model': door_top, 'y': 270},
+        'facing=east,half=upper,hinge=right,open=false': {'model': door_top},
+        'facing=south,half=upper,hinge=right,open=false': {'model': door_top, 'y': 90},
+        'facing=west,half=upper,hinge=right,open=false': {'model': door_top, 'y': 180},
+        'facing=north,half=upper,hinge=right,open=false': {'model': door_top, 'y': 270},
+        'facing=east,half=upper,hinge=left,open=true': {'model': door_top, 'y': 90},
+        'facing=south,half=upper,hinge=left,open=true': {'model': door_top, 'y': 180},
+        'facing=west,half=upper,hinge=left,open=true': {'model': door_top, 'y': 270},
+        'facing=north,half=upper,hinge=left,open=true': {'model': door_top},
+        'facing=east,half=upper,hinge=right,open=true': {'model': door_top, 'y': 270},
+        'facing=south,half=upper,hinge=right,open=true': {'model': door_top},
+        'facing=west,half=upper,hinge=right,open=true': {'model': door_top, 'y': 90},
+        'facing=north,half=upper,hinge=right,open=true': {'model': door_top, 'y': 180}
+    }

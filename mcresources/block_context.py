@@ -148,7 +148,16 @@ class BlockContext:
         """
         Generates all blockstates and models required for a standard door
         """
-        raise NotImplementedError('todo')
+        bottom = utils.simple_resource_location('%s:block/%s_door_bottom' % self.res)
+        bottom_hinge = utils.simple_resource_location('%s:block/%s_door_bottom_hinge' % self.res)
+        top = utils.simple_resource_location('%s:block/%s_door_top' % self.res)
+        top_hinge = utils.simple_resource_location('%s:block/%s_door_top_hinge' % self.res)
+        self.rm.blockstate('%s:%s_door' % self.res, variants=utils.door_blockstate(bottom, bottom_hinge, top, top_hinge))
+        self.rm.block_model('%s:%s_door_bottom' % self.res, {'top': top, 'bottom': bottom}, parent=bottom)
+        self.rm.block_model('%s:%s_door_bottom_hinge' % self.res, {'top': top, 'bottom': bottom}, parent=bottom_hinge)
+        self.rm.block_model('%s:%s_door_top' % self.res, {'top': top, 'bottom': bottom}, parent=top)
+        self.rm.block_model('%s:%s_door_top_hinge' % self.res, {'top': top, 'bottom': bottom}, parent=top_hinge)
+        self.rm.item_model('%s:%s_door' % self.res)
 
     def make_trapdoor(self):
         """
