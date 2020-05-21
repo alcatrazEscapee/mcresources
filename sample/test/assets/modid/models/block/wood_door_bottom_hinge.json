@@ -1,6 +1,6 @@
 {
   "__comment__": "This file was automatically created by mcresources",
-  "parent": "modid:block/wood_door_bottom_hinge",
+  "parent": "block/door_bottom_hinge",
   "textures": {
     "top": "modid:block/wood_door_top",
     "bottom": "modid:block/wood_door_bottom"

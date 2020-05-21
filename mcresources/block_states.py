@@ -134,3 +134,60 @@ def door_blockstate(door_bottom: str, door_bottom_hinge: str, door_top: str, doo
         'facing=west,half=upper,hinge=right,open=true': {'model': door_top, 'y': 90},
         'facing=north,half=upper,hinge=right,open=true': {'model': door_top, 'y': 180}
     }
+
+
+def trapdoor_blockstate(trapdoor_bottom: str, trapdoor_top: str, trapdoor_open: str) -> Dict[str, Any]:
+    return {
+        'facing=north,half=bottom,open=false': {'model': trapdoor_bottom},
+        'facing=south,half=bottom,open=false': {'model': trapdoor_bottom, 'y': 180},
+        'facing=east,half=bottom,open=false': {'model': trapdoor_bottom, 'y': 90},
+        'facing=west,half=bottom,open=false': {'model': trapdoor_bottom, 'y': 270},
+        'facing=north,half=top,open=false': {'model': trapdoor_top},
+        'facing=south,half=top,open=false': {'model': trapdoor_top, 'y': 180},
+        'facing=east,half=top,open=false': {'model': trapdoor_top, 'y': 90},
+        'facing=west,half=top,open=false': {'model': trapdoor_top, 'y': 270},
+        'facing=north,half=bottom,open=true': {'model': trapdoor_open},
+        'facing=south,half=bottom,open=true': {'model': trapdoor_open, 'y': 180},
+        'facing=east,half=bottom,open=true': {'model': trapdoor_open, 'y': 90},
+        'facing=west,half=bottom,open=true': {'model': trapdoor_open, 'y': 270},
+        'facing=north,half=top,open=true': {'model': trapdoor_open, 'x': 180, 'y': 180},
+        'facing=south,half=top,open=true': {'model': trapdoor_open, 'x': 180, 'y': 0},
+        'facing=east,half=top,open=true': {'model': trapdoor_open, 'x': 180, 'y': 270},
+        'facing=west,half=top,open=true': {'model': trapdoor_open, 'x': 180, 'y': 90}
+    }
+
+
+def button_blockstate(button: str, pressed: str) -> Dict[str, Any]:
+    return {
+        'face=floor,facing=east,powered=false': {'model': button, 'y': 90},
+        'face=floor,facing=west,powered=false': {'model': button, 'y': 270},
+        'face=floor,facing=south,powered=false': {'model': button, 'y': 180},
+        'face=floor,facing=north,powered=false': {'model': button},
+        'face=wall,facing=east,powered=false': {'model': button, 'uvlock': True, 'x': 90, 'y': 90},
+        'face=wall,facing=west,powered=false': {'model': button, 'uvlock': True, 'x': 90, 'y': 270},
+        'face=wall,facing=south,powered=false': {'model': button, 'uvlock': True, 'x': 90, 'y': 180},
+        'face=wall,facing=north,powered=false': {'model': button, 'uvlock': True, 'x': 90},
+        'face=ceiling,facing=east,powered=false': {'model': button, 'x': 180, 'y': 270},
+        'face=ceiling,facing=west,powered=false': {'model': button, 'x': 180, 'y': 90},
+        'face=ceiling,facing=south,powered=false': {'model': button, 'x': 180},
+        'face=ceiling,facing=north,powered=false': {'model': button, 'x': 180, 'y': 180},
+        'face=floor,facing=east,powered=true': {'model': pressed, 'y': 90},
+        'face=floor,facing=west,powered=true': {'model': pressed, 'y': 270},
+        'face=floor,facing=south,powered=true': {'model': pressed, 'y': 180},
+        'face=floor,facing=north,powered=true': {'model': pressed},
+        'face=wall,facing=east,powered=true': {'model': pressed, 'uvlock': True, 'x': 90, 'y': 90},
+        'face=wall,facing=west,powered=true': {'model': pressed, 'uvlock': True, 'x': 90, 'y': 270},
+        'face=wall,facing=south,powered=true': {'model': pressed, 'uvlock': True, 'x': 90, 'y': 180},
+        'face=wall,facing=north,powered=true': {'model': pressed, 'uvlock': True, 'x': 90},
+        'face=ceiling,facing=east,powered=true': {'model': pressed, 'x': 180, 'y': 270},
+        'face=ceiling,facing=west,powered=true': {'model': pressed, 'x': 180, 'y': 90},
+        'face=ceiling,facing=south,powered=true': {'model': pressed, 'x': 180},
+        'face=ceiling,facing=north,powered=true': {'model': pressed, 'x': 180, 'y': 180}
+    }
+
+
+def pressure_plate_variants(pressure_plate: str, pressure_plate_down: str) -> Dict[str, Any]:
+    return {
+        'powered=false': {'model': pressure_plate},
+        'powered=true': {'model': pressure_plate_down}
+    }

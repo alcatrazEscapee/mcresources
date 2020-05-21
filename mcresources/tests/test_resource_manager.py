@@ -7,6 +7,7 @@ from os.path import isfile
 from unittest import TestCase, main
 
 from mcresources.resource_manager import ResourceManager
+from mcresources.utils import clean_generated_resources
 
 
 class ResourceManagerTests(TestCase):
@@ -212,6 +213,29 @@ class ResourceManagerTests(TestCase):
         self.assertFileEqual('assets/modid/models/block/wood_door_top.json')
         self.assertFileEqual('assets/modid/models/block/wood_door_top_hinge.json')
 
+    def test_block_trapdoor(self):
+        self.rm.block('wood').make_trapdoor()
+        self.assertFileEqual('assets/modid/blockstates/wood_trapdoor.json')
+        self.assertFileEqual('assets/modid/models/block/wood_trapdoor_bottom.json')
+        self.assertFileEqual('assets/modid/models/block/wood_trapdoor_top.json')
+        self.assertFileEqual('assets/modid/models/block/wood_trapdoor_open.json')
+        self.assertFileEqual('assets/modid/models/item/wood_trapdoor.json')
+
+    def test_block_button(self):
+        self.rm.block('wood').make_button()
+        self.assertFileEqual('assets/modid/blockstates/wood_button.json')
+        self.assertFileEqual('assets/modid/models/block/wood_button.json')
+        self.assertFileEqual('assets/modid/models/block/wood_button_pressed.json')
+        self.assertFileEqual('assets/modid/models/block/wood_button_inventory.json')
+        self.assertFileEqual('assets/modid/models/item/wood_button.json')
+
+    def test_block_pressure_plate(self):
+        self.rm.block('wood').make_pressure_plate()
+        self.assertFileEqual('assets/modid/blockstates/wood_pressure_plate.json')
+        self.assertFileEqual('assets/modid/models/block/wood_pressure_plate.json')
+        self.assertFileEqual('assets/modid/models/block/wood_pressure_plate_down.json')
+        self.assertFileEqual('assets/modid/models/item/wood_pressure_plate.json')
+
     @classmethod
     def setUpClass(cls):
         cls.rm = ResourceManager(domain='modid', resource_dir='generated', indent=2)
@@ -219,7 +243,7 @@ class ResourceManagerTests(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        pass  # clean_generated_resources('generated')
+        clean_generated_resources('generated')
 
     def assertFileEqual(self, path: str):
         if isfile('test/' + path):
