@@ -9,7 +9,15 @@ from os.path import join as path_join, dirname, isfile
 from typing import Union, Sequence, Any, Dict, List, Callable, Tuple
 
 
-ResourceLocation = namedtuple('ResourceLocation', ('domain', 'path'))
+class ResourceLocation(namedtuple('ResourceLocation', ('domain', 'path'))):
+
+    def join(self, prefix: str = '', simple: bool = False) -> str:
+        if simple and self.domain == 'minecraft':
+            return prefix + self.path
+        else:
+            return self.domain + ':' + prefix + self.path
+
+
 ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
 Json = Union[Dict[str, Any], Sequence[Any], str]
 
@@ -86,14 +94,6 @@ def resource_location(*elements: ResourceIdentifier) -> ResourceLocation:
             return ResourceLocation(joined[:i], joined[i + 1:])
         else:
             return ResourceLocation(domain, joined)
-
-
-def simple_resource_location(data: ResourceIdentifier, use_minecraft_domain: bool = False) -> str:
-    res = resource_location('minecraft', data)
-    if res.domain == 'minecraft' and not use_minecraft_domain:
-        return res.path
-    else:
-        return '%s:%s' % res
 
 
 def str_path(data_in: Sequence[str]) -> List[str]:

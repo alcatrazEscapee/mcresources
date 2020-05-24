@@ -39,7 +39,7 @@ class ResourceManager:
             for tag_res, tag in tags.items():
                 utils.write((*self.resource_dir, 'data', tag_res.domain, 'tags', tag_type, tag_res.path), {
                     'replace': tag.replace,
-                    'values': [utils.simple_resource_location(v, True) for v in tag.values]
+                    'values': [v.join() for v in tag.values]
                 }, self.indent)
 
         self.lang_buffer.clear()
@@ -61,7 +61,7 @@ class ResourceManager:
         """
         res = utils.resource_location(self.domain, name_parts)
         if model is None:
-            model = '%s:block/%s' % res
+            model = res.join('block/')
         if variants is None:
             variants = {'': {'model': model}}
         if use_default_model:
@@ -95,11 +95,11 @@ class ResourceManager:
         """
         res = utils.resource_location(self.domain, name_parts)
         if textures is None:
-            textures = {'all': '%s:block/%s' % res}
+            textures = {'all': res.join('block/')}
         elif isinstance(textures, str):
             textures = {'all': textures}
         elif isinstance(textures, Sequence):
-            textures = dict((k, '%s:block/%s' % res) for k in textures)
+            textures = dict((k, res.join('block')) for k in textures)
         if isinstance(elements, Dict):
             elements = [elements]
         utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
@@ -122,10 +122,10 @@ class ResourceManager:
             textures = None
         else:
             if textures is None or len(textures) == 0:
-                textures = '%s:item/%s' % res
+                textures = res.join('item/')
             textures = utils.item_model_textures(textures)
         utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
-            'parent': utils.simple_resource_location(parent),
+            'parent': utils.resource_location(parent).join(simple=True),
             'textures': textures
         }, self.indent)
         return ItemContext(self, res)
