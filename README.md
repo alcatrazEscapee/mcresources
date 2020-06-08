@@ -96,6 +96,29 @@ item_model(name_parts, textures, parent = 'item/generated', no_textures = False)
  - `no_textures`, if true, will cause the model to have no textures element
 
 
+##### Loot Tables
+```
+block_loot(name_parts, loot_pools):
+```
+ - `name_parts` specifies the block resource location, as seen above.
+ - `loot_pools` specifies the contents of the loot table. 
+ - If `loot_pools` is passed in as a list or tuple, it will attempt to create a pool for each entry in the tuple. 
+ - It can also be passed in as a string or dict, in which case it will create one pool from that input.
+ - The simplest loot pool is a string, i.e. `'minecraft:dirt'`, which will create a pool with one entry of type item
+        with the value of `'minecraft:dirt'`, with one roll, and the default condition (`'minecraft:survives_explosion'`)
+ - If a loot pool is a dict, it will look for each possible element of a pool entry, and try to populate them
+        accordingly.
+   - `entries` can be a dict or a string. A string will expand to `'type': 'minecraft:item'`
+   - `conditions` can be a list, tuple, dict, or string. A string will expand to `{'condition': value}`. A dict will be inserted as raw json.
+   - `functions` can be a list, tuple, dict, or string. A string will expand to `{'function': value}` A dict will be inserted as raw json.
+   `rolls` will be inserted as raw json. If not present, it will default to `'rolls': 1`
+   `children`, `name`, `bonus_rolls`, `weight`, and `quality` will be inserted as raw json if present
+
+In addition, the `loot_tables` module has several helper methods for common loot table related functions. For example:
+
+ - `loot_tables.set_count(min, max, distribution)` generates an instance of the `minecraft:set_count` function.
+ - `loot_tables.fortune_bonus(multiplier)` generates an instance of the `minecraft:apply_bonus`, with a standard fortune modifier.
+
 
 ##### Shapeless Crafting Recipes
 ```
