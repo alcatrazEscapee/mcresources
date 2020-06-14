@@ -80,20 +80,22 @@ blockstate_multipart(name_parts, parts)
 
 ##### Block Models
 ```
-block_model(name_parts, textures = None, parent = 'block/cube_all')
+block_model(name_parts, textures = None, parent = 'block/cube_all', loader = None)
 ```
  - `name_parts` specifies the block resource location, as seen above
  - `textures` specifies the textures for this specific model. If it is a string, it will create the json: `'textures': { 'texture': textures }`. If provided as a dictionary, it will insert `'textures': textures`
  - `parent` specifies the parent model file
+ - `loader` is an optional specification for forge provided custom loaders.
 
 ##### Item Models
 ```
-item_model(name_parts, textures, parent = 'item/generated', no_textures = False)
+item_model(name_parts, textures, parent = 'item/generated', no_textures = False, loader = None)
 ```
  - `name_parts` specifies the item resource location, as seen above
  - `textures` specifies the textures. If textures are supplied as strings, i.e. `'base_layer', 'middle_layer' ...`, it will assign them sequentially to layers, i.e. `{ 'layer0': 'base_layer', 'layer1': 'middle_layer' ... }`. If a dictionary is provided, it will insert those in the same way as the block model
  - `parent` specifies the parent model file
  - `no_textures`, if true, will cause the model to have no textures element
+ - `loader` is an optional specification for forge provided custom loaders.
 
 
 ##### Loot Tables

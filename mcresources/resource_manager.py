@@ -3,7 +3,7 @@
 #  For more information see the project LICENSE file
 
 from collections import defaultdict
-from typing import Sequence, Dict, Union, Any
+from typing import Sequence, Dict, Union, Optional, Any
 
 import mcresources.utils as utils
 from mcresources.block_context import BlockContext
@@ -85,7 +85,7 @@ class ResourceManager:
         }, self.indent)
         return BlockContext(self, res)
 
-    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None) -> BlockContext:
+    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None, loader: Optional[utils.ResourceIdentifier] = None) -> BlockContext:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
@@ -105,17 +105,19 @@ class ResourceManager:
         utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
             'parent': parent,
             'textures': textures,
-            'elements': elements
+            'elements': elements,
+            'loader': None if loader is None else utils.resource_location(loader).join()
         }, self.indent)
         return BlockContext(self, res)
 
-    def item_model(self, name_parts: utils.ResourceIdentifier, *textures: Union[utils.Json, str], parent: utils.ResourceIdentifier = 'item/generated', no_textures: bool = False) -> ItemContext:
+    def item_model(self, name_parts: utils.ResourceIdentifier, *textures: Union[utils.Json, str], parent: utils.ResourceIdentifier = 'item/generated', no_textures: bool = False, loader: Optional[utils.ResourceIdentifier] = None) -> ItemContext:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:item/name/parts'
         :param parent: the parent model.
         :param no_textures: if the textures element should be ignored
+        :param loader: a field for a custom loader to be specified
         """
         res = utils.resource_location(self.domain, name_parts)
         if no_textures:
@@ -126,7 +128,8 @@ class ResourceManager:
             textures = utils.item_model_textures(textures)
         utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'parent': utils.resource_location(parent).join(simple=True),
-            'textures': textures
+            'textures': textures,
+            'loader': None if loader is None else utils.resource_location(loader).join()
         }, self.indent)
         return ItemContext(self, res)
 

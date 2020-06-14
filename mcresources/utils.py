@@ -169,6 +169,14 @@ def recipe_condition(data_in: Json, strict: bool = False) -> Union[List, None]:
         raise RuntimeError('Unknown object %s at recipe_condition' % str(data_in))
 
 
+def ingredient(data_in: Json) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+    ing = item_stack_list(data_in)
+    if len(ing) == 1:
+        return ing[0]
+    else:
+        return ing
+
+
 def item_stack(data_in: Json) -> Dict[str, Any]:
     if isinstance(data_in, str):
         if data_in[0:4] == 'tag!':
