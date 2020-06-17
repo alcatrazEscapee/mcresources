@@ -6,7 +6,7 @@ from collections import namedtuple
 from json import dump as json_dump
 from os import makedirs, listdir, remove as rmf, rmdir
 from os.path import join as path_join, dirname, isfile
-from typing import Union, Sequence, Any, Dict, List, Callable, Tuple
+from typing import Union, Sequence, Any, Dict, List, Callable, Tuple, Optional
 
 
 class ResourceLocation(namedtuple('ResourceLocation', ('domain', 'path'))):
@@ -315,9 +315,12 @@ def loot_entry_list(data_in: Json) -> List[Dict[str, Any]]:
         raise RuntimeError('Unknown object %s at loot_entry_list' % str(data_in))
 
 
-def loot_function_list(data_in: Json) -> List[Dict[str, Any]]:
+def loot_function_list(data_in: Json) -> Optional[List[Dict[str, Any]]]:
     # a list of loot pool functions
-    if isinstance(data_in, str):
+    if data_in is None:
+        # allow None
+        return None
+    elif isinstance(data_in, str):
         # string, so just accept a name
         return [{'function': data_in}]
     elif isinstance(data_in, Sequence):
@@ -330,8 +333,11 @@ def loot_function_list(data_in: Json) -> List[Dict[str, Any]]:
         raise RuntimeError('Unknown object %s at loot_function_list' % str(data_in))
 
 
-def loot_condition_list(data_in: Json) -> List[Dict[str, Any]]:
+def loot_condition_list(data_in: Json) -> Optional[List[Dict[str, Any]]]:
     # a list of loot pool conditions
+    if data_in is None:
+        # allow None
+        return None
     if isinstance(data_in, str):
         # string, so just accept a name
         return [{'condition': data_in}]

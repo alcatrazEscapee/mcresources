@@ -4,6 +4,11 @@
 
 from typing import Dict, Any
 
+import mcresources.utils as utils
+
+
+# ========================== Loot Functions ==========================
+
 
 def set_count(min_count: int = 1, max_count: int = -1, dist_type: str = 'minecraft:uniform') -> Dict[str, Any]:
     """ `minecraft:set_count` function
@@ -32,4 +37,22 @@ def fortune_bonus(multiplier: int = 1) -> Dict[str, Any]:
         'parameters': {
             'bonusMultiplier': multiplier
         }
+    }
+
+
+# ===================== Loot Conditions ======================
+
+
+def random_chance(chance: float = 1) -> Dict[str, Any]:
+    """ `minecraft:random_chance` """
+    return {
+        'condition': 'minecraft:random_chance',
+        'chance': chance
+    }
+
+
+def match_tool(ingredient: utils.Json) -> Dict[str, Any]:
+    return {
+        'condition': 'minecraft:match_tool',
+        'predicate': utils.ingredient(ingredient)
     }

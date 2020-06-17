@@ -6,6 +6,8 @@ from os import chdir
 from os.path import isfile
 from unittest import TestCase, main
 
+import mcresources.loot_tables as loot_tables
+import mcresources.utils as utils
 from mcresources.resource_manager import ResourceManager
 from mcresources.utils import clean_generated_resources
 
@@ -141,6 +143,28 @@ class ResourceManagerTests(TestCase):
             } for (decay, amount) in (('5', 8), ('4', 7), ('3', 5), ('2', 3), ('1', 1))
         ])
         self.assertFileEqual('data/modid/loot_tables/blocks/burningtorch.json')
+
+        self.rm.block_loot('grass', [{'entries': {
+            'type': 'minecraft:alternatives',
+            'children': utils.loot_entry_list([{
+                'name': 'minecraft:grass',
+                'conditions': loot_tables.match_tool('minecraft:shears')
+            }, {
+                'name': 'notreepunching:plant_fiber',
+                'conditions': [
+                    loot_tables.match_tool('tag!notreepunching:knives'),
+                    loot_tables.random_chance(0.25)
+                ]
+            }, {
+                'conditions': loot_tables.random_chance(0.125),
+                'functions': [
+                    loot_tables.fortune_bonus(2),
+                    'minecraft:explosion_decay'
+                ],
+                'name': 'minecraft:wheat_seeds'
+            }])
+        }, 'conditions': None}])
+        self.assertFileEqual('data/modid/loot_tables/blocks/grass.json')
 
     def test_lang(self):
         self.rm.lang('key', 'value')
