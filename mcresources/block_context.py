@@ -162,9 +162,9 @@ class BlockContext:
         top_hinge = block + '_top_hinge'
         self.rm.blockstate(door, variants=block_states.door_blockstate(bottom, bottom_hinge, top, top_hinge))
         self.rm.block_model(door + '_bottom', {'top': top, 'bottom': bottom}, parent='block/door_bottom')
-        self.rm.block_model(door + '_bottom_hinge', {'top': top, 'bottom': bottom}, parent='block/door_bottom_hinge')
+        self.rm.block_model(door + '_bottom_hinge', {'top': top, 'bottom': bottom}, parent='block/door_bottom_rh')
         self.rm.block_model(door + '_top', {'top': top, 'bottom': bottom}, parent='block/door_top')
-        self.rm.block_model(door + '_top_hinge', {'top': top, 'bottom': bottom}, parent='block/door_top_hinge')
+        self.rm.block_model(door + '_top_hinge', {'top': top, 'bottom': bottom}, parent='block/door_top_rh')
         self.rm.item_model(door)
         return self
 
@@ -196,7 +196,7 @@ class BlockContext:
         self.rm.block_model(button, {'texture': block}, parent='block/button')
         self.rm.block_model(button + '_pressed', {'texture': block}, parent='block/button_pressed')
         self.rm.block_model(button + '_inventory', {'texture': block}, parent='block/button_inventory')
-        self.rm.item_model(button, {'texture': block}, parent='block/button_inventory')
+        self.rm.item_model(button, parent=block_button + '_inventory', no_textures=True)
         return self
 
     def make_pressure_plate(self, pressure_plate_suffix: str = '_pressure_plate') -> 'BlockContext':
