@@ -142,10 +142,12 @@ class BlockContext:
         wall = self.res.join() + wall_suffix
         wall_post = block + wall_suffix + '_post'
         wall_side = block + wall_suffix + '_side'
+        wall_side_tall = block + wall_suffix + '_side_tall'
         wall_inv = block + wall_suffix + '_inventory'
-        self.rm.blockstate_multipart(wall, block_states.wall_multipart(wall_post, wall_side))
+        self.rm.blockstate_multipart(wall, block_states.wall_multipart(wall_post, wall_side, wall_side_tall))
         self.rm.block_model(wall + '_post', textures={'wall': block}, parent='block/template_wall_post')
         self.rm.block_model(wall + '_side', textures={'wall': block}, parent='block/template_wall_side')
+        self.rm.block_model(wall + '_side_tall', textures={'wall': block}, parent='block/template_wall_side_tall')
         self.rm.block_model(wall + '_inventory', textures={'wall': block}, parent='block/wall_inventory')
         self.rm.item_model(wall, parent=wall_inv, no_textures=True)
         return self

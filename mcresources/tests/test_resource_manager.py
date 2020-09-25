@@ -9,7 +9,6 @@ from unittest import TestCase, main
 import mcresources.loot_tables as loot_tables
 import mcresources.utils as utils
 from mcresources.resource_manager import ResourceManager
-from mcresources.utils import clean_generated_resources
 
 
 class ResourceManagerTests(TestCase):
@@ -226,6 +225,7 @@ class ResourceManagerTests(TestCase):
         self.assertFileEqual('assets/modid/blockstates/stone_wall.json')
         self.assertFileEqual('assets/modid/models/block/stone_wall_post.json')
         self.assertFileEqual('assets/modid/models/block/stone_wall_side.json')
+        self.assertFileEqual('assets/modid/models/block/stone_wall_side_tall.json')
         self.assertFileEqual('assets/modid/models/block/stone_wall_inventory.json')
         self.assertFileEqual('assets/modid/models/item/stone_wall.json')
 
@@ -267,7 +267,7 @@ class ResourceManagerTests(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        clean_generated_resources('generated')
+        pass  # clean_generated_resources('generated')
 
     def assertFileEqual(self, path: str):
         if isfile('test/' + path):

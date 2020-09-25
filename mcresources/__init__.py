@@ -4,5 +4,7 @@
 
 import mcresources.block_states as block_states
 import mcresources.loot_tables as loot_tables
+import mcresources.world_gen as world_gen
+
 from mcresources.resource_manager import ResourceManager
 from mcresources.utils import clean_generated_resources

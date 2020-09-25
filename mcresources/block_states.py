@@ -89,13 +89,17 @@ def fence_gate_variants(fence_gate: str, fence_gate_open: str, fence_gate_wall: 
     }
 
 
-def wall_multipart(wall_post: str, wall_side: str) -> List[Any]:
+def wall_multipart(wall_post: str, wall_side: str, wall_side_tall: str) -> List[Any]:
     return [
         ({'up': 'true'}, {'model': wall_post}),
-        ({'north': 'true'}, {'model': wall_side, 'uvlock': True}),
-        ({'east': 'true'}, {'model': wall_side, 'y': 90, 'uvlock': True}),
-        ({'south': 'true'}, {'model': wall_side, 'y': 180, 'uvlock': True}),
-        ({'west': 'true'}, {'model': wall_side, 'y': 270, 'uvlock': True})
+        ({'north': 'low'}, {'model': wall_side, 'uvlock': True}),
+        ({'east': 'low'}, {'model': wall_side, 'y': 90, 'uvlock': True}),
+        ({'south': 'low'}, {'model': wall_side, 'y': 180, 'uvlock': True}),
+        ({'west': 'low'}, {'model': wall_side, 'y': 270, 'uvlock': True}),
+        ({'north': 'tall'}, {'model': wall_side_tall, 'uvlock': True}),
+        ({'east': 'tall'}, {'model': wall_side_tall, 'y': 90, 'uvlock': True}),
+        ({'south': 'tall'}, {'model': wall_side_tall, 'y': 180, 'uvlock': True}),
+        ({'west': 'tall'}, {'model': wall_side_tall, 'y': 270, 'uvlock': True})
     ]
 
 

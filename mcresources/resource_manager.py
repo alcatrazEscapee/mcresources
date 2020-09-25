@@ -6,6 +6,7 @@ from collections import defaultdict
 from typing import Sequence, Dict, Union, Optional, Any
 
 import mcresources.utils as utils
+import mcresources.world_gen as world_gen
 from mcresources.block_context import BlockContext
 from mcresources.item_context import ItemContext
 from mcresources.recipe_context import RecipeContext
@@ -287,3 +288,61 @@ class ResourceManager:
             language = self.default_language
         for key, val in utils.lang_parts(args).items():
             self.lang_buffer[language][key] = val
+
+    def biome(self, name_parts, precipitation: str = 'none', category: str = 'none', depth: float = 0, scale: float = 0, temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Dict = None, surface_builder: str = 'minecraft:nope', air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners=None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs=None):
+        """ Creates a biome, with all possible optional parameters filled in to the minimum required state. Parameters are exactly as they appear in the final biome. """
+        if effects is None:
+            effects = {}
+        for required_effect in ('fog_color', 'sky_color', 'water_color', 'water_fog_color'):
+            if required_effect not in effects:
+                effects[required_effect] = 0
+        if air_carvers is None:
+            air_carvers = []
+        if water_carvers is None:
+            water_carvers = []
+        if features is None:
+            features = []
+        if structures is None:
+            structures = []
+        if spawners is None:
+            spawners = {}
+        if spawn_costs is None:
+            spawn_costs = {}
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
+            'precipitation': precipitation,
+            'category': category,
+            'depth': depth,
+            'scale': scale,
+            'temperature': temperature,
+            'temperature_modifier': temperature_modifier,
+            'downfall': downfall,
+            'effects': effects,
+            'carvers': {
+                'air': air_carvers,
+                'liquid': water_carvers
+            },
+            'surface_builder': surface_builder,
+            'features': features,
+            'starts': structures,
+            'spawners': spawners,
+            'player_spawn_friendly': player_spawn_friendly,
+            'creature_spawn_probability': creature_spawn_probability,
+            'parent': parent,
+            'spawn_costs': spawn_costs
+        }, self.indent)
+
+    def feature(self, name_parts: utils.ResourceIdentifier, data: Any):
+        """ Creates a configured feature. See world_gen for builders """
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_feature', res.path), world_gen.expand_type_config(data), self.indent)
+
+    def carver(self, name_parts: utils.ResourceIdentifier, data: Any):
+        """ Creates a configured carver. See world_gen for builders """
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_carver', res.path), world_gen.expand_type_config(data), self.indent)
+
+    def surface_builder(self, name_parts: utils.ResourceIdentifier, data: Any):
+        """ Creates a configured surface builder. See world_gen for builders """
+        res = utils.resource_location(self.domain, name_parts)
+        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_surface_builder', res.path), world_gen.expand_type_config(data))

@@ -2,15 +2,15 @@
 
 This is a python module aimed to enable simple generation of the many json files that are required for Minecraft modding.
 
-### Version History
+### Pack Format
 
-This tool will be updated to support the latest version of minecraft as soon as possible. For now, the latest version of this tool available for past versions of Minecraft can be found below:
+Updates of this tool will track the latest pack format (`pack_format` in a resource pack) as soon as possible. In order to generate resources compliant with a specific pack format, the latest version can be found below
 
- - Minecraft 1.14.x - 1.15.x: Latest
- - Minecraft 1.13.x: v0.0.2
- 
-Note that unless the minecraft data format changes between versions, this tool will still work on older versions of minecraft.
-
+Pack Format | Minecraft Version Range | Latest mcresources Version
+---|---|---
+6 | 1.16.2 - Latest | Latest
+5 | 1.15 - 1.16.1 | 1.3.3
+4 | 1.13 - 1.14.4 | 0.0.2
 
 ---
 ### Usage
@@ -28,14 +28,14 @@ A few elements are common to multiple methods:
 
 #### Contexts
 
-**New as of v1.1.0**: When calling various `ResourceManager` methods, they will often return a context object, one of `BlockContext`, `ItemContext`, or `RecipeContext`. This object can be used as a shortcut to add other files for a single block or item, for instance, adding a blockstate, model, item block model, and loot table with only specifying the name once:
+When calling various `ResourceManager` methods, they will often return a context object, one of `BlockContext`, `ItemContext`, or `RecipeContext`. This object can be used as a shortcut to add other files for a single block or item, for instance, adding a blockstate, model, item block model, and loot table with only specifying the name once:
 ```
 rm.blockstate(...).with_item_block_model(...).with_block_model(...)
 ```
 
 Contexts can also be obtained directly by calling `block(name_parts)`, or `item(name_parts)`.
 
-In addition, this delegated behavior has been expanded to tags. Tags no longer create single files every time the relevant `tag` method is called. Instead, they accumulate tag entries in a buffer, allowing multiple `tag` calls to append entries to a single tag.
+In addition, this delegated behavior also applies to tags. Tags no longer create single files every time the relevant `tag` method is called. Instead, they accumulate tag entries in a buffer, allowing multiple `tag` calls to append entries to a single tag.
 
 In order to finalize tag (and lang / translation) entries, a call to `ResourceManager#flush` is necessary, which will clear the current buffer for tags and translation entries and write all relevant files.
 
@@ -167,3 +167,10 @@ These are used to create item and block tags respectively
  - `values` specifies the values. It can be a single string for one value, or a list / tuple of strings for multiple values
  - `replace` specifies the replace field in the json, i.e. if the tag should replace a previous identical entry
 
+#### World Generation
+
+New in Minecraft 1.16.2 is the ability to specify all manner of world generation objects. These follow very similar "type-and-config" patterns, and have quite nested structures meaning the data generation for them is a bit different.
+
+In general, builders for the data inside world gen objects can be found in `world_gen`. These can be nested for any purpose, and the result can be fed to `rm.carver`, `rm.feature`, or `rm.surface_builder` to create configured carvers, configured features, or configured surface builders respectively.
+
+Biomes are possible with `rm.biome`, which takes *a lot* of default arguments, and will populate any missing fields to the required ones for a biome. This also does no interpolation, so anything passed in must be specfied as it should appear in the final result json.
