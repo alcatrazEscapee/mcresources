@@ -96,17 +96,20 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None, loader: Optional[utils.ResourceIdentifier] = None) -> BlockContext:
+    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None, loader: Optional[utils.ResourceIdentifier] = None, no_textures: bool = False) -> BlockContext:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:block/name/parts'
         :param parent: the parent model. If none, it is omitted
         :param elements: elements of the model. Can be a single element, which will get expanded to a list of one element
+        :param loader: an optional loader specification, for custom Forge model loaders.
+        :param no_textures: If true, textures will be ignored.
         """
         res = utils.resource_location(self.domain, name_parts)
         if textures is None:
-            textures = {'all': res.join('block/')}
+            if not no_textures:
+                textures = {'all': res.join('block/')}
         elif isinstance(textures, str):
             textures = {'all': textures}
         elif isinstance(textures, Sequence):

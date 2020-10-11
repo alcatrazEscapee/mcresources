@@ -2,24 +2,23 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from os import environ
-from os.path import abspath, dirname, join as path_join
+import os
 
-from setuptools import setup
+import setuptools
 
 # Read README.md into the setuptools long description
-with open(path_join(abspath(dirname(__file__)), 'README.md'), encoding='utf-8') as f:
+with open(os.path.join(os.path.abspath(os.path.dirname(__file__)), 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 # Obtain version from environment variable
-version = environ['VERSION']
+version = os.environ['VERSION']
 
-setup(
+setuptools.setup(
     name='mcresources',
     packages=['mcresources'],
     version=version,
     license='MIT',
-    description='An automatic resource creation tool for Minecraft 1.13+ Forge modding',
+    description='A Python Data Generator for Minecraft Modding',
     long_description=long_description,
     long_description_content_type='text/markdown',
     author='Alex O\'Neill',
