@@ -2,14 +2,13 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from collections import namedtuple
-from json import dump as json_dump
-from os import makedirs, listdir, remove as rmf, rmdir
-from os.path import join as path_join, dirname, isfile
-from typing import Union, Sequence, Any, Dict, List, Callable, Tuple, Optional
+import enum
+import json
+import os
+from typing import Union, Sequence, Any, Dict, List, Tuple, Optional, NamedTuple, Callable
 
 
-class ResourceLocation(namedtuple('ResourceLocation', ('domain', 'path'))):
+class ResourceLocation(NamedTuple('ResourceLocation', domain=str, path=str)):
 
     def join(self, prefix: str = '', simple: bool = False) -> str:
         if simple and self.domain == 'minecraft':
@@ -22,15 +21,22 @@ ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
 Json = Union[Dict[str, Any], Sequence[Any], str]
 
 
+class WriteFlag(enum.IntEnum):
+    NEW = enum.auto()
+    MODIFIED = enum.auto()
+    UNCHANGED = enum.auto()
+    ERROR = enum.auto()
+
+
 def clean_generated_resources(path: str = 'src/main/resources'):
     """
     Recursively removes all files generated using by mcresources, as identified by the inserted comment.
     Removes empty directories
     :param path: the initial path to search through
     """
-    for subdir in listdir(path):
-        sub_path = path_join(path, subdir)
-        if isfile(sub_path):
+    for subdir in os.listdir(path):
+        sub_path = os.path.join(path, subdir)
+        if os.path.isfile(sub_path):
             # File, check if valid and then delete
             if subdir.endswith('.json'):
                 delete = False
@@ -38,14 +44,14 @@ def clean_generated_resources(path: str = 'src/main/resources'):
                     if '"__comment__": "This file was automatically created by mcresources"' in file.read():
                         delete = True
                 if delete:
-                    rmf(sub_path)
+                    os.remove(sub_path)
         else:
             # Folder, search recursively
             clean_generated_resources(sub_path)
 
-        if not listdir(path):
+        if not os.listdir(path):
             # Delete empty folder
-            rmdir(path)
+            os.rmdir(path)
 
 
 def del_none(data_in: Json) -> Json:
@@ -60,13 +66,31 @@ def del_none(data_in: Json) -> Json:
         raise ValueError('None passed to `del_none`, should not be possible.')
 
 
-def write(path_parts: Sequence[str], data: Json, indent: int = 2):
-    # write output to json
-    path = path_join(*path_parts) + '.json'
-    makedirs(dirname(path), exist_ok=True)
-    data = del_none({'__comment__': 'This file was automatically created by mcresources', **data})
-    with open(path, 'w') as file:
-        json_dump(data, file, indent=indent)
+def write(path_parts: Sequence[str], data: Json, indent: int = 2, on_error: Callable[[str, Exception], Any] = None) -> WriteFlag:
+    """
+    Writes json to a file.
+    :param path_parts: The path elements of the file
+    :param data: The data to write
+    :param indent: The indent level for the json output
+    :param on_error: A consumer of a file name and error if one occurs
+    :return: 0 if the file was new, 1 if the file was modified, 2 if the file was not modified, 3 if an error occurred
+    """
+    path = os.path.join(*path_parts) + '.json'
+    try:
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        exists = False
+        if os.path.isfile(path):
+            with open(path, 'r') as file:
+                old_data = json.load(file)
+            if old_data == data:
+                return WriteFlag.UNCHANGED
+            exists = True
+        with open(path, 'w') as file:
+            json.dump(data, file, indent=indent)
+            return WriteFlag.MODIFIED if exists else WriteFlag.NEW
+    except Exception as e:
+        on_error(path, e)
+        return WriteFlag.ERROR
 
 
 def resource_location(*elements: ResourceIdentifier) -> ResourceLocation:

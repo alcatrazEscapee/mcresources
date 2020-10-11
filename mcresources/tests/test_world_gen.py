@@ -14,9 +14,70 @@ class UtilsTests(TestCase):
         self.assertEqual({'type': 'minecraft:name', 'config': {}}, wg.configure('name'))
         self.assertEqual({'type': 'minecraft:name', 'config': {'stuff': 'things'}}, wg.configure('name', {'stuff': 'things'}))
 
+    def test_configure_decorated(self):
+        self.assertEqual({'type': 'minecraft:name', 'config': {}}, wg.configure_decorated(wg.configure('name')))
+        self.assertEqual({
+            'type': 'minecraft:decorated',
+            'config': {
+                'feature': {},
+                'decorator': {'type': 'minecraft:step1', 'config': {}}
+            }
+        }, wg.configure_decorated({}, 'step1'))
+        self.assertEqual({
+            'type': 'minecraft:decorated',
+            'config': {
+                'feature': {
+                    'type': 'minecraft:decorated',
+                    'config': {
+                        'feature': {},
+                        'decorator': {'type': 'minecraft:step2', 'config': {}}
+                    }
+                },
+                'decorator': {'type': 'minecraft:step1', 'config': {}}
+            }
+        }, wg.configure_decorated({}, 'step1', 'step2'))
+        self.assertEqual({
+            'type': 'minecraft:decorated',
+            'config': {
+                'feature': {},
+                'decorator': {'type': 'minecraft:step1', 'config': {'step1': '1'}}
+            }
+        }, wg.configure_decorated({}, ('step1', {'step1': '1'})))
+        self.assertEqual({
+            'type': 'minecraft:decorated',
+            'config': {
+                'feature': {
+                    'type': 'minecraft:decorated',
+                    'config': {
+                        'feature': {},
+                        'decorator': {'type': 'minecraft:step2', 'config': {}}
+                    }
+                },
+                'decorator': {'type': 'minecraft:step1', 'config': {'step1': '1'}}
+            }
+        }, wg.configure_decorated({}, ('step1', {'step1': '1'}), 'step2'))
+
     def test_decorated(self):
-        self.assertEqual({'type': 'minecraft:decorated', 'config': {'feature': {}, 'decorator': {'type': 'minecraft:d', 'config': {}}}}, wg.decorated({}, 'd'))
-        self.assertEqual({'type': 'minecraft:decorated', 'config': {'feature': {}, 'decorator': {'type': 'minecraft:d', 'config': {'d': 'd'}}}}, wg.decorated({}, 'd', {'d': 'd'}))
+        self.assertEqual({
+            'type': 'minecraft:decorated',
+            'config': {
+                'feature': {},
+                'decorator': {
+                    'type': 'minecraft:d',
+                    'config': {}
+                }
+            }
+        }, wg.decorated({}, 'd'))
+        self.assertEqual({
+            'type': 'minecraft:decorated',
+            'config': {
+                'feature': {},
+                'decorator': {
+                    'type': 'minecraft:d',
+                    'config': {'d': 'd'}
+                }
+            }
+        }, wg.decorated({}, 'd', {'d': 'd'}))
 
     def test_surface_builder_config(self):
         self.assertEqual({

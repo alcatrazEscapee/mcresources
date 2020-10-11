@@ -2,13 +2,18 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from typing import Union, Sequence, Dict, Any, Optional
+from typing import Union, Sequence, Dict, Any, Optional, Tuple
 
 from mcresources import utils
 
 
 def configure(name_parts: utils.ResourceIdentifier, config: Optional[Dict[str, Any]] = None):
-    """ Creates a configured object from a resource identifier (the type), and an optional config entry. This can be chained. """
+    """
+    Creates a configured feature object. This can be nested.
+    :param name_parts: This is the id of the feature
+    :param config: This is the config of the feature. It can be omitted
+    :return: A configured feature json
+    """
     res = utils.resource_location(name_parts)
     if config is None:
         config = {}
@@ -16,6 +21,22 @@ def configure(name_parts: utils.ResourceIdentifier, config: Optional[Dict[str, A
         'type': res.join(),
         'config': config
     }
+
+
+def configure_decorated(feature: Dict[str, Any], *decorators: Sequence[Union[Tuple[utils.ResourceIdentifier, Dict[str, Any]], utils.ResourceIdentifier]]) -> utils.Json:
+    """
+    This configures a feature with a series of decorators and optional decorator configs.
+    :param feature: The configured feature, typically obtained from configure()
+    :param decorators: A sequence of decorators. Each entry can either be an identifier (for a decorator without a config), or a tuple of an identifier, and a config object.
+    :return: A configured feature
+    """
+    for decorator in decorators[::-1]:  # last entries are applied to the inside
+        if isinstance(decorator, Tuple):
+            decorator, config = decorator
+        else:
+            decorator, config = decorator, {}
+        feature = decorated(feature, decorator, config)
+    return feature
 
 
 def decorated(feature: Dict[str, Any], decorator_name_parts: utils.ResourceIdentifier, config: Optional[Dict[str, Any]] = None) -> utils.Json:

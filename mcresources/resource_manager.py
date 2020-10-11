@@ -3,7 +3,7 @@
 #  For more information see the project LICENSE file
 
 from collections import defaultdict
-from typing import Sequence, Dict, Union, Optional, Any
+from typing import Sequence, Dict, Union, Optional, Any, Callable
 
 import mcresources.utils as utils
 import mcresources.world_gen as world_gen
@@ -14,7 +14,7 @@ from mcresources.tag import Tag
 
 
 class ResourceManager:
-    def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, default_language: str = 'en_us'):
+    def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
         """
         Creates a new Resource Manager. This is the supplier for all resource creation calls.
         :param domain: the domain / mod id for current resources.
@@ -24,24 +24,34 @@ class ResourceManager:
         self.domain = domain
         self.indent = indent
         self.default_language = default_language
+        self.on_error = on_error
+
+        if self.on_error is None:
+            self.on_error = lambda file, err: None  # Ignore errors
 
         # Internal buffers, used for tags and lang entries, which are all written at the same time
         self.lang_buffer: Dict[str, Dict[str, str]] = defaultdict(dict)  # Keys are (language, translation key)
         self.tags_buffer: Dict[str, Dict[utils.ResourceLocation, Tag]] = defaultdict(dict)  # Keys are (tag type, tag name)
+
+        # Statistics
+        self.new_files: int = 0
+        self.modified_files: int = 0
+        self.unchanged_files: int = 0
+        self.error_files: int = 0
 
     def flush(self):
         """
         Flushes all buffered tags and lang files
         """
         for language, contents in self.lang_buffer.items():
-            utils.write((*self.resource_dir, 'assets', self.domain, 'lang', language), contents, self.indent)
+            self.write((*self.resource_dir, 'assets', self.domain, 'lang', language), contents)
 
         for tag_type, tags in self.tags_buffer.items():
             for tag_res, tag in tags.items():
-                utils.write((*self.resource_dir, 'data', tag_res.domain, 'tags', tag_type, tag_res.path), {
+                self.write((*self.resource_dir, 'data', tag_res.domain, 'tags', tag_type, tag_res.path), {
                     'replace': tag.replace,
                     'values': [v.join() for v in tag.values]
-                }, self.indent)
+                })
 
         self.lang_buffer.clear()
         self.tags_buffer.clear()
@@ -69,9 +79,9 @@ class ResourceManager:
             for key, prop in variants.items():
                 if 'model' not in prop:
                     prop['model'] = model
-        utils.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
+        self.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
             'variants': variants
-        }, self.indent)
+        })
         return BlockContext(self, res)
 
     def blockstate_multipart(self, name_parts: utils.ResourceIdentifier, parts: Sequence[utils.Json]) -> BlockContext:
@@ -81,9 +91,9 @@ class ResourceManager:
         :param parts: The parts. Each element can be a 2-element sequence of a 'when' and 'apply' json, or a single 'apply' json.
         """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
+        self.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
             'multipart': utils.blockstate_multipart_parts(parts)
-        }, self.indent)
+        })
         return BlockContext(self, res)
 
     def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None, loader: Optional[utils.ResourceIdentifier] = None) -> BlockContext:
@@ -103,12 +113,12 @@ class ResourceManager:
             textures = dict((k, res.join('block')) for k in textures)
         if isinstance(elements, Dict):
             elements = [elements]
-        utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
+        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
             'parent': parent,
             'textures': textures,
             'elements': elements,
             'loader': None if loader is None else utils.resource_location(loader).join()
-        }, self.indent)
+        })
         return BlockContext(self, res)
 
     def item_model(self, name_parts: utils.ResourceIdentifier, *textures: Union[utils.Json, str], parent: utils.ResourceIdentifier = 'item/generated', no_textures: bool = False, loader: Optional[utils.ResourceIdentifier] = None) -> ItemContext:
@@ -127,11 +137,11 @@ class ResourceManager:
             if textures is None or len(textures) == 0:
                 textures = res.join('item/')
             textures = utils.item_model_textures(textures)
-        utils.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
+        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'parent': utils.resource_location(parent).join(simple=True),
             'textures': textures,
             'loader': None if loader is None else utils.resource_location(loader).join()
-        }, self.indent)
+        })
         return ItemContext(self, res)
 
     def crafting_shapeless(self, name_parts: utils.ResourceIdentifier, ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
@@ -144,13 +154,13 @@ class ResourceManager:
         :param conditions: Any conditions for the recipe to be enabled.
         """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shapeless',
             'group': group,
             'ingredients': utils.item_stack_list(ingredients),
             'result': utils.item_stack(result),
             'conditions': utils.recipe_condition(conditions)
-        }, self.indent)
+        })
         return RecipeContext(self, res)
 
     def crafting_shaped(self, name_parts: utils.ResourceIdentifier, pattern: Sequence[str], ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
@@ -164,14 +174,14 @@ class ResourceManager:
         :param conditions: Any conditions for the recipe to be enabled.
         """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shaped',
             'group': group,
             'pattern': pattern,
             'key': utils.item_stack_dict(ingredients, ''.join(pattern)[0]),
             'result': utils.item_stack(result),
             'conditions': utils.recipe_condition(conditions)
-        }, self.indent)
+        })
         return RecipeContext(self, res)
 
     def recipe(self, name_parts: utils.ResourceIdentifier, type_in: str, data_in: Dict[str, Any], group: str = None, conditions: utils.Json = None) -> RecipeContext:
@@ -184,12 +194,12 @@ class ResourceManager:
         :param conditions: Any conditions for the recipe to be enabled.
         """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': type_in,
             'group': group,
             **data_in,
             'conditions': utils.recipe_condition(conditions)
-        }, self.indent)
+        })
         return RecipeContext(self, res)
 
     def data(self, name_parts: utils.ResourceIdentifier, data_in: Dict[str, Any], root_domain: str = 'data'):
@@ -200,7 +210,7 @@ class ResourceManager:
         :param root_domain: The root location (either data or assets) to insert into
         """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, root_domain, res.domain, res.path), data_in, self.indent)
+        self.write((*self.resource_dir, root_domain, res.domain, res.path), data_in)
 
     def advancement(self, name_parts: utils.ResourceIdentifier, display: utils.Json = None, parent: str = None, criteria: Dict[str, Dict[str, utils.Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, utils.Json] = None):
         """
@@ -215,13 +225,13 @@ class ResourceManager:
         res = utils.resource_location(self.domain, name_parts)
         if requirements is None:
             requirements = [[k for k in criteria.keys()]]
-        utils.write((*self.resource_dir, 'data', res.domain, 'advancements', res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'advancements', res.path), {
             'parent': parent,
             'criteria': criteria,
             'display': display,
             'requirements': requirements,
             'rewards': rewards
-        }, self.indent)
+        })
 
     def tag(self, name_parts: utils.ResourceIdentifier, root_domain: str, *values: utils.ResourceIdentifier, replace: bool = None):
         """
@@ -274,7 +284,7 @@ class ResourceManager:
         :param loot_pools: The loot table elements
         """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'loot_tables', 'blocks', res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'loot_tables', 'blocks', res.path), {
             'type': 'minecraft:block',
             'pools': utils.loot_pool_list(loot_pools, 'block')
         })
@@ -309,7 +319,7 @@ class ResourceManager:
         if spawn_costs is None:
             spawn_costs = {}
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
             'precipitation': precipitation,
             'category': category,
             'depth': depth,
@@ -330,19 +340,36 @@ class ResourceManager:
             'creature_spawn_probability': creature_spawn_probability,
             'parent': parent,
             'spawn_costs': spawn_costs
-        }, self.indent)
+        })
 
-    def feature(self, name_parts: utils.ResourceIdentifier, data: Any):
+    def feature(self, name_parts: utils.ResourceIdentifier, data: utils.Json):
         """ Creates a configured feature. See world_gen for builders """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_feature', res.path), world_gen.expand_type_config(data), self.indent)
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_feature', res.path), world_gen.expand_type_config(data))
 
-    def carver(self, name_parts: utils.ResourceIdentifier, data: Any):
+    def carver(self, name_parts: utils.ResourceIdentifier, data: utils.Json):
         """ Creates a configured carver. See world_gen for builders """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_carver', res.path), world_gen.expand_type_config(data), self.indent)
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_carver', res.path), world_gen.expand_type_config(data))
 
-    def surface_builder(self, name_parts: utils.ResourceIdentifier, data: Any):
+    def surface_builder(self, name_parts: utils.ResourceIdentifier, data: utils.Json):
         """ Creates a configured surface builder. See world_gen for builders """
         res = utils.resource_location(self.domain, name_parts)
-        utils.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_surface_builder', res.path), world_gen.expand_type_config(data))
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_surface_builder', res.path), world_gen.expand_type_config(data))
+
+    def write(self, path_parts: Sequence[str], data: utils.Json):
+        """
+        Writes data to a file, inserting an autogenerated comment and deletes None entries from the data
+        :param path_parts: The path elements of the file
+        :param data: The json data to write
+        """
+        data = utils.del_none({'__comment__': 'This file was automatically created by mcresources', **data})
+        flag = utils.write(path_parts, data, self.indent, self.on_error)
+        if flag == utils.WriteFlag.NEW:
+            self.new_files += 1
+        elif flag == utils.WriteFlag.MODIFIED:
+            self.modified_files += 1
+        elif flag == utils.WriteFlag.UNCHANGED:
+            self.unchanged_files += 1
+        elif flag == utils.WriteFlag.ERROR:
+            self.error_files += 1

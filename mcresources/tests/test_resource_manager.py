@@ -12,6 +12,7 @@ from mcresources.resource_manager import ResourceManager
 
 
 class ResourceManagerTests(TestCase):
+    rm: ResourceManager = None
 
     def test_blockstate(self):
         self.rm.blockstate('test_block')
@@ -267,7 +268,8 @@ class ResourceManagerTests(TestCase):
 
     @classmethod
     def tearDownClass(cls):
-        pass  # clean_generated_resources('generated')
+        print('New = %d, Modified = %d, Unchanged = %d, Errors = %d' % (cls.rm.new_files, cls.rm.modified_files, cls.rm.unchanged_files, cls.rm.error_files))
+        utils.clean_generated_resources('generated')
 
     def assertFileEqual(self, path: str):
         if isfile('test/' + path):
