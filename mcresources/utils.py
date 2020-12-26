@@ -40,7 +40,7 @@ def clean_generated_resources(path: str = 'src/main/resources'):
             # File, check if valid and then delete
             if subdir.endswith('.json'):
                 delete = False
-                with open(sub_path, 'r') as file:
+                with open(sub_path, 'r', encoding='utf-8') as file:
                     if '"__comment__": "This file was automatically created by mcresources"' in file.read():
                         delete = True
                 if delete:
@@ -80,12 +80,12 @@ def write(path_parts: Sequence[str], data: Json, indent: int = 2, on_error: Call
         os.makedirs(os.path.dirname(path), exist_ok=True)
         exists = False
         if os.path.isfile(path):
-            with open(path, 'r') as file:
+            with open(path, 'r', encoding='utf-8') as file:
                 old_data = json.load(file)
             if old_data == data:
                 return WriteFlag.UNCHANGED
             exists = True
-        with open(path, 'w') as file:
+        with open(path, 'w', encoding='utf-8') as file:
             json.dump(data, file, indent=indent)
             return WriteFlag.MODIFIED if exists else WriteFlag.NEW
     except Exception as e:
