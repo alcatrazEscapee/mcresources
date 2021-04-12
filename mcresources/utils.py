@@ -238,15 +238,12 @@ def item_stack_dict(data_in: Union[Dict[str, Any], str], default_char: str = '#'
         raise RuntimeError('Unknown object %s at item_stack_dict' % str(data_in))
 
 
-def item_model_textures(data_in: Json) -> Dict[str, Any]:
-    if isinstance(data_in, str):
-        return {'layer0': data_in}
-    elif isinstance(data_in, Sequence):
-        return dict(('layer%d' % i, data_in[i]) for i in range(len(data_in)))
-    elif isinstance(data_in, Dict):
-        return data_in
+def item_model_textures(data_in: Tuple[Json, ...]) -> Dict[str, Any]:
+    # Input must be in tuple (varargs) format
+    if len(data_in) == 1 and isinstance(data_in[0], Dict):
+        return data_in[0]
     else:
-        raise RuntimeError('Unknown object %s at item_model_textures' % str(data_in))
+        return dict(('layer%d' % i, layer) for i, layer in enumerate(flatten_list(data_in)))
 
 
 def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[Dict[str, Any]]:

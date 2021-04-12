@@ -52,6 +52,18 @@ class ResourceManagerTests(TestCase):
         self.rm.item('test_item').with_item_model()
         self.assertFileEqual('assets/modid/models/item/test_item.json')
 
+    def test_item_model_no_textures(self):
+        self.rm.item_model('item_no_textures', no_textures=True)
+        self.assertFileEqual('assets/modid/models/item/item_no_textures.json')
+
+    def test_item_model_custom_textures(self):
+        self.rm.item_model('item_custom_textures', {'first': 'a', 'second': 'b'})
+        self.assertFileEqual('assets/modid/models/item/item_custom_textures.json')
+
+    def test_item_model_multiple_layers(self):
+        self.rm.item_model('item_multiple_layers', 'layer_texture', 'layer2_texture')
+        self.assertFileEqual('assets/modid/models/item/item_multiple_layers.json')
+
     def test_crafting_shapeless(self):
         pass
 

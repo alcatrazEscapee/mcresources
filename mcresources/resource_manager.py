@@ -138,7 +138,7 @@ class ResourceManager:
             textures = None
         else:
             if textures is None or len(textures) == 0:
-                textures = res.join('item/')
+                textures = res.join('item/'),
             textures = utils.item_model_textures(textures)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'parent': utils.resource_location(parent).join(simple=True),

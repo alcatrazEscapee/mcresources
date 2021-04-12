@@ -1,0 +1,8 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "item/generated",
+  "textures": {
+    "layer0": "layer_texture",
+    "layer1": "layer2_texture"
+  }
+}
