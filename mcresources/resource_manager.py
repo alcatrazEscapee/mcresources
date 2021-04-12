@@ -4,6 +4,7 @@
 
 from collections import defaultdict
 from typing import Sequence, Dict, Union, Optional, Any, Callable
+import warnings
 
 import mcresources.utils as utils
 import mcresources.world_gen as world_gen
@@ -103,9 +104,11 @@ class ResourceManager:
         :param textures: the textures for the model. Defaults to 'domain:block/name/parts'
         :param parent: the parent model. If none, it is omitted
         :param elements: elements of the model. Can be a single element, which will get expanded to a list of one element
-        :param loader: an optional loader specification, for custom Forge model loaders.
+        :param loader: Deprecated - use custom_block_model() instead
         :param no_textures: If true, textures will be ignored.
         """
+        if loader is not None:
+            warnings.warn('The loader parameter of block_model() is deprecated, use custom_block_model() instead', DeprecationWarning, 2)
         res = utils.resource_location(self.domain, name_parts)
         if textures is None:
             if not no_textures:
@@ -124,6 +127,14 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
+    def custom_block_model(self, name_parts: utils.ResourceIdentifier, loader: utils.ResourceIdentifier, data: Dict[str, Any]) -> BlockContext:
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
+            'loader': utils.resource_location(loader).join(),
+            **data,
+        })
+        return BlockContext(self, res)
+
     def item_model(self, name_parts: utils.ResourceIdentifier, *textures: Union[utils.Json, str], parent: utils.ResourceIdentifier = 'item/generated', no_textures: bool = False, loader: Optional[utils.ResourceIdentifier] = None) -> ItemContext:
         """
         Creates an item model file
@@ -133,6 +144,8 @@ class ResourceManager:
         :param no_textures: if the textures element should be ignored
         :param loader: a field for a custom loader to be specified
         """
+        if loader is not None:
+            warnings.warn('The loader parameter of item_model() is deprecated, use custom_item_model() instead', DeprecationWarning, 2)
         res = utils.resource_location(self.domain, name_parts)
         if no_textures:
             textures = None
@@ -144,6 +157,16 @@ class ResourceManager:
             'parent': utils.resource_location(parent).join(simple=True),
             'textures': textures,
             'loader': None if loader is None else utils.resource_location(loader).join()
+        })
+        return ItemContext(self, res)
+
+    def custom_item_model(self, name_parts: utils.ResourceIdentifier, loader: utils.ResourceIdentifier, data: Dict[str, Any]) -> ItemContext:
+        if loader is not None:
+            warnings.warn('The loader parameter of block_model() is deprecated, use custom_block_model() instead', DeprecationWarning)
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
+            'loader': utils.resource_location(loader).join(),
+            **data
         })
         return ItemContext(self, res)
 

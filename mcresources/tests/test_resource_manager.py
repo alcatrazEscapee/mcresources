@@ -45,6 +45,10 @@ class ResourceManagerTests(TestCase):
         self.rm.block('test_block').with_item_model()
         self.assertFileEqual('assets/modid/models/item/test_block.json')
 
+    def test_custom_block_model(self):
+        self.rm.custom_block_model('block_custom_loader', 'test_loader', {'raw_data': {'more_raw_data': 3}})
+        self.assertFileEqual('assets/modid/models/block/block_custom_loader.json')
+
     def test_item_model(self):
         self.rm.item_model('test_item')
         self.assertFileEqual('assets/modid/models/item/test_item.json')
@@ -63,6 +67,10 @@ class ResourceManagerTests(TestCase):
     def test_item_model_multiple_layers(self):
         self.rm.item_model('item_multiple_layers', 'layer_texture', 'layer2_texture')
         self.assertFileEqual('assets/modid/models/item/item_multiple_layers.json')
+
+    def test_custom_item_model(self):
+        self.rm.custom_item_model('item_custom_loader', 'test_loader', {'raw_data': {'more_raw_data': 3}})
+        self.assertFileEqual('assets/modid/models/item/item_custom_loader.json')
 
     def test_crafting_shapeless(self):
         pass
