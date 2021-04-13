@@ -161,8 +161,6 @@ class ResourceManager:
         return ItemContext(self, res)
 
     def custom_item_model(self, name_parts: utils.ResourceIdentifier, loader: utils.ResourceIdentifier, data: Dict[str, Any]) -> ItemContext:
-        if loader is not None:
-            warnings.warn('The loader parameter of block_model() is deprecated, use custom_block_model() instead', DeprecationWarning)
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'loader': utils.resource_location(loader).join(),
