@@ -60,10 +60,12 @@ class UtilsTests(TestCase):
         self.assertEqual({'tag': 'b'}, utils.item_stack('tag!b'))
         self.assertEqual({1: 2}, utils.item_stack({1: 2}))
         self.assertEqual({'item': 'c', 'count': 3}, utils.item_stack([3, 'c']))
+        self.assertEqual({'tag': 'a'}, utils.item_stack('#a'))
 
     def test_item_stack_list(self):
         self.assertEqual([{'item': 'stuff'}], utils.item_stack_list('stuff'))
         self.assertEqual([{'item': 'stuff'}, {'tag': 'thing'}], utils.item_stack_list(['stuff', 'tag!thing']))
+        self.assertEqual([{'tag': 'thing'}], utils.item_stack_list(['#thing']))
 
     def test_lang_parts(self):
         self.assertEqual({'a': 'b'}, utils.lang_parts(['a', 'b']))

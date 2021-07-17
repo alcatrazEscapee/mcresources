@@ -270,9 +270,11 @@ class ResourceManager:
         if res not in self.tags_buffer[root_domain]:
             if replace is None:
                 replace = False
-            self.tags_buffer[root_domain][res] = Tag(replace, values)
+            tag = Tag(replace)
+            tag.add_all(values)
+            self.tags_buffer[root_domain][res] = tag
         else:
-            self.tags_buffer[root_domain][res].values += values
+            self.tags_buffer[root_domain][res].add_all(values)
             if replace is not None:
                 self.tags_buffer[root_domain][res].replace = replace
 

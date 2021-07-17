@@ -109,7 +109,8 @@ class ResourceManagerTests(TestCase):
         self.rm.flush()
         self.assertFileEqual('data/modid/tags/blocks/someones/block.json')
 
-        self.rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', replace=True)
+        # Check duplicates
+        self.rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', 'othermod:iron_block', 'othermod:iron_block', replace=True)
         self.rm.flush()
         self.assertFileEqual('data/modid/tags/blocks/blocks/iron.json')
 

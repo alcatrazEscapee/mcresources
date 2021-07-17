@@ -205,6 +205,8 @@ def item_stack(data_in: Json) -> Dict[str, Any]:
     if isinstance(data_in, str):
         if data_in[0:4] == 'tag!':
             return {'tag': data_in[4:]}
+        elif data_in[0] == '#':
+            return {'tag': data_in[1:]}
         else:
             return {'item': data_in}
     elif isinstance(data_in, Dict):
@@ -315,6 +317,8 @@ def loot_entry_list(data_in: Json) -> List[Dict[str, Any]]:
         # String, so either create an item or a tag based drop
         if data_in[0:4] == 'tag!':
             return [{'type': 'minecraft:tag', 'name': data_in[4:]}]
+        elif data_in[0] == '#':
+            return [{'type': 'minecraft:tag', 'name': data_in[1:]}]
         else:
             return [{'type': 'minecraft:item', 'name': data_in}]
     elif isinstance(data_in, Sequence):
