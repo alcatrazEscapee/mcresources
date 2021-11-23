@@ -2,8 +2,9 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-import mcresources.resource_manager as resource_manager
-import mcresources.utils as utils
+from type_definitions import *
+
+import utils
 
 
 class RecipeContext:
@@ -11,11 +12,11 @@ class RecipeContext:
     Contextual information about a recipe, used to simplify similar json calls
     """
 
-    def __init__(self, rm: 'resource_manager.ResourceManager', res: utils.ResourceLocation):
-        self.rm: resource_manager.ResourceManager = rm
-        self.res: utils.ResourceLocation = res
+    def __init__(self, rm, res: ResourceLocation):
+        self.rm = rm
+        self.res: ResourceLocation = res
 
-    def with_advancement(self, unlock_item: utils.Json, parent: str = 'minecraft:recipes/root') -> 'RecipeContext':
+    def with_advancement(self, unlock_item: Json, parent: str = 'minecraft:recipes/root') -> 'RecipeContext':
         """
         Shortcut to ResourceManager#advancement, with a standard recipe advancement
         :param unlock_item: The item required to unlock the recipe. Uses the 'minecraft:inventory_changed' trigger

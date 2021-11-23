@@ -2,11 +2,11 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from typing import Sequence, Dict, Union, Optional
+from type_definitions import *
+from typing import Optional
 
-import mcresources.block_states as block_states
-import mcresources.resource_manager as resource_manager
-import mcresources.utils as utils
+import block_states
+import utils
 
 
 class BlockContext:
@@ -14,32 +14,32 @@ class BlockContext:
     Contextual information about a block, used to simplify similar json calls
     """
 
-    def __init__(self, rm: 'resource_manager.ResourceManager', res: utils.ResourceLocation):
-        self.rm: resource_manager.ResourceManager = rm
-        self.res: utils.ResourceLocation = res
+    def __init__(self, rm, res: ResourceLocation):
+        self.rm = rm
+        self.res: ResourceLocation = res
 
-    def with_blockstate(self, model: str = None, variants: Dict[str, utils.Json] = None, use_default_model: bool = True) -> 'BlockContext':
+    def with_blockstate(self, model: str = None, variants: JsonObject = None, use_default_model: bool = True) -> 'BlockContext':
         """
         Shortcut for ResourceManager#blockstate
         """
         self.rm.blockstate(self.res, model, variants, use_default_model)
         return self
 
-    def with_blockstate_multipart(self, parts: Sequence[utils.Json]) -> 'BlockContext':
+    def with_blockstate_multipart(self, *parts: Json) -> 'BlockContext':
         """
         Shortcut for ResourceManager#blockstate_multipart
         """
-        self.rm.blockstate_multipart(self.res, parts)
+        self.rm.blockstate_multipart(self.res, *parts)
         return self
 
-    def with_block_model(self, textures: Union[Dict[str, str], str] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None) -> 'BlockContext':
+    def with_block_model(self, textures: Union[Dict[str, str], str] = None, parent: Union[str, None] = 'block/cube_all', elements: Json = None) -> 'BlockContext':
         """
         Shortcut for ResourceManager#block_model
         """
         self.rm.block_model(self.res, textures, parent, elements)
         return self
 
-    def with_block_loot(self, loot_pools: utils.Json) -> 'BlockContext':
+    def with_block_loot(self, loot_pools: Json) -> 'BlockContext':
         """
         Shortcut for ResourceManager#block_loot
         """
@@ -129,7 +129,7 @@ class BlockContext:
         if texture is None:
             texture = block
 
-        self.rm.blockstate_multipart(fence, parts=block_states.fence_multipart(fence_post, fence_side))
+        self.rm.blockstate_multipart(fence, *block_states.fence_multipart(fence_post, fence_side))
         self.rm.block_model(fence + '_post', textures={'texture': texture}, parent='block/fence_post')
         self.rm.block_model(fence + '_side', textures={'texture': texture}, parent='block/fence_side')
         self.rm.block_model(fence + '_inventory', textures={'texture': texture}, parent='block/fence_inventory')
@@ -172,7 +172,7 @@ class BlockContext:
         if texture is None:
             texture = block
 
-        self.rm.blockstate_multipart(wall, block_states.wall_multipart(wall_post, wall_side, wall_side_tall))
+        self.rm.blockstate_multipart(wall, *block_states.wall_multipart(wall_post, wall_side, wall_side_tall))
         self.rm.block_model(wall + '_post', textures={'wall': texture}, parent='block/template_wall_post')
         self.rm.block_model(wall + '_side', textures={'wall': texture}, parent='block/template_wall_side')
         self.rm.block_model(wall + '_side_tall', textures={'wall': texture}, parent='block/template_wall_side_tall')

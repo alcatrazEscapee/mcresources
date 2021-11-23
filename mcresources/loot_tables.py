@@ -2,15 +2,15 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from typing import Dict, Any
+from type_definitions import *
 
-import mcresources.utils as utils
+import utils
 
 
 # ========================== Loot Functions ==========================
 
 
-def set_count(min_count: int = 1, max_count: int = -1, dist_type: str = 'minecraft:uniform') -> Dict[str, Any]:
+def set_count(min_count: int = 1, max_count: int = -1, dist_type: str = 'minecraft:uniform') -> JsonObject:
     """ `minecraft:set_count` function
     :param min_count: the min count for a distribution, or the count if a single value is used
     :param max_count: the max count for a distribution
@@ -26,7 +26,7 @@ def set_count(min_count: int = 1, max_count: int = -1, dist_type: str = 'minecra
     }
 
 
-def fortune_bonus(multiplier: int = 1) -> Dict[str, Any]:
+def fortune_bonus(multiplier: int = 1) -> JsonObject:
     """ `minecraft:apply_bonus` function with the fortune enchantment, with a uniform bonus count
     :param multiplier: the bonusMultiplier
     """
@@ -43,7 +43,7 @@ def fortune_bonus(multiplier: int = 1) -> Dict[str, Any]:
 # ===================== Loot Conditions ======================
 
 
-def random_chance(chance: float = 1) -> Dict[str, Any]:
+def random_chance(chance: float = 1) -> JsonObject:
     """ `minecraft:random_chance` """
     return {
         'condition': 'minecraft:random_chance',
@@ -51,7 +51,7 @@ def random_chance(chance: float = 1) -> Dict[str, Any]:
     }
 
 
-def match_tool(ingredient: utils.Json) -> Dict[str, Any]:
+def match_tool(ingredient: Json) -> JsonObject:
     return {
         'condition': 'minecraft:match_tool',
         'predicate': utils.ingredient(ingredient)

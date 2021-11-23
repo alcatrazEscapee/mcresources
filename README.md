@@ -6,11 +6,13 @@ This is a python module aimed to enable simple generation of the many json files
 
 Updates of this tool will track the latest pack format (`pack_format` in a resource pack) as soon as possible. In order to generate resources compliant with a specific pack format, the latest version can be found below
 
-Pack Format | Minecraft Version Range | Latest mcresources Version
+Pack Format | Minimum Minecraft Version | Latest mcresources Version
 ---|---|---
-6 | 1.16.2 - Latest | Latest
-5 | 1.15 - 1.16.1 | 1.3.3
-4 | 1.13 - 1.14.4 | 0.0.2
+8 | 1.18 | Latest
+7 | 1.17 | 1.4.6
+6 | 1.16.2 | 1.4.6
+5 | 1.15 | 1.3.3
+4 | 1.13 | 0.0.2
 
 ---
 ### Usage

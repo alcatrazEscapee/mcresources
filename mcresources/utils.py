@@ -5,20 +5,9 @@
 import enum
 import json
 import os
-from typing import Union, Sequence, Any, Dict, List, Tuple, Optional, NamedTuple, Callable
 
-
-class ResourceLocation(NamedTuple('ResourceLocation', domain=str, path=str)):
-
-    def join(self, prefix: str = '', simple: bool = False) -> str:
-        if simple and self.domain == 'minecraft':
-            return prefix + self.path
-        else:
-            return self.domain + ':' + prefix + self.path
-
-
-ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
-Json = Union[Dict[str, Any], Sequence[Any], str]
+from type_definitions import *
+from typing import List, Optional, Callable
 
 
 class WriteFlag(enum.IntEnum):
@@ -381,3 +370,54 @@ def loot_default_conditions(loot_type: str) -> Union[List[Dict[str, Any]], None]
         return [{'condition': 'minecraft:survives_explosion'}]
     else:
         return None
+
+
+# World Generation
+
+
+
+def expand_configured(data: Json) -> JsonObject:
+    """
+    Creates a configured object from multiple possibilities. Accepts:
+    - A tuple consisting of exactly two elements, the type name and the config
+    - Otherwise, data is assumed to be a ResourceIdentifier indicating a type name
+    """
+    if isinstance(data, tuple) and len(data) == 2 and isinstance(data[1], dict):
+        return configure(data[0], data[1])
+    else:
+        return configure(data)
+
+
+def configure(type_name: ResourceIdentifier, config: Optional[JsonObject] = None) -> JsonObject:
+    """
+    Creates a configured object with a type and config
+    """
+    res = resource_location(type_name)
+    if config is None:
+        config = {}
+    return {
+        'type': res.join(),
+        'config': config
+    }
+
+
+def block_state(data: Union[str, Dict[str, Any]]):
+    """ Converts a block state registry name, with optional properties to the format used by all block state codecs """
+    if isinstance(data, str):
+        property_map = {}
+        if '[' in data and data.endswith(']'):
+            name, properties = data[:-1].split('[')
+            for pair in properties.split(','):
+                key, value = pair.split('=')
+                property_map[key] = value
+        else:
+            name = data
+        return {'Name': name, 'Properties': property_map}
+    elif isinstance(data, dict):
+        if 'Name' not in data:
+            raise RuntimeError('Missing \'Name\' key in block_state for object %s' % str(data))
+        if 'Properties' not in data:
+            data['Properties'] = {}
+        return data
+    else:
+        raise RuntimeError('Unknown object %s at block_state' % str(data))

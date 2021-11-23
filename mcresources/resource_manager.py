@@ -2,16 +2,17 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
+from type_definitions import *
+from typing import Optional, Callable
 from collections import defaultdict
-from typing import Sequence, Dict, Union, Optional, Any, Callable
+
+import utils
 import warnings
 
-import mcresources.utils as utils
-import mcresources.world_gen as world_gen
-from mcresources.block_context import BlockContext
-from mcresources.item_context import ItemContext
-from mcresources.recipe_context import RecipeContext
-from mcresources.tag import Tag
+from block_context import BlockContext
+from item_context import ItemContext
+from recipe_context import RecipeContext
+from tag import Tag
 
 
 class ResourceManager:
@@ -32,7 +33,7 @@ class ResourceManager:
 
         # Internal buffers, used for tags and lang entries, which are all written at the same time
         self.lang_buffer: Dict[str, Dict[str, str]] = defaultdict(dict)  # Keys are (language, translation key)
-        self.tags_buffer: Dict[str, Dict[utils.ResourceLocation, Tag]] = defaultdict(dict)  # Keys are (tag type, tag name)
+        self.tags_buffer: Dict[str, Dict[ResourceLocation, Tag]] = defaultdict(dict)  # Keys are (tag type, tag name)
 
         # Statistics
         self.new_files: int = 0
@@ -57,13 +58,13 @@ class ResourceManager:
         self.lang_buffer.clear()
         self.tags_buffer.clear()
 
-    def block(self, name_parts: utils.ResourceIdentifier) -> BlockContext:
+    def block(self, name_parts: ResourceIdentifier) -> BlockContext:
         return BlockContext(self, utils.resource_location(self.domain, name_parts))
 
-    def item(self, name_parts: utils.ResourceIdentifier) -> ItemContext:
+    def item(self, name_parts: ResourceIdentifier) -> ItemContext:
         return ItemContext(self, utils.resource_location(self.domain, name_parts))
 
-    def blockstate(self, name_parts: utils.ResourceIdentifier, model: str = None, variants: Dict[str, utils.Json] = None, use_default_model: bool = True) -> BlockContext:
+    def blockstate(self, name_parts: ResourceIdentifier, model: str = None, variants: Dict[str, Json] = None, use_default_model: bool = True) -> BlockContext:
         """
         Creates a blockstate file
         :param name_parts: the resource location, including path elements.
@@ -85,7 +86,7 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def blockstate_multipart(self, name_parts: utils.ResourceIdentifier, parts: Sequence[utils.Json]) -> BlockContext:
+    def blockstate_multipart(self, name_parts: ResourceIdentifier, *parts: Json) -> BlockContext:
         """
         Creates a blockstate file, using the multipart model syntax
         :param name_parts: the resource location, including path elements.
@@ -97,7 +98,7 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def block_model(self, name_parts: utils.ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: utils.Json = None, loader: Optional[utils.ResourceIdentifier] = None, no_textures: bool = False) -> BlockContext:
+    def block_model(self, name_parts: ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: Json = None, loader: Optional[ResourceIdentifier] = None, no_textures: bool = False) -> BlockContext:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
@@ -127,7 +128,7 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def custom_block_model(self, name_parts: utils.ResourceIdentifier, loader: utils.ResourceIdentifier, data: Dict[str, Any]) -> BlockContext:
+    def custom_block_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: Dict[str, Any]) -> BlockContext:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
             'loader': utils.resource_location(loader).join(),
@@ -135,7 +136,7 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def item_model(self, name_parts: utils.ResourceIdentifier, *textures: Union[utils.Json, str], parent: utils.ResourceIdentifier = 'item/generated', no_textures: bool = False, loader: Optional[utils.ResourceIdentifier] = None) -> ItemContext:
+    def item_model(self, name_parts: ResourceIdentifier, *textures: Union[Json, str], parent: ResourceIdentifier = 'item/generated', no_textures: bool = False, loader: Optional[ResourceIdentifier] = None) -> ItemContext:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
@@ -160,7 +161,7 @@ class ResourceManager:
         })
         return ItemContext(self, res)
 
-    def custom_item_model(self, name_parts: utils.ResourceIdentifier, loader: utils.ResourceIdentifier, data: Dict[str, Any]) -> ItemContext:
+    def custom_item_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: Dict[str, Any]) -> ItemContext:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'loader': utils.resource_location(loader).join(),
@@ -168,7 +169,7 @@ class ResourceManager:
         })
         return ItemContext(self, res)
 
-    def crafting_shapeless(self, name_parts: utils.ResourceIdentifier, ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
+    def crafting_shapeless(self, name_parts: ResourceIdentifier, ingredients: Json, result: Json, group: str = None, conditions: Optional[Json] = None) -> RecipeContext:
         """
         Creates a shapeless crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -187,7 +188,7 @@ class ResourceManager:
         })
         return RecipeContext(self, res)
 
-    def crafting_shaped(self, name_parts: utils.ResourceIdentifier, pattern: Sequence[str], ingredients: utils.Json, result: utils.Json, group: str = None, conditions: utils.Json = None) -> RecipeContext:
+    def crafting_shaped(self, name_parts: ResourceIdentifier, pattern: Sequence[str], ingredients: Json, result: Json, group: str = None, conditions: Optional[Json] = None) -> RecipeContext:
         """
         Creates a shaped crafting recipe.
         :param name_parts: The resource location, including path elements.
@@ -208,7 +209,7 @@ class ResourceManager:
         })
         return RecipeContext(self, res)
 
-    def recipe(self, name_parts: utils.ResourceIdentifier, type_in: str, data_in: Dict[str, Any], group: str = None, conditions: utils.Json = None) -> RecipeContext:
+    def recipe(self, name_parts: ResourceIdentifier, type_in: str, data_in: Dict[str, Any], group: str = None, conditions: Json = None) -> RecipeContext:
         """
         Creates a non-crafting recipe file, used for custom mod recipes using vanilla's data pack system
         :param name_parts: The resource location, including path elements.
@@ -226,7 +227,7 @@ class ResourceManager:
         })
         return RecipeContext(self, res)
 
-    def data(self, name_parts: utils.ResourceIdentifier, data_in: Dict[str, Any], root_domain: str = 'data'):
+    def data(self, name_parts: ResourceIdentifier, data_in: Dict[str, Any], root_domain: str = 'data'):
         """
         Creates a generic data file. Used for anything and everything under the sun.
         :param name_parts: The resource location, including path elements.
@@ -236,7 +237,7 @@ class ResourceManager:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, root_domain, res.domain, res.path), data_in)
 
-    def advancement(self, name_parts: utils.ResourceIdentifier, display: utils.Json = None, parent: str = None, criteria: Dict[str, Dict[str, utils.Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, utils.Json] = None):
+    def advancement(self, name_parts: ResourceIdentifier, display: Json = None, parent: str = None, criteria: Dict[str, Dict[str, Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, Json] = None):
         """
         Creates a generic advancement. Performs basic filling in of data types
         :param name_parts: The resource location, including path elements.
@@ -257,7 +258,7 @@ class ResourceManager:
             'rewards': rewards
         })
 
-    def tag(self, name_parts: utils.ResourceIdentifier, root_domain: str, *values: utils.ResourceIdentifier, replace: bool = None):
+    def tag(self, name_parts: ResourceIdentifier, root_domain: str, *values: ResourceIdentifier, replace: bool = None):
         """
         Creates or appends to a tag entry
         :param name_parts: The resource location, including path elements.
@@ -278,19 +279,19 @@ class ResourceManager:
             if replace is not None:
                 self.tags_buffer[root_domain][res].replace = replace
 
-    def item_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
+    def item_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'items', *values, replace=replace)
 
-    def block_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
+    def block_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'blocks', *values, replace=replace)
 
-    def entity_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
+    def entity_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'entity_types', *values, replace=replace)
 
-    def fluid_tag(self, name_parts: utils.ResourceIdentifier, *values: utils.ResourceIdentifier, replace: bool = None):
+    def fluid_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'fluids', *values, replace=replace)
 
-    def block_loot(self, name_parts: utils.ResourceIdentifier, loot_pools: utils.Json):
+    def block_loot(self, name_parts: ResourceIdentifier, loot_pools: Json):
         """
         Creates a loot table for a block
         If loot_pools is passed in as a list or tuple, it will attempt to create a pool for each entry in the tuple
@@ -324,6 +325,57 @@ class ResourceManager:
             language = self.default_language
         for key, val in utils.lang_parts(args).items():
             self.lang_buffer[language][key] = val
+
+    # === World Generation === #
+
+    def dimension(self):
+        pass
+
+    def dimension_type(self):
+        pass
+
+    def biome(self):
+        pass
+
+    def configured_carver(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
+        return self.configured(name_parts, feature, config, 'configured_carver')
+
+    def configured_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
+        return self.configured(name_parts, feature, config, 'configured_feature')
+
+    def configured_structure_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
+        return self.configured(name_parts, feature, config, 'configured_structure_feature')
+
+    def configured(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None, root: str = ''):
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', root, res.path), utils.configure(feature, config))
+
+    def placed_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, *placements: TypeWithOptionalConfig):
+        res = utils.resource_location(self.domain, name_parts)
+        placements = []
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'placed_feature', res.path), {
+            'feature': utils.resource_location(feature).join(),
+            'placement': [
+                world_gen.configure(p)
+                for p in placements
+            ]
+        })
+
+    def noise(self, name_parts: ResourceIdentifier, first_octave: float, *amplitudes: float):
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'noise', res.path), {
+            'firstOctave': first_octave,
+            'amplitudes': amplitudes
+        })
+
+    def noise_settings(self):
+        pass
+
+    def processor_list(self):
+        pass
+
+    def template_pool(self):
+        pass
 
     def biome(self, name_parts, precipitation: str = 'none', category: str = 'none', depth: float = 0, scale: float = 0, temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Dict = None, surface_builder: str = 'minecraft:nope', air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners=None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs=None):
         """ Creates a biome, with all possible optional parameters filled in to the minimum required state. Parameters are exactly as they appear in the final biome. """
@@ -383,7 +435,7 @@ class ResourceManager:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_surface_builder', res.path), world_gen.expand_type_config(data))
 
-    def write(self, path_parts: Sequence[str], data: utils.Json):
+    def write(self, path_parts: Sequence[str], data: Json):
         """
         Writes data to a file, inserting an autogenerated comment and deletes None entries from the data
         :param path_parts: The path elements of the file
