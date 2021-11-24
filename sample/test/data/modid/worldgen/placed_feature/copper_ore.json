@@ -1,0 +1,20 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "feature": "minecraft:copper_ore",
+  "placement": [
+    {
+      "type": "minecraft:in_square"
+    },
+    {
+      "type": "modid:special_placement"
+    },
+    {
+      "type": "minecraft:not_in_square",
+      "amount": 3
+    },
+    {
+      "type": "modid:super_special_placement",
+      "value": 123
+    }
+  ]
+}

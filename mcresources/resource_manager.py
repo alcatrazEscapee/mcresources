@@ -328,14 +328,70 @@ class ResourceManager:
 
     # === World Generation === #
 
-    def dimension(self):
-        pass
+    def dimension(self, name_parts: ResourceIdentifier, dimension_type: ResourceIdentifier, generator: Json):
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'data', res.domain, 'dimension', res.path), {
+            'type': utils.resource_location(dimension_type).join(),
+            'generator': generator
+        })
 
-    def dimension_type(self):
-        pass
+    def dimension_type(self, name_parts: ResourceIdentifier, fixed_time: int, has_skylight: bool, has_ceiling: bool, ultrawarm: bool, natural: bool, coordinate_scale: float, piglin_safe: bool, bed_works: bool, respawn_anchor_works: bool, has_raids: bool, min_y: int, height: int, logical_height: int, infiniburn: ResourceIdentifier, effects: ResourceIdentifier, ambient_light: float):
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'data', res.domain, 'dimension_type', res.path), {
+            'fixed_time': fixed_time,
+            'has_skylight': has_skylight,
+            'has_ceiling': has_ceiling,
+            'ultrawarm': ultrawarm,
+            'natural': natural,
+            'coordinate_scale': coordinate_scale,
+            'piglin_safe': piglin_safe,
+            'bed_works': bed_works,
+            'respawn_anchor_works': respawn_anchor_works,
+            'has_raids': has_raids,
+            'min_y': min_y,
+            'height': height,
+            'logical_height': logical_height,
+            'infiniburn': utils.resource_location(infiniburn).join(),
+            'effects': utils.resource_location(effects).join(),
+            'ambient_light': ambient_light
+        })
 
-    def biome(self):
-        pass
+    def biome(self, name_parts: ResourceIdentifier, precipitation: str = 'none', category: str = 'none', temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Optional[Json] = None, air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners: Optional[Json] = None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs: Optional[Json] = None):
+        """ Creates a biome, with all possible optional parameters filled in to the minimum required state. Parameters are exactly as they appear in the final biome. """
+        if effects is None:
+            effects = {}
+        for required_effect in ('fog_color', 'sky_color', 'water_color', 'water_fog_color'):
+            if required_effect not in effects:
+                effects[required_effect] = 0
+
+        if features is None:
+            features = []
+        if structures is None:
+            structures = []
+        if spawners is None:
+            spawners = {}
+        if spawn_costs is None:
+            spawn_costs = {}
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
+            'precipitation': precipitation,
+            'category': category,
+            'temperature': temperature,
+            'temperature_modifier': temperature_modifier,
+            'downfall': downfall,
+            'effects': effects,
+            'carvers': {
+                'air': air_carvers,
+                'liquid': water_carvers
+            },
+            'features': features,
+            'starts': structures,
+            'spawners': spawners,
+            'player_spawn_friendly': player_spawn_friendly,
+            'creature_spawn_probability': creature_spawn_probability,
+            'parent': parent,
+            'spawn_costs': spawn_costs
+        })
 
     def configured_carver(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
         return self.configured(name_parts, feature, config, 'configured_carver')
@@ -352,11 +408,10 @@ class ResourceManager:
 
     def placed_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, *placements: TypeWithOptionalConfig):
         res = utils.resource_location(self.domain, name_parts)
-        placements = []
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'placed_feature', res.path), {
             'feature': utils.resource_location(feature).join(),
             'placement': [
-                world_gen.configure(p)
+                utils.configured_placement(p)
                 for p in placements
             ]
         })
@@ -368,72 +423,32 @@ class ResourceManager:
             'amplitudes': amplitudes
         })
 
-    def noise_settings(self):
-        pass
-
-    def processor_list(self):
-        pass
-
-    def template_pool(self):
-        pass
-
-    def biome(self, name_parts, precipitation: str = 'none', category: str = 'none', depth: float = 0, scale: float = 0, temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Dict = None, surface_builder: str = 'minecraft:nope', air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners=None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs=None):
-        """ Creates a biome, with all possible optional parameters filled in to the minimum required state. Parameters are exactly as they appear in the final biome. """
-        if effects is None:
-            effects = {}
-        for required_effect in ('fog_color', 'sky_color', 'water_color', 'water_fog_color'):
-            if required_effect not in effects:
-                effects[required_effect] = 0
-        if air_carvers is None:
-            air_carvers = []
-        if water_carvers is None:
-            water_carvers = []
-        if features is None:
-            features = []
-        if structures is None:
-            structures = []
-        if spawners is None:
-            spawners = {}
-        if spawn_costs is None:
-            spawn_costs = {}
+    def noise_settings(self, name_parts: ResourceIdentifier, ore_veins_enabled: bool, noodle_caves_enabled: bool, legacy_random_source: bool, disable_mob_generation: bool, aquifers_enabled: bool, noise_caves_enabled: bool, default_block: Json, default_fluid: Json, sea_level: int, noise: Json, surface_rule: Json, structures: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
-            'precipitation': precipitation,
-            'category': category,
-            'depth': depth,
-            'scale': scale,
-            'temperature': temperature,
-            'temperature_modifier': temperature_modifier,
-            'downfall': downfall,
-            'effects': effects,
-            'carvers': {
-                'air': air_carvers,
-                'liquid': water_carvers
-            },
-            'surface_builder': surface_builder,
-            'features': features,
-            'starts': structures,
-            'spawners': spawners,
-            'player_spawn_friendly': player_spawn_friendly,
-            'creature_spawn_probability': creature_spawn_probability,
-            'parent': parent,
-            'spawn_costs': spawn_costs
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'noise_settings', res.path), {
+            'ore_veins_enabled': ore_veins_enabled,
+            'noodle_caves_enabled': noodle_caves_enabled,
+            'legacy_random_source': legacy_random_source,
+            'disable_mob_generation': disable_mob_generation,
+            'aquifers_enabled': aquifers_enabled,
+            'noise_caves_enabled': noise_caves_enabled,
+            'default_block': utils.block_state(default_block),
+            'default_fluid': utils.block_state(default_fluid),
+            'sea_level': sea_level,
+            'noise': noise,
+            'surface_rule': surface_rule,
+            'structures': structures
         })
 
-    def feature(self, name_parts: utils.ResourceIdentifier, data: utils.Json):
-        """ Creates a configured feature. See world_gen for builders """
+    def processor_list(self, name_parts: ResourceIdentifier, *processors: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_feature', res.path), world_gen.expand_type_config(data))
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'processor_list', res.path), {
+            'processors': processors
+        })
 
-    def carver(self, name_parts: utils.ResourceIdentifier, data: utils.Json):
-        """ Creates a configured carver. See world_gen for builders """
+    def template_pool(self, name_parts: ResourceIdentifier, data: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_carver', res.path), world_gen.expand_type_config(data))
-
-    def surface_builder(self, name_parts: utils.ResourceIdentifier, data: utils.Json):
-        """ Creates a configured surface builder. See world_gen for builders """
-        res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'configured_surface_builder', res.path), world_gen.expand_type_config(data))
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'template_pool', res.path), data)
 
     def write(self, path_parts: Sequence[str], data: Json):
         """

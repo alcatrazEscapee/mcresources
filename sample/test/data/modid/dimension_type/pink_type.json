@@ -1,0 +1,19 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "fixed_time": 0,
+  "has_skylight": true,
+  "has_ceiling": false,
+  "ultrawarm": true,
+  "natural": false,
+  "coordinate_scale": 1,
+  "piglin_safe": true,
+  "bed_works": false,
+  "respawn_anchor_works": false,
+  "has_raids": false,
+  "min_y": -32,
+  "height": 128,
+  "logical_height": 128,
+  "infiniburn": "minecraft:overworld",
+  "effects": "minecraft:the_nether",
+  "ambient_light": 0.125
+}

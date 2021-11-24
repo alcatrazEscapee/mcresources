@@ -12,6 +12,9 @@ from resource_manager import ResourceManager
 
 rm = ResourceManager(domain='modid', resource_dir='generated', indent=2)
 os.chdir('../../sample')
+utils.clean_generated_resources('generated')
+os.makedirs('generated', exist_ok=True)
+
 
 def test_blockstate():
     rm.blockstate('test_block')
@@ -280,6 +283,53 @@ def test_block_pressure_plate():
     assert_file_equal('assets/modid/models/block/wood_pressure_plate.json')
     assert_file_equal('assets/modid/models/block/wood_pressure_plate_down.json')
     assert_file_equal('assets/modid/models/item/wood_pressure_plate.json')
+
+
+# === World Generation ===
+
+def test_dimension():
+    rm.dimension('pink', 'pink_type', {
+        'type': 'pink:pink',
+        'seed': 1234
+    })
+    assert_file_equal('data/modid/dimension/pink.json')
+
+def test_dimension_type():
+    rm.dimension_type('pink_type', 0, True, False, True, False, 1, True, False, False, False, -32, 128, 128, 'overworld', 'the_nether', 0.125)
+    assert_file_equal('data/modid/dimension_type/pink_type.json')
+
+def test_biome():
+    pass
+
+def test_configured_carver():
+    rm.configured_carver('cave', 'minecraft:cave', {'probability': 1})
+    assert_file_equal('data/modid/worldgen/configured_carver/cave.json')
+
+def test_configured_feature():
+    rm.configured_feature('lava_lake', 'minecraft:lake', {'block': 'minecraft:lava'})
+    assert_file_equal('data/modid/worldgen/configured_feature/lava_lake.json')
+
+def test_configured_structure_feature():
+    rm.configured_structure_feature('big_house', 'minecraft:house')
+    assert_file_equal('data/modid/worldgen/configured_structure_feature/big_house.json')
+
+def test_placed_feature():
+    rm.placed_feature('copper_ore', 'minecraft:copper_ore', 'in_square', 'modid:special_placement', ('not_in_square', {'amount': 3}), ('modid:super_special_placement', {'value': 123}))
+    assert_file_equal('data/modid/worldgen/placed_feature/copper_ore.json')
+
+def test_noise():
+    rm.noise('calcite', -9, 1.0, 1.0, 1.0, 1.0)
+    assert_file_equal('data/modid/worldgen/noise/calcite.json')
+
+def test_noise_settings():
+    rm.noise_settings('overworld', True, True, False, False, True, True, 'minecraft:stone', 'minecraft:water[level=0]', 63, {'complicated': True}, {'very_complicated': True}, {'superbly_complicated': True})
+    assert_file_equal('data/modid/worldgen/noise_settings/overworld.json')
+
+def test_processor_list():
+    pass
+
+def test_template_pool():
+    pass
 
 
 def assert_file_equal(path: str):

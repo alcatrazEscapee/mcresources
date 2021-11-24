@@ -38,9 +38,9 @@ def clean_generated_resources(path: str = 'src/main/resources'):
             # Folder, search recursively
             clean_generated_resources(sub_path)
 
-        if not os.listdir(path):
-            # Delete empty folder
-            os.rmdir(path)
+    if not os.listdir(path):
+        # Delete empty folder
+        os.rmdir(path)
 
 
 def del_none(data_in: Json) -> Json:
@@ -375,7 +375,6 @@ def loot_default_conditions(loot_type: str) -> Union[List[Dict[str, Any]], None]
 # World Generation
 
 
-
 def expand_configured(data: Json) -> JsonObject:
     """
     Creates a configured object from multiple possibilities. Accepts:
@@ -386,6 +385,19 @@ def expand_configured(data: Json) -> JsonObject:
         return configure(data[0], data[1])
     else:
         return configure(data)
+
+
+def configured_placement(data: Json) -> JsonObject:
+    if isinstance(data, tuple) and len(data) == 2 and isinstance(data[1], dict):
+        assert 'type' not in data[1], 'Type specified twice for placement'
+        return {
+            'type': resource_location(data[0]).join(),
+            **data[1]
+        }
+    else:
+        return {
+            'type': resource_location(data).join()
+        }
 
 
 def configure(type_name: ResourceIdentifier, config: Optional[JsonObject] = None) -> JsonObject:
@@ -401,7 +413,25 @@ def configure(type_name: ResourceIdentifier, config: Optional[JsonObject] = None
     }
 
 
-def block_state(data: Union[str, Dict[str, Any]]):
+def vertical_anchor(y: int, anchor: Literal['absolute', 'above_bottom', 'below_top'] = 'absolute') -> VerticalAnchor:
+    return as_vertical_anchor((anchor, y))
+
+
+def as_vertical_anchor(va: VerticalAnchor) -> VerticalAnchor:
+    types = ('absolute', 'above_bottom', 'below_top')
+    if isinstance(va, int):
+        return {'absolute': va}
+    elif isinstance(va, tuple):
+        assert len(va) == 2 and isinstance(va[0], int) and va[1] in types
+        return {va[1]: va[0]}
+    elif isinstance(va, dict):
+        assert len(va) == 1
+        assert any(k in va and isinstance(va[k], int) for k in types)
+        return va
+    raise ValueError('Unknown VerticalAnchor: %s' % str(va))
+
+
+def block_state(data: Json):
     """ Converts a block state registry name, with optional properties to the format used by all block state codecs """
     if isinstance(data, str):
         property_map = {}

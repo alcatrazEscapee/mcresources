@@ -1,0 +1,29 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "ore_veins_enabled": true,
+  "noodle_caves_enabled": true,
+  "legacy_random_source": false,
+  "disable_mob_generation": false,
+  "aquifers_enabled": true,
+  "noise_caves_enabled": true,
+  "default_block": {
+    "Name": "minecraft:stone",
+    "Properties": {}
+  },
+  "default_fluid": {
+    "Name": "minecraft:water",
+    "Properties": {
+      "level": "0"
+    }
+  },
+  "sea_level": 63,
+  "noise": {
+    "complicated": true
+  },
+  "surface_rule": {
+    "very_complicated": true
+  },
+  "structures": {
+    "superbly_complicated": true
+  }
+}

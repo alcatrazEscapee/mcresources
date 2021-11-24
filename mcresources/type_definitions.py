@@ -1,5 +1,5 @@
 
-from typing import Dict, Any, Union, Sequence, Tuple, NamedTuple
+from typing import Dict, Any, Union, Sequence, Tuple, NamedTuple, Literal
 
 # Json
 JsonObject = Dict[str, Any]
@@ -21,3 +21,6 @@ ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
 
 # Minecraft
 TypeWithOptionalConfig = Union[ResourceIdentifier, Tuple[ResourceIdentifier, Json]]
+
+VerticalAnchorType = Literal['absolute', 'above_bottom', 'below_top']
+VerticalAnchor = Union[Tuple[VerticalAnchorType, int], Dict[str, int], int]
