@@ -23,4 +23,4 @@ ResourceIdentifier = Union[ResourceLocation, Sequence[str], str]
 TypeWithOptionalConfig = Union[ResourceIdentifier, Tuple[ResourceIdentifier, Json]]
 
 VerticalAnchorType = Literal['absolute', 'above_bottom', 'below_top']
-VerticalAnchor = Union[Tuple[VerticalAnchorType, int], Dict[str, int], int]
+VerticalAnchor = Union[Tuple[VerticalAnchorType, int], Tuple[VerticalAnchorType, int], Dict[str, int], int]

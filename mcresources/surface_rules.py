@@ -33,7 +33,7 @@ def badlands() -> JsonObject:
 def biome_condition(biomes: Sequence[ResourceIdentifier], then: JsonObject) -> JsonObject:
     return condition({
         'type': 'minecraft:biome',
-        'biome_is': [utils.resource_location(r).join() for r in utils.flatten_list(biomes)]
+        'biome_is': [utils.resource_location(r).join() for r in utils.str_list(biomes)]
     }, then)
 
 def noise_threshold_condition(noise: ResourceIdentifier, min_value: float, max_value: float, then: JsonObject) -> JsonObject:

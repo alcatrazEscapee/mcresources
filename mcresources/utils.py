@@ -456,8 +456,13 @@ def as_vertical_anchor(va: VerticalAnchor) -> VerticalAnchor:
     if isinstance(va, int):
         return {'absolute': va}
     elif isinstance(va, tuple):
-        assert len(va) == 2 and isinstance(va[0], int) and va[1] in types
-        return {va[1]: va[0]}
+        assert len(va) == 2, 'Invalid vertical anchor: %s' % str(va)
+        if isinstance(va[0], int):
+            assert va[1] in types, 'Invalid vertical anchor: %s' % str(va)
+            return {va[1]: va[0]}
+        elif isinstance(va[1], int):
+            assert va[0] in types, 'Invalid vertical anchor: %s' % str(va)
+            return {va[0]: va[1]}
     elif isinstance(va, dict):
         assert len(va) == 1
         assert any(k in va and isinstance(va[k], int) for k in types)
