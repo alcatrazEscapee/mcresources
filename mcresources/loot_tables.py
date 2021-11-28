@@ -9,7 +9,7 @@ import utils
 
 # General utils for creating loot pools, and loot entries
 
-def pool(*entries: Json, conditions: Optional[Json] = None, functions: Optional[Json] = None, rolls: int = 1, bonus_rolls: int = 1) -> JsonObject:
+def pool(*entries: Json, conditions: Optional[Json] = None, functions: Optional[Json] = None, rolls: int = 1, bonus_rolls: Optional[int] = None) -> JsonObject:
     return {
         'entries': entries,
         'conditions': conditions,
@@ -82,6 +82,11 @@ def fortune_table(chances: Sequence[float]) -> JsonObject:
         'condition': 'minecraft:table_bonus',
         'enchantment': 'minecraft:fortune',
         'chances': chances
+    }
+
+def survives_explosion() -> JsonObject:
+    return {
+        'condition': 'minecraft:survives_explosion'
     }
 
 

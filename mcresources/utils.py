@@ -310,15 +310,19 @@ def loot_pool(data_in: Json, loot_type: str) -> JsonObject:
             'entries': [{
                 'type': 'minecraft:alternatives',
                 'children': loot_entries(data_in)
-            }]
+            }],
+            'conditions': loot_default_conditions(loot_type)
         }
     else:
         raise RuntimeError('Unknown object %s at loot_pool' % str(data_in))
 
 
-def loot_entries(data_in: Json) -> List[JsonObject]:
+def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
     # Creates a single loot pool entry
-    if isinstance(data_in, str):
+    if data_in is None:
+        # allow None
+        return None
+    elif isinstance(data_in, str):
         # String, so either create an item or a tag based drop
         # Allows two custom formats:
         # '3 minecraft:dirt' -> adds a set_count(3) function
