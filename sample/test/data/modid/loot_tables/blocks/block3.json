@@ -4,11 +4,21 @@
   "pools": [
     {
       "name": "loot_pool",
-      "rolls": 3,
+      "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "modid:my_item"
+          "name": "modid:block3",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": {
+                "type": "minecraft:uniform",
+                "min": 5,
+                "max": 7
+              }
+            }
+          ]
         }
       ],
       "conditions": [

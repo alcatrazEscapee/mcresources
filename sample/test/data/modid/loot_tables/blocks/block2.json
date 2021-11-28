@@ -8,22 +8,13 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "modid:my_item"
-        }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ]
-    },
-    {
-      "name": "loot_pool",
-      "rolls": 1,
-      "entries": [
-        {
-          "type": "minecraft:item",
-          "name": "modid:my_other_item"
+          "name": "modid:block3",
+          "functions": [
+            {
+              "function": "minecraft:set_count",
+              "count": 3
+            }
+          ]
         }
       ],
       "conditions": [

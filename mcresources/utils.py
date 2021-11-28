@@ -272,64 +272,98 @@ def lang_parts(data_in: Sequence[Json], entries: Dict[str, str] = None) -> Dict[
 # ================== LOOT TABLES ===================
 
 
-def loot_pool_list(data_in: Json, loot_type: str) -> List[Dict[str, Any]]:
-    # Top level loot pool parser
+def loot_pool(data_in: Json, loot_type: str) -> JsonObject:
+    # Creates a single loot pool
     if isinstance(data_in, str):
-        # Simplest loot pool, construct a single entry
-        return [{
+        # One 'minecraft:item' entry
+        return {
             'name': 'loot_pool',
             'rolls': 1,
-            'entries': loot_entry_list(data_in),
+            'entries': loot_entries(data_in),
             'conditions': loot_default_conditions(loot_type),
-        }]
+        }
     elif isinstance(data_in, Dict):
-        # Single loot pool with any amount of things specified
-        return [{
-            'name': 'loot_pool',
-            'rolls': dict_get(data_in, 'rolls', 1),
-            'bonus_rolls': dict_get(data_in, 'bonus_rolls'),
-            'entries': dict_get(data_in, 'entries', data_in, map_function=loot_entry_list),
-            'conditions': dict_get(data_in, 'conditions', default=loot_default_conditions(loot_type),
-                                   map_function=loot_condition_list),
-            'functions': dict_get(data_in, 'functions', map_function=loot_function_list),
-        }]
+        # Infer if this is a pool, or a single entry (with inferred pool). When in doubt, assume an entry
+        if 'entries' in data_in or 'rolls' in data_in or 'bonus_rolls' in data_in:
+            # Assume pool
+            return {
+                'name': 'loot_pool',
+                'rolls': dict_get(data_in, 'rolls', 1),
+                'bonus_rolls': dict_get(data_in, 'bonus_rolls'),
+                'entries': dict_get(data_in, 'entries', data_in, map_function=loot_entries),
+                'conditions': dict_get(data_in, 'conditions', default=loot_default_conditions(loot_type), map_function=loot_conditions),
+                'functions': dict_get(data_in, 'functions', map_function=loot_functions),
+            }
+        else:
+            # Assume single pool, one entry
+            return {
+                'name': 'loot_pool',
+                'rolls': 1,
+                'entries': loot_entries(data_in),
+                'conditions': loot_default_conditions(loot_type)
+            }
     elif isinstance(data_in, Sequence):
-        # List of pools, so flatten the list and try make a loot pool list for each entry
-        return [*flatten_list([loot_pool_list(p, loot_type) for p in data_in])]
+        # Infer a 'minecraft:alternatives' pool with multiple entries
+        return {
+            'name': 'loot_pool',
+            'rolls': 1,
+            'entries': [{
+                'type': 'minecraft:alternatives',
+                'children': loot_entries(data_in)
+            }]
+        }
     else:
-        raise RuntimeError('Unknown object %s at loot_pool_list' % str(data_in))
+        raise RuntimeError('Unknown object %s at loot_pool' % str(data_in))
 
 
-def loot_entry_list(data_in: Json) -> List[Dict[str, Any]]:
+def loot_entries(data_in: Json) -> List[JsonObject]:
     # Creates a single loot pool entry
     if isinstance(data_in, str):
         # String, so either create an item or a tag based drop
-        if data_in[0:4] == 'tag!':
-            return [{'type': 'minecraft:tag', 'name': data_in[4:]}]
-        elif data_in[0] == '#':
-            return [{'type': 'minecraft:tag', 'name': data_in[1:]}]
+        # Allows two custom formats:
+        # '3 minecraft:dirt' -> adds a set_count(3) function
+        # '3-6 minecraft:dirt' -> adds a set_count(3, 6) function
+        if ' ' in data_in:
+            count, data_in = data_in.split(' ')
+            if '-' in count:
+                min_c, max_c = count.split('-')
+                count = {'type': 'minecraft:uniform', 'min': int(min_c), 'max': int(max_c)}
+            else:
+                count = int(count)
         else:
-            return [{'type': 'minecraft:item', 'name': data_in}]
+            count = None
+
+        # Allow both tag!minecraft:dirt and #minecraft:dirt to refer to tags, as well as default items
+        if data_in[0:4] == 'tag!':
+            item = {'type': 'minecraft:tag', 'name': data_in[4:]}
+        elif data_in[0] == '#':
+            item = {'type': 'minecraft:tag', 'name': data_in[1:]}
+        else:
+            item = {'type': 'minecraft:item', 'name': data_in}
+
+        if count is not None:
+            item['functions'] = [{'function': 'minecraft:set_count', 'count': count}]
+        return [item]
     elif isinstance(data_in, Sequence):
         # iterable, so create a loot entry list for each element and flatten
-        return [*flatten_list([loot_entry_list(p) for p in data_in])]
+        return [*flatten_list([loot_entries(p) for p in data_in])]
     elif isinstance(data_in, Dict):
         # dict, so check through available parameters and construct a loot entry from those
         return [{
-            'type': dict_get(data_in, 'type', default='item'),
-            'conditions': dict_get(data_in, 'conditions', map_function=loot_condition_list),
+            'type': dict_get(data_in, 'type', default='minecraft:item'),
             'name': dict_get(data_in, 'name'),
-            'children': dict_get(data_in, 'children'),
+            'children': dict_get(data_in, 'children', map_function=loot_entries),
+            'conditions': dict_get(data_in, 'conditions', map_function=loot_conditions),
+            'functions': dict_get(data_in, 'functions', map_function=loot_functions),
             'expand': dict_get(data_in, 'expand'),
-            'functions': dict_get(data_in, 'functions', map_function=loot_function_list),
             'weight': dict_get(data_in, 'weight'),
             'quality': dict_get(data_in, 'quality')
         }]
     else:
-        raise RuntimeError('Unknown object %s at loot_entry_list' % str(data_in))
+        raise RuntimeError('Unknown object %s at loot_entries' % str(data_in))
 
 
-def loot_function_list(data_in: Json) -> Optional[List[Dict[str, Any]]]:
+def loot_functions(data_in: Json) -> Optional[List[JsonObject]]:
     # a list of loot pool functions
     if data_in is None:
         # allow None
@@ -339,15 +373,15 @@ def loot_function_list(data_in: Json) -> Optional[List[Dict[str, Any]]]:
         return [{'function': data_in}]
     elif isinstance(data_in, Sequence):
         # iterable, so create a list for each condition and flatten
-        return [*flatten_list([loot_function_list(p) for p in data_in])]
+        return [*flatten_list([loot_functions(p) for p in data_in])]
     elif isinstance(data_in, Dict):
         # dict, so just use raw data
         return [data_in]
     else:
-        raise RuntimeError('Unknown object %s at loot_function_list' % str(data_in))
+        raise RuntimeError('Unknown object %s at loot_functions' % str(data_in))
 
 
-def loot_condition_list(data_in: Json) -> Optional[List[Dict[str, Any]]]:
+def loot_conditions(data_in: Json) -> Optional[List[JsonObject]]:
     # a list of loot pool conditions
     if data_in is None:
         # allow None
@@ -357,15 +391,15 @@ def loot_condition_list(data_in: Json) -> Optional[List[Dict[str, Any]]]:
         return [{'condition': data_in}]
     elif isinstance(data_in, Sequence):
         # iterable, so create a list for each condition and flatten
-        return [*flatten_list([loot_condition_list(p) for p in data_in])]
+        return [*flatten_list([loot_conditions(p) for p in data_in])]
     elif isinstance(data_in, Dict):
         # dict, so just use raw data
         return [data_in]
     else:
-        raise RuntimeError('Unknown object %s at loot_condition_list' % str(data_in))
+        raise RuntimeError('Unknown object %s at loot_conditions' % str(data_in))
 
 
-def loot_default_conditions(loot_type: str) -> Union[List[Dict[str, Any]], None]:
+def loot_default_conditions(loot_type: str) -> Optional[List[JsonObject]]:
     if loot_type == 'block':
         return [{'condition': 'minecraft:survives_explosion'}]
     else:

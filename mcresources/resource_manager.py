@@ -7,7 +7,6 @@ from typing import Optional, Callable
 from collections import defaultdict
 
 import utils
-import warnings
 
 from block_context import BlockContext
 from item_context import ItemContext
@@ -98,18 +97,15 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def block_model(self, name_parts: ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: Json = None, loader: Optional[ResourceIdentifier] = None, no_textures: bool = False) -> BlockContext:
+    def block_model(self, name_parts: ResourceIdentifier, textures: Union[Dict[str, str], Sequence[str]] = None, parent: Union[str, None] = 'block/cube_all', elements: Json = None, no_textures: bool = False) -> BlockContext:
         """
         Creates a block model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:block/name/parts'
         :param parent: the parent model. If none, it is omitted
         :param elements: elements of the model. Can be a single element, which will get expanded to a list of one element
-        :param loader: Deprecated - use custom_block_model() instead
         :param no_textures: If true, textures will be ignored.
         """
-        if loader is not None:
-            warnings.warn('The loader parameter of block_model() is deprecated, use custom_block_model() instead', DeprecationWarning, 2)
         res = utils.resource_location(self.domain, name_parts)
         if textures is None:
             if not no_textures:
@@ -123,8 +119,7 @@ class ResourceManager:
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
             'parent': parent,
             'textures': textures,
-            'elements': elements,
-            'loader': None if loader is None else utils.resource_location(loader).join()
+            'elements': elements
         })
         return BlockContext(self, res)
 
@@ -136,17 +131,14 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def item_model(self, name_parts: ResourceIdentifier, *textures: Union[Json, str], parent: ResourceIdentifier = 'item/generated', no_textures: bool = False, loader: Optional[ResourceIdentifier] = None) -> ItemContext:
+    def item_model(self, name_parts: ResourceIdentifier, *textures: Union[Json, str], parent: ResourceIdentifier = 'item/generated', no_textures: bool = False) -> ItemContext:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:item/name/parts'
         :param parent: the parent model.
         :param no_textures: if the textures element should be ignored
-        :param loader: a field for a custom loader to be specified
         """
-        if loader is not None:
-            warnings.warn('The loader parameter of item_model() is deprecated, use custom_item_model() instead', DeprecationWarning, 2)
         res = utils.resource_location(self.domain, name_parts)
         if no_textures:
             textures = None
@@ -156,8 +148,7 @@ class ResourceManager:
             textures = utils.item_model_textures(textures)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'parent': utils.resource_location(parent).join(simple=True),
-            'textures': textures,
-            'loader': None if loader is None else utils.resource_location(loader).join()
+            'textures': textures
         })
         return ItemContext(self, res)
 
@@ -291,29 +282,22 @@ class ResourceManager:
     def fluid_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'fluids', *values, replace=replace)
 
-    def block_loot(self, name_parts: ResourceIdentifier, loot_pools: Json):
+    def block_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json):
         """
         Creates a loot table for a block
-        If loot_pools is passed in as a list or tuple, it will attempt to create a pool for each entry in the tuple
-        It can also be passed in as a string or dict, in which case it will create one pool from that input
-        The simplest loot pool is a string, i.e. 'minecraft:dirt', which will create a pool with one entry of type item
-        with the value of 'minecraft:dirt', with one roll, and the default condition ('minecraft:survives_explosion')
-        If a loot pool is a dict, it will look for each possible element of a pool entry, and try to populate them
-        accordingly.
-        'entries' can be a dict or a string. A string will expand to 'type': 'minecraft:item'
-        'conditions' can be a list, tuple, dict, or string. A string will expand to {'condition': value}
-        A dict will be inserted as raw json.
-        'functions' can be a list, tuple, dict, or string. A string will expand to {'function': value}
-        A dict will be inserted as raw json.
-        'rolls' will be inserted as raw json. If not present, it will default to 'rolls': 1
-        'children', 'name', 'bonus_rolls', 'weight', and 'quality' will be inserted as raw json if present
         :param name_parts: The resource location, including path elements.
-        :param loot_pools: The loot table elements
+        :param loot_pools: Loot pools. Each argument is interpreted as a single pool.
+            Loot pools may be a single string (which will be expanded to a single default 'minecraft:item' entry),
+            or a dictionary, which will be expanded into either a single loot pool, or single loot entry based on context,
+            or a sequence of loot entries, which will be expanded into a 'minecraft:alternatives' loot entry, and loot pool.
         """
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'loot_tables', 'blocks', res.path), {
             'type': 'minecraft:block',
-            'pools': utils.loot_pool_list(loot_pools, 'block')
+            'pools': [
+                utils.loot_pool(pool, 'block')
+                for pool in loot_pools
+            ]
         })
 
     def lang(self, *args: Union[str, Sequence[str], Dict[str, str]], language: str = None):

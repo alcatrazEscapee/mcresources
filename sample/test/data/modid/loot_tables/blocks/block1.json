@@ -8,7 +8,7 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "modid:my_item"
+          "name": "modid:block1"
         }
       ],
       "conditions": [

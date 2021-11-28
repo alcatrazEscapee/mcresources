@@ -4,25 +4,21 @@
   "pools": [
     {
       "name": "loot_pool",
-      "rolls": 5,
-      "entries": [
-        {
-          "type": "modid:other"
-        }
-      ],
-      "conditions": [
-        {
-          "condition": "minecraft:survives_explosion"
-        }
-      ]
-    },
-    {
-      "name": "loot_pool",
       "rolls": 1,
       "entries": [
         {
           "type": "minecraft:item",
-          "name": "modid:my_item"
+          "name": "modid:block4",
+          "conditions": [
+            {
+              "condition": "minecraft:mystery_condition"
+            }
+          ],
+          "functions": [
+            {
+              "function": "minecraft:mystery_function"
+            }
+          ]
         }
       ],
       "conditions": [

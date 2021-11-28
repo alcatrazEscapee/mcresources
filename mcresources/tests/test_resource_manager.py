@@ -134,60 +134,41 @@ def test_fluid_tag():
     rm.flush()
     assert_file_equal('data/modid/tags/fluids/special/lavas.json')
 
-def test_block_loot():
-    rm.block_loot('my_block', 'modid:my_item')
-    assert_file_equal('data/modid/loot_tables/blocks/my_block.json')
+def test_block_loot_simple():
+    rm.block_loot('block1', 'modid:block1')
+    assert_file_equal('data/modid/loot_tables/blocks/block1.json')
 
-    rm.block_loot('my_block2', ['modid:my_item', 'modid:my_other_item'])
-    assert_file_equal('data/modid/loot_tables/blocks/my_block2.json')
+def test_block_loot_set_count_implicit():
+    rm.block_loot('block2', '3 modid:block3')
+    assert_file_equal('data/modid/loot_tables/blocks/block2.json')
 
-    rm.block_loot('my_block3', [{'rolls': 3, 'entries': 'modid:my_item'}])
-    assert_file_equal('data/modid/loot_tables/blocks/my_block3.json')
+def test_block_loot_set_count_uniform_implicit():
+    rm.block_loot('block3', '5-7 modid:block3')
+    assert_file_equal('data/modid/loot_tables/blocks/block3.json')
 
-    rm.block_loot('my_block4',
-                       [{'rolls': 5, 'entries': [{'type': 'modid:other', 'data': 3}]}, 'modid:my_item'])
-    assert_file_equal('data/modid/loot_tables/blocks/my_block4.json')
+def test_block_loot_one_entry():
+    rm.block_loot('block4', {
+        'name': 'modid:block4',
+        'conditions': ['minecraft:mystery_condition'],
+        'functions': ['minecraft:mystery_function']
+    })
+    assert_file_equal('data/modid/loot_tables/blocks/block4.json')
 
-    rm.block_loot('burningtorch', [
-        {
-            'entries': 'burningtorch:charredtorchremains',
-            'conditions': [
-                'minecraft:survives_explosion',
-                {
-                    'condition': 'minecraft:block_state_property',
-                    'block': 'burningtorch:burningtorch',
-                    'properties': {'decay': decay}
-                }
-            ],
-            'functions': {
-                'function': 'minecraft:set_count',
-                'count': amount
-            }
-        } for (decay, amount) in (('5', 8), ('4', 7), ('3', 5), ('2', 3), ('1', 1))
-    ])
-    assert_file_equal('data/modid/loot_tables/blocks/burningtorch.json')
+def test_block_loot_one_pool():
+    rm.block_loot('block5', {
+        'name': 'modid:block5',
+        'rolls': 3,
+        'entries': '1-2 modid:block5'
+    })
+    assert_file_equal('data/modid/loot_tables/blocks/block5.json')
 
-    rm.block_loot('grass', [{'entries': {
-        'type': 'minecraft:alternatives',
-        'children': utils.loot_entry_list([{
-            'name': 'minecraft:grass',
-            'conditions': loot_tables.match_tool('minecraft:shears')
-        }, {
-            'name': 'notreepunching:plant_fiber',
-            'conditions': [
-                loot_tables.match_tool('tag!notreepunching:knives'),
-                loot_tables.random_chance(0.25)
-            ]
-        }, {
-            'conditions': loot_tables.random_chance(0.125),
-            'functions': [
-                loot_tables.fortune_bonus(2),
-                'minecraft:explosion_decay'
-            ],
-            'name': 'minecraft:wheat_seeds'
-        }])
-    }, 'conditions': None}])
-    assert_file_equal('data/modid/loot_tables/blocks/grass.json')
+def test_block_loot_multiple_entries_alternatives():
+    rm.block_loot('block6', ('block6_first', 'block6_second'))
+    assert_file_equal('data/modid/loot_tables/blocks/block6.json')
+
+def test_block_loot_multiple_pools():
+    rm.block_loot('block7', 'block7_first', 'block7_second')
+    assert_file_equal('data/modid/loot_tables/blocks/block7.json')
 
 def test_lang():
     rm.lang('key', 'value')
