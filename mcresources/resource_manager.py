@@ -282,7 +282,7 @@ class ResourceManager:
     def fluid_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
         self.tag(name_parts, 'fluids', *values, replace=replace)
 
-    def block_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json):
+    def block_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json) -> BlockContext:
         """
         Creates a loot table for a block
         :param name_parts: The resource location, including path elements.
@@ -291,14 +291,26 @@ class ResourceManager:
             or a dictionary, which will be expanded into either a single loot pool, or single loot entry based on context,
             or a sequence of loot entries, which will be expanded into a 'minecraft:alternatives' loot entry, and loot pool.
         """
+        res = self.loot(name_parts, *loot_pools, path='blocks', loot_type='minecraft:block')
+        return BlockContext(self, res)
+
+    def entity_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json):
+        """
+        Creates a loot table for an entity.
+        Parameters are the same as above.
+        """
+        self.loot(name_parts, *loot_pools, path='entities', loot_type='minecraft:entity')
+
+    def loot(self, name_parts: ResourceIdentifier, *loot_pools: Json, path: str, loot_type: str) -> ResourceLocation:
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'loot_tables', 'blocks', res.path), {
-            'type': 'minecraft:block',
+        self.write((*self.resource_dir, 'data', res.domain, 'loot_tables', path, res.path), {
+            'type': loot_type,
             'pools': [
-                utils.loot_pool(pool, 'block')
+                utils.loot_pool(pool, path)
                 for pool in loot_pools
             ]
         })
+        return res
 
     def lang(self, *args: Union[str, Sequence[str], Dict[str, str]], language: str = None):
         """

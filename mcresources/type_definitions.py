@@ -1,5 +1,12 @@
 
-from typing import Dict, Any, Union, Sequence, Tuple, NamedTuple, Literal
+from typing import Dict, Any, Union, Sequence, Tuple, NamedTuple, Literal, TypeVar
+
+# Generics
+T = TypeVar('T')
+K = TypeVar('K')
+V = TypeVar('V')
+DefaultValue = TypeVar('DefaultValue')
+MapValue = TypeVar('MapValue')
 
 # Json
 JsonObject = Dict[str, Any]

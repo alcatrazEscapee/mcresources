@@ -93,7 +93,7 @@ def resource_location(*elements: ResourceIdentifier) -> ResourceLocation:
     If no domain is present, the `minecraft` domain is inferred.
     """
     if len(elements) not in {1, 2}:
-        raise RuntimeError('Must take one or two arguments: [optional] domain, and path elements')
+        raise ValueError('Must take one or two arguments: [optional] domain, and path elements')
     if len(elements) == 1:
         domain, data = 'minecraft', elements[0]
     else:
@@ -116,7 +116,7 @@ def str_path(data_in: Sequence[str]) -> List[str]:
     elif isinstance(data_in, Sequence):
         return [*flatten_list([str_path(s) for s in data_in])]
     else:
-        raise RuntimeError('Unknown object %s at str_path' % str(data_in))
+        raise ValueError('Unknown object %s at str_path' % str(data_in))
 
 
 def str_list(data_in: Sequence[str]) -> List[str]:
@@ -126,7 +126,7 @@ def str_list(data_in: Sequence[str]) -> List[str]:
     elif isinstance(data_in, Sequence):
         return [*flatten_list(data_in)]
     else:
-        raise RuntimeError('Unknown object %s at str_list' % str(data_in))
+        raise ValueError('Unknown object %s at str_list' % str(data_in))
 
 
 def domain_path_parts(name_parts: Sequence[str], default_domain: str) -> Tuple[str, List[str]]:
@@ -138,7 +138,7 @@ def domain_path_parts(name_parts: Sequence[str], default_domain: str) -> Tuple[s
         return default_domain, str_path(joined)
 
 
-def flatten_list(container: Sequence[Any]) -> Sequence[Any]:
+def flatten_list(container: Sequence[T]) -> Sequence[T]:
     # Turns nested lists of lists into a flat list of items
     # Use for part functions that need to be wrapped in a single list:
     # [*flatten_list([function_returns_list(p) for p in iterable])]
@@ -150,8 +150,8 @@ def flatten_list(container: Sequence[Any]) -> Sequence[Any]:
             yield i
 
 
-def dict_get(data_in: Dict[Any, Any], key: Any, default: Any = None, map_function: Callable[[Any], Any] = None) -> Any:
-    # Gets an element from a dictionary by key
+def dict_get(data_in: Dict[K, V], key: K, default: DefaultValue = None, map_function: Optional[Callable[[V], MapValue]] = None) -> Union[V, DefaultValue, MapValue]:
+    # Gets an optional element from a dictionary by key
     # If the element is not present, it returns the default value
     # If the element is present, and a map function is supplied, it will apply the map function to the object
     if key in data_in:
@@ -166,10 +166,21 @@ def dict_get(data_in: Dict[Any, Any], key: Any, default: Any = None, map_functio
 def is_sequence(data_in: Any) -> bool:
     return isinstance(data_in, Sequence) and not isinstance(data_in, str)
 
+
+def unordered_pair(pair_in: Sequence[Any], first_type: type, second_type: type) -> Tuple[Any, Any]:
+    assert len(pair_in) == 2, 'Expected a pair of %s, %s (any order), got: %s' % (str(first_type), str(second_type), str(pair_in))
+    a, b = pair_in
+    if isinstance(a, first_type) and isinstance(b, second_type):
+        return a, b
+    elif isinstance(b, first_type) and isinstance(a, second_type):
+        return b, a
+    else:
+        raise ValueError('Unknown pair, expected %s, %s, got: %s' % (str(first_type), str(second_type), str(pair_in)))
+
 # ================== ASSET PARTS ===================
 
 
-def recipe_condition(data_in: Json, strict: bool = False) -> Union[List, None]:
+def recipe_condition(data_in: Json, strict: bool = False) -> Optional[List[JsonObject]]:
     if data_in is None:
         return None
     elif isinstance(data_in, str):
@@ -179,10 +190,10 @@ def recipe_condition(data_in: Json, strict: bool = False) -> Union[List, None]:
     elif is_sequence(data_in) and not strict:
         return [*flatten_list([recipe_condition(c, True) for c in data_in])]
     else:
-        raise RuntimeError('Unknown object %s at recipe_condition' % str(data_in))
+        raise ValueError('Unknown object %s at recipe_condition' % str(data_in))
 
 
-def ingredient(data_in: Json) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
+def ingredient(data_in: Json) -> Json:
     ing = item_stack_list(data_in)
     if len(ing) == 1:
         return ing[0]
@@ -190,43 +201,73 @@ def ingredient(data_in: Json) -> Union[List[Dict[str, Any]], Dict[str, Any]]:
         return ing
 
 
-def item_stack(data_in: Json) -> Dict[str, Any]:
-    if isinstance(data_in, str):
-        if data_in[0:4] == 'tag!':
-            return {'tag': data_in[4:]}
-        elif data_in[0] == '#':
-            return {'tag': data_in[1:]}
-        else:
-            return {'item': data_in}
-    elif isinstance(data_in, Dict):
+def item_stack(data_in: Json) -> JsonObject:
+    if isinstance(data_in, dict):
         return data_in
     elif is_sequence(data_in):
-        if len(data_in) != 2:
-            raise RuntimeError('An item stack as a sequence must have two entries (size, item)')
-        return {
-            'count': data_in[0],
-            **item_stack(data_in[1])
-        }
+        item, count = unordered_pair(data_in, str, int)
+        return {'item': item, 'count': count}
+    elif isinstance(data_in, str):
+        item, tag, count, _ = parse_item_stack(data_in, False)
+        d = {'tag' if tag else 'item': item}
+        if count:
+            d['count'] = count
+        return d
     else:
-        raise RuntimeError('Unknown object %s at item_stack' % str(data_in))
+        raise ValueError('Unknown object %s at item_stack' % str(data_in))
 
 
-def item_stack_list(data_in: Json) -> List[Dict[str, Any]]:
+def item_stack_list(data_in: Json) -> List[JsonObject]:
     if isinstance(data_in, str) or isinstance(data_in, Dict):
         return [item_stack(data_in)]
-    elif isinstance(data_in, Sequence):
+    elif is_sequence(data_in):
         return [*flatten_list([item_stack(s) for s in data_in])]
     else:
-        raise RuntimeError('Unknown object %s at item_stack_list' % str(data_in))
+        raise ValueError('Unknown object %s at item_stack_list' % str(data_in))
 
 
-def item_stack_dict(data_in: Union[Dict[str, Any], str], default_char: str = '#') -> dict:
+def item_stack_dict(data_in: Json, default_char: str = '#') -> Dict[str, JsonObject]:
     if isinstance(data_in, Dict):
         return dict((k, item_stack(v)) for k, v in data_in.items())
     elif isinstance(data_in, str):
         return {default_char: item_stack(data_in)}
     else:
-        raise RuntimeError('Unknown object %s at item_stack_dict' % str(data_in))
+        raise ValueError('Unknown object %s at item_stack_dict' % str(data_in))
+
+
+def parse_item_stack(data_in: str, allow_ranges: bool = True) -> Tuple[str, bool, Optional[int], Optional[int]]:
+    """
+    Allows the following formats to define either an item or a tag:
+    'namespace:path' -> item
+    '#namespace:path' -> tag
+    Also allows the following count specifiers
+    '1 item'
+    '3-5 item' (only if allow_ranges = True)
+    Returns (item name, is tag, minimum count, maximum count)
+    """
+    item = data_in
+    try:
+        if ' ' in data_in:
+            count, item = data_in.split(' ')
+            if '-' in count:
+                if not allow_ranges:
+                    raise ValueError('Range in item stack with allow_ranges = False')
+                lo, hi = map(int, count.split('-'))
+            else:
+                lo = hi = int(count)
+        else:
+            lo = hi = None
+    except Exception as e:
+        raise ValueError('Malformed item stack: %s' % data_in) from e
+
+    if 'tag!' in data_in:
+        raise ValueError('Using old \'tag!\' format for item stack')
+
+    tag = item[0] == '#'
+    if tag:
+        item = item[1:]
+
+    return item, tag, lo, hi
 
 
 def item_model_textures(data_in: Tuple[Json, ...]) -> Dict[str, Any]:
@@ -244,7 +285,7 @@ def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[Dict[str, Any]]:
         elif isinstance(p, Dict):
             return {'apply': p}
         else:
-            raise RuntimeError('Unknown object %s at blockstate_multipart_parts#part' % str(p))
+            raise ValueError('Unknown object %s at blockstate_multipart_parts#part' % str(p))
 
     return [part(p) for p in data_in]
 
@@ -264,7 +305,7 @@ def lang_parts(data_in: Sequence[Json], entries: Dict[str, str] = None) -> Dict[
         elif isinstance(part, Dict):
             entries.update(part)
         else:
-            raise RuntimeError('Unknown object %s at lang_parts' % str(part))
+            raise ValueError('Unknown object %s at lang_parts' % str(part))
         i += 1
     return entries
 
@@ -314,7 +355,7 @@ def loot_pool(data_in: Json, loot_type: str) -> JsonObject:
             'conditions': loot_default_conditions(loot_type)
         }
     else:
-        raise RuntimeError('Unknown object %s at loot_pool' % str(data_in))
+        raise ValueError('Unknown object %s at loot_pool' % str(data_in))
 
 
 def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
@@ -323,30 +364,17 @@ def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
         # allow None
         return None
     elif isinstance(data_in, str):
-        # String, so either create an item or a tag based drop
-        # Allows two custom formats:
-        # '3 minecraft:dirt' -> adds a set_count(3) function
-        # '3-6 minecraft:dirt' -> adds a set_count(3, 6) function
-        if ' ' in data_in:
-            count, data_in = data_in.split(' ')
-            if '-' in count:
-                min_c, max_c = count.split('-')
-                count = {'type': 'minecraft:uniform', 'min': int(min_c), 'max': int(max_c)}
-            else:
-                count = int(count)
-        else:
-            count = None
-
-        # Allow both tag!minecraft:dirt and #minecraft:dirt to refer to tags, as well as default items
-        if data_in[0:4] == 'tag!':
-            item = {'type': 'minecraft:tag', 'name': data_in[4:]}
-        elif data_in[0] == '#':
-            item = {'type': 'minecraft:tag', 'name': data_in[1:]}
-        else:
-            item = {'type': 'minecraft:item', 'name': data_in}
-
-        if count is not None:
-            item['functions'] = [{'function': 'minecraft:set_count', 'count': count}]
+        item, tag, lo, hi = parse_item_stack(data_in, True)
+        item = {
+            'type': 'minecraft:tag' if tag else 'minecraft:item',
+            'name': item
+        }
+        if lo:
+            count = lo if lo == hi else {'type': 'minecraft:uniform', 'min': lo, 'max': hi}
+            item['functions'] = [{
+                'function': 'minecraft:set_count',
+                'count': count
+            }]
         return [item]
     elif isinstance(data_in, Sequence):
         # iterable, so create a loot entry list for each element and flatten
@@ -364,7 +392,7 @@ def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
             'quality': dict_get(data_in, 'quality')
         }]
     else:
-        raise RuntimeError('Unknown object %s at loot_entries' % str(data_in))
+        raise ValueError('Unknown object %s at loot_entries' % str(data_in))
 
 
 def loot_functions(data_in: Json) -> Optional[List[JsonObject]]:
@@ -382,7 +410,7 @@ def loot_functions(data_in: Json) -> Optional[List[JsonObject]]:
         # dict, so just use raw data
         return [data_in]
     else:
-        raise RuntimeError('Unknown object %s at loot_functions' % str(data_in))
+        raise ValueError('Unknown object %s at loot_functions' % str(data_in))
 
 
 def loot_conditions(data_in: Json) -> Optional[List[JsonObject]]:
@@ -400,11 +428,11 @@ def loot_conditions(data_in: Json) -> Optional[List[JsonObject]]:
         # dict, so just use raw data
         return [data_in]
     else:
-        raise RuntimeError('Unknown object %s at loot_conditions' % str(data_in))
+        raise ValueError('Unknown object %s at loot_conditions' % str(data_in))
 
 
 def loot_default_conditions(loot_type: str) -> Optional[List[JsonObject]]:
-    if loot_type == 'block':
+    if loot_type == 'blocks':
         return [{'condition': 'minecraft:survives_explosion'}]
     else:
         return None
@@ -488,9 +516,9 @@ def block_state(data: Json):
         return {'Name': name, 'Properties': property_map}
     elif isinstance(data, dict):
         if 'Name' not in data:
-            raise RuntimeError('Missing \'Name\' key in block_state for object %s' % str(data))
+            raise ValueError('Missing \'Name\' key in block_state for object %s' % str(data))
         if 'Properties' not in data:
             data['Properties'] = {}
         return data
     else:
-        raise RuntimeError('Unknown object %s at block_state' % str(data))
+        raise ValueError('Unknown object %s at block_state' % str(data))

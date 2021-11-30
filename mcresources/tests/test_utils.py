@@ -55,15 +55,25 @@ def test_recipe_condition():
 
 def test_item_stack():
     assert {'item': 'a'} == utils.item_stack('a')
-    assert {'tag': 'b'} == utils.item_stack('tag!b')
+    assert {'tag': 'b'} == utils.item_stack('#b')
     assert {1: 2} == utils.item_stack({1: 2})
-    assert {'item': 'c', 'count': 3} == utils.item_stack([3, 'c'])
     assert {'tag': 'a'} == utils.item_stack('#a')
+    assert {'item': 'foo', 'count': 1} == utils.item_stack((1, 'foo'))
+    assert {'item': 'foo', 'count': 2} == utils.item_stack(('foo', 2))
+    assert {'item': 'foo', 'count': 3} == utils.item_stack('3 foo')
 
 def test_item_stack_list():
     assert [{'item': 'stuff'}] == utils.item_stack_list('stuff')
-    assert [{'item': 'stuff'}, {'tag': 'thing'}] == utils.item_stack_list(['stuff', 'tag!thing'])
+    assert [{'item': 'stuff'}, {'tag': 'thing'}] == utils.item_stack_list(['stuff', '#thing'])
     assert [{'tag': 'thing'}] == utils.item_stack_list(['#thing'])
+
+def test_parse_item_stack():
+    assert ('a', False, None, None) == utils.parse_item_stack('a')
+    assert ('b', True, None, None) == utils.parse_item_stack('#b')
+    assert ('c', False, 1, 1) == utils.parse_item_stack('1 c')
+    assert ('d', True, 2, 2) == utils.parse_item_stack('2 #d')
+    assert ('e', False, 3, 4) == utils.parse_item_stack('3-4 e')
+    assert ('f', True, 5, 6) == utils.parse_item_stack('5-6 #f')
 
 def test_lang_parts():
     assert {'a': 'b'} == utils.lang_parts(['a', 'b'])
