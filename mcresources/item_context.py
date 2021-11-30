@@ -2,8 +2,8 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import *
-from typing import Optional
+from type_definitions import Json, ResourceLocation
+from typing import Optional, Sequence
 
 import utils
 
@@ -17,7 +17,7 @@ class ItemContext:
         self.rm = rm
         self.res: ResourceLocation = res
 
-    def with_item_model(self, *textures: Union[Json, str], parent: str = 'item/generated', no_textures: bool = False) -> 'ItemContext':
+    def with_item_model(self, *textures: Json, parent: str = 'item/generated', no_textures: bool = False) -> 'ItemContext':
         """
         Shortcut for ResourceManager#item_model
         """

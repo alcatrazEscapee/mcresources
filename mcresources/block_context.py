@@ -2,8 +2,8 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import *
-from typing import Optional
+from type_definitions import Json, JsonObject, ResourceLocation
+from typing import Optional, Union, Dict, Sequence
 
 import block_states
 import utils
@@ -32,7 +32,7 @@ class BlockContext:
         self.rm.blockstate_multipart(self.res, *parts)
         return self
 
-    def with_block_model(self, textures: Union[Dict[str, str], str] = None, parent: Union[str, None] = 'block/cube_all', elements: Json = None) -> 'BlockContext':
+    def with_block_model(self, textures: Union[Dict[str, str], str] = None, parent: Optional[str] = 'block/cube_all', elements: Json = None) -> 'BlockContext':
         """
         Shortcut for ResourceManager#block_model
         """

@@ -5,7 +5,6 @@
 import os
 import difflib
 
-import loot_tables
 import utils
 
 from resource_manager import ResourceManager

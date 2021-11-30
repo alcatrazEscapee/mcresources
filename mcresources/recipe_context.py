@@ -2,7 +2,7 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import *
+from type_definitions import Json, ResourceLocation
 
 import utils
 

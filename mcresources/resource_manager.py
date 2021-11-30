@@ -2,8 +2,8 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import *
-from typing import Optional, Callable
+from type_definitions import Json, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig
+from typing import Sequence, Dict, Union, Optional, Callable, Any
 from collections import defaultdict
 
 import utils

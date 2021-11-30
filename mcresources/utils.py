@@ -6,8 +6,8 @@ import enum
 import json
 import os
 
-from type_definitions import *
-from typing import List, Optional, Callable
+from type_definitions import Json, JsonObject, ResourceIdentifier, ResourceLocation, T, K, V, DefaultValue, MapValue, VerticalAnchor
+from typing import List, Tuple, Dict, Sequence, Optional, Callable, Any, Literal, Union
 
 
 class WriteFlag(enum.IntEnum):
@@ -261,7 +261,7 @@ def parse_item_stack(data_in: str, allow_ranges: bool = True) -> Tuple[str, bool
         raise ValueError('Malformed item stack: %s' % data_in) from e
 
     if 'tag!' in data_in:
-        raise ValueError('Using old \'tag!\' format for item stack')
+        raise ValueError('Using old \'tag!\' format for item stack: %s' % str(data_in))
 
     tag = item[0] == '#'
     if tag:
@@ -270,7 +270,7 @@ def parse_item_stack(data_in: str, allow_ranges: bool = True) -> Tuple[str, bool
     return item, tag, lo, hi
 
 
-def item_model_textures(data_in: Tuple[Json, ...]) -> Dict[str, Any]:
+def item_model_textures(data_in: Json) -> JsonObject:
     # Input must be in tuple (varargs) format
     if len(data_in) == 1 and isinstance(data_in[0], Dict):
         return data_in[0]
@@ -278,8 +278,8 @@ def item_model_textures(data_in: Tuple[Json, ...]) -> Dict[str, Any]:
         return dict(('layer%d' % i, layer) for i, layer in enumerate(flatten_list(data_in)))
 
 
-def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[Dict[str, Any]]:
-    def part(p: Union[Sequence[Json], Json]) -> Dict[str, Any]:
+def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[JsonObject]:
+    def part(p: Json) -> JsonObject:
         if isinstance(p, Sequence) and len(p) == 2:
             return {'when': p[0], 'apply': p[1]}
         elif isinstance(p, Dict):
@@ -488,13 +488,8 @@ def as_vertical_anchor(va: VerticalAnchor) -> VerticalAnchor:
     if isinstance(va, int):
         return {'absolute': va}
     elif isinstance(va, tuple):
-        assert len(va) == 2, 'Invalid vertical anchor: %s' % str(va)
-        if isinstance(va[0], int):
-            assert va[1] in types, 'Invalid vertical anchor: %s' % str(va)
-            return {va[1]: va[0]}
-        elif isinstance(va[1], int):
-            assert va[0] in types, 'Invalid vertical anchor: %s' % str(va)
-            return {va[0]: va[1]}
+        key, value = unordered_pair(va, str, int)
+        return {key: value}
     elif isinstance(va, dict):
         assert len(va) == 1
         assert any(k in va and isinstance(va[k], int) for k in types)

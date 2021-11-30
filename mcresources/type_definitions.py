@@ -1,5 +1,5 @@
 
-from typing import Dict, Any, Union, Sequence, Tuple, NamedTuple, Literal, TypeVar
+from typing import Dict, Union, Sequence, Tuple, NamedTuple, Literal, TypeVar
 
 # Generics
 T = TypeVar('T')
@@ -9,8 +9,8 @@ DefaultValue = TypeVar('DefaultValue')
 MapValue = TypeVar('MapValue')
 
 # Json
-JsonObject = Dict[str, Any]
-Json = Union[JsonObject, Sequence[Any], str]
+JsonObject = Dict[str, 'Json']
+Json = Union[JsonObject, Sequence['Json'], str, int, bool, None]
 
 # Util
 
