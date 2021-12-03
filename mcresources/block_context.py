@@ -2,11 +2,10 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import Json, JsonObject, ResourceLocation
-from typing import Optional, Union, Dict, Sequence
+from mcresources.type_definitions import Json, JsonObject, ResourceLocation
+from mcresources import utils, block_states
 
-import block_states
-import utils
+from typing import Optional, Union, Dict, Sequence
 
 
 class BlockContext:

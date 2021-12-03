@@ -2,7 +2,8 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import ResourceLocation
+from mcresources.type_definitions import ResourceLocation
+
 from typing import List
 
 

@@ -1,7 +1,8 @@
-from typing import Literal, Sequence
 from type_definitions import Json, JsonObject, ResourceIdentifier, VerticalAnchor
+from mcresources import utils
 
-import utils
+from typing import Literal, Sequence
+
 
 # Surface Rules
 

@@ -2,12 +2,13 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
+from mcresources.type_definitions import Json, JsonObject, ResourceIdentifier, ResourceLocation, T, K, V, DefaultValue, MapValue, VerticalAnchor
+
+from typing import List, Tuple, Dict, Sequence, Optional, Callable, Any, Literal, Union
+
 import enum
 import json
 import os
-
-from type_definitions import Json, JsonObject, ResourceIdentifier, ResourceLocation, T, K, V, DefaultValue, MapValue, VerticalAnchor
-from typing import List, Tuple, Dict, Sequence, Optional, Callable, Any, Literal, Union
 
 
 class WriteFlag(enum.IntEnum):

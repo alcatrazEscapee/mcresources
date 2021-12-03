@@ -2,16 +2,16 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import Json, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig
+from mcresources.type_definitions import Json, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig
+from mcresources import utils
+
+from mcresources.block_context import BlockContext
+from mcresources.item_context import ItemContext
+from mcresources.recipe_context import RecipeContext
+from mcresources.tag import Tag
+
 from typing import Sequence, Dict, Union, Optional, Callable, Any
 from collections import defaultdict
-
-import utils
-
-from block_context import BlockContext
-from item_context import ItemContext
-from recipe_context import RecipeContext
-from tag import Tag
 
 
 class ResourceManager:

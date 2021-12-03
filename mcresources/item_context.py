@@ -2,10 +2,10 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import Json, ResourceLocation
-from typing import Optional, Sequence
+from mcresources.type_definitions import Json, ResourceLocation
+from mcresources import utils
 
-import utils
+from typing import Optional, Sequence
 
 
 class ItemContext:

@@ -2,10 +2,10 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import Json, JsonObject
-from typing import Optional
+from mcresources.type_definitions import Json, JsonObject
+from mcresources import utils
 
-import utils
+from typing import Optional, Sequence
 
 # General utils for creating loot pools, and loot entries
 

@@ -2,9 +2,8 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from type_definitions import Json, ResourceLocation
-
-import utils
+from mcresources.type_definitions import Json, ResourceLocation
+from mcresources import utils
 
 
 class RecipeContext:
