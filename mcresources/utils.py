@@ -168,15 +168,19 @@ def is_sequence(data_in: Any) -> bool:
     return isinstance(data_in, Sequence) and not isinstance(data_in, str)
 
 
-def unordered_pair(pair_in: Sequence[Any], first_type: type, second_type: type) -> Tuple[Any, Any]:
-    assert len(pair_in) == 2, 'Expected a pair of %s, %s (any order), got: %s' % (str(first_type), str(second_type), str(pair_in))
-    a, b = pair_in
-    if isinstance(a, first_type) and isinstance(b, second_type):
-        return a, b
-    elif isinstance(b, first_type) and isinstance(a, second_type):
-        return b, a
-    else:
-        raise ValueError('Unknown pair, expected %s, %s, got: %s' % (str(first_type), str(second_type), str(pair_in)))
+def unordered_pair(data_in: Sequence[Any], first_type: type, second_type: type) -> Tuple[Any, Any]:
+    pair = maybe_unordered_pair(data_in, first_type, second_type)
+    assert pair is not None, 'Not an unordered pair of (%s, %s), got: %s' % (str(first_type), str(second_type), str(data_in))
+    return pair
+
+def maybe_unordered_pair(data_in: Any, first_type: type, second_type: type) -> Optional[Tuple[Any, Any]]:
+    if is_sequence(data_in) and len(data_in) == 2:
+        a, b = data_in
+        if isinstance(a, first_type) and isinstance(b, second_type):
+            return a, b
+        elif isinstance(b, first_type) and isinstance(a, second_type):
+            return b, a
+    return None
 
 # ================== ASSET PARTS ===================
 
@@ -443,28 +447,34 @@ def loot_default_conditions(loot_type: str) -> Optional[List[JsonObject]]:
 
 
 def expand_configured(data: Json) -> JsonObject:
-    """
-    Creates a configured object from multiple possibilities. Accepts:
+    """ Creates a configured object from multiple possibilities. Accepts:
     - A tuple consisting of exactly two elements, the type name and the config
     - Otherwise, data is assumed to be a ResourceIdentifier indicating a type name
     """
-    if isinstance(data, tuple) and len(data) == 2 and isinstance(data[1], dict):
-        return configure(data[0], data[1])
-    else:
+    if pair := maybe_unordered_pair(data, str, dict):
+        return configure(*pair)
+    elif isinstance(data, str) or is_sequence(data):
         return configure(data)
+    else:
+        raise ValueError('Unknown object %s at configured' % str(data))
 
 
 def configured_placement(data: Json) -> JsonObject:
-    if isinstance(data, tuple) and len(data) == 2 and isinstance(data[1], dict):
-        assert 'type' not in data[1], 'Type specified twice for placement'
-        return {
-            'type': resource_location(data[0]).join(),
-            **data[1]
-        }
+    """ Creates a configured placement from multiple possibilities. Accepts:
+    - A tuple consisting of exactly two elements, the type name and optional additional parameters
+
+    - A string type name
+    """
+    if pair := maybe_unordered_pair(data, str, dict):
+        assert 'type' not in pair[1], 'Type specified twice for placement'
+        return {'type': resource_location(pair[0]).join(), **pair[1]}
+    elif isinstance(data, dict):
+        assert 'type' in data, 'Missing \'type\' in placement'
+        return data
+    elif isinstance(data, str) or is_sequence(data):
+        return {'type': resource_location(data).join()}
     else:
-        return {
-            'type': resource_location(data).join()
-        }
+        raise ValueError('Unknown object %s at configured_placement' % str(data))
 
 
 def configure(type_name: ResourceIdentifier, config: Optional[JsonObject] = None) -> JsonObject:
