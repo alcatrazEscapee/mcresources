@@ -1,7 +1,8 @@
-from typing import Optional
-from type_definitions import Json, ResourceIdentifier
+from mcresources.type_definitions import Json, ResourceIdentifier
+from mcresources import utils
 
-import utils
+from typing import Optional
+
 
 class AdvancementCategory:
     def __init__(self, rm, category: str, background: str):
