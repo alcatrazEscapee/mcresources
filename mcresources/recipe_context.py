@@ -3,7 +3,7 @@
 #  For more information see the project LICENSE file
 
 from mcresources.type_definitions import Json, ResourceLocation
-from mcresources import utils
+from mcresources import advancements
 
 
 class RecipeContext:
@@ -23,13 +23,7 @@ class RecipeContext:
         """
         recipe_name = self.res.join()
         self.rm.advancement(self.res, parent=parent, criteria={
-            'has_item': {
-                'trigger': 'minecraft:inventory_changed',
-                'conditions': {'items': [utils.item_stack(unlock_item)]}
-            },
-            'has_the_recipe': {
-                'trigger': 'minecraft:recipe_unlocked',
-                'conditions': {'recipe': recipe_name}
-            }
+            'has_item': advancements.inventory_changed(unlock_item),
+            'has_the_recipe': advancements.recipe_unlocked(recipe_name)
         }, requirements=[['has_item', 'has_the_recipe']], rewards={'recipes': [recipe_name]})
         return self

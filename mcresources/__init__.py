@@ -10,4 +10,5 @@ from mcresources.recipe_context import RecipeContext
 
 from mcresources import loot_tables
 from mcresources import block_states
+from mcresources import advancements
 from mcresources import utils

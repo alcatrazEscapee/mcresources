@@ -1,7 +1,7 @@
 #  Part of mcresources by Alex O'Neill
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
-
+import utils
 from mcresources.type_definitions import Json, JsonObject, ResourceIdentifier, ResourceLocation, T, K, V, DefaultValue, MapValue, VerticalAnchor
 
 from typing import List, Tuple, Dict, Sequence, Optional, Callable, Any, Literal, Union
@@ -204,6 +204,21 @@ def ingredient(data_in: Json) -> Json:
         return ing[0]
     else:
         return ing
+
+
+def item_predicate(data_in: Json) -> Json:
+    if isinstance(data_in, dict):
+        return data_in
+    elif is_sequence(data_in):  # List of item IDs
+        return {'items': [utils.resource_location(e).join() for e in data_in]}
+    elif isinstance(data_in, str):  # Single item or tag
+        item, tag, count, _ = parse_item_stack(data_in, False)
+        d: Json = {'tag': item} if tag else {'items': [item]}
+        if count:
+            d['count'] = count
+        return d
+    else:
+        raise ValueError('Unknown object %s at item_predicate' % str(data_in))
 
 
 def item_stack(data_in: Json) -> JsonObject:
