@@ -418,7 +418,7 @@ def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
             entry['name'] = item
             if lo:
                 count = lo if lo == hi else {'type': 'minecraft:uniform', 'min': lo, 'max': hi}
-                if 'functions' not in entry:
+                if 'functions' not in entry or entry['functions'] is None:
                     entry['functions'] = []
                 entry['functions'].append({
                     'function': 'minecraft:set_count',

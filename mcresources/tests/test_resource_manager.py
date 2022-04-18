@@ -177,6 +177,13 @@ def test_block_loot_set_count_implicit_with_entry():
     })
     assert_file_equal('data/modid/loot_tables/blocks/block8.json')
 
+def test_block_loot_set_count_implicit_with_entry_with_no_functions():
+    rm.block_loot('block9', {
+        'name': '3 modid:block9',
+        'conditions': ['minecraft:mystery_condition']
+    })
+    assert_file_equal('data/modid/loot_tables/blocks/block9.json')
+
 def test_lang():
     rm.lang('key', 'value')
     rm.lang('key', 'VALUE', language='not_en_us')
