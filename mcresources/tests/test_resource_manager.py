@@ -169,6 +169,14 @@ def test_block_loot_multiple_pools():
     rm.block_loot('block7', 'block7_first', 'block7_second')
     assert_file_equal('data/modid/loot_tables/blocks/block7.json')
 
+def test_block_loot_set_count_implicit_with_entry():
+    rm.block_loot('block8', {
+        'name': '3 modid:block8',
+        'conditions': ['minecraft:mystery_condition'],
+        'functions': ['minecraft:mystery_function']
+    })
+    assert_file_equal('data/modid/loot_tables/blocks/block8.json')
+
 def test_lang():
     rm.lang('key', 'value')
     rm.lang('key', 'VALUE', language='not_en_us')

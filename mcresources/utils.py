@@ -400,16 +400,33 @@ def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
         return [*flatten_list([loot_entries(p) for p in data_in])]
     elif isinstance(data_in, Dict):
         # dict, so check through available parameters and construct a loot entry from those
-        return [{
-            'type': dict_get(data_in, 'type', default='minecraft:item'),
-            'name': dict_get(data_in, 'name'),
+        loot_type = dict_get(data_in, 'type')
+        loot_name = dict_get(data_in, 'name')
+        entry = {
+            'type': loot_type,
+            'name': loot_name,
             'children': dict_get(data_in, 'children', map_function=loot_entries),
             'conditions': dict_get(data_in, 'conditions', map_function=loot_conditions),
             'functions': dict_get(data_in, 'functions', map_function=loot_functions),
             'expand': dict_get(data_in, 'expand'),
             'weight': dict_get(data_in, 'weight'),
             'quality': dict_get(data_in, 'quality')
-        }]
+        }
+        if loot_name is None:
+            raise ValueError('Missing \'name\' field in loot entry: %s' % repr(data_in))
+        if loot_type is None:
+            item, tag, lo, hi = parse_item_stack(loot_name, True)
+            entry['type'] = 'minecraft:tag' if tag else 'minecraft:item'
+            entry['name'] = item
+            if lo:
+                count = lo if lo == hi else {'type': 'minecraft:uniform', 'min': lo, 'max': hi}
+                if 'functions' not in entry:
+                    entry['functions'] = []
+                entry['functions'].append({
+                    'function': 'minecraft:set_count',
+                    'count': count
+                })
+        return [entry]
     else:
         raise ValueError('Unknown object %s at loot_entries' % str(data_in))
 
