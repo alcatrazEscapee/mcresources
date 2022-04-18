@@ -412,8 +412,6 @@ def loot_entries(data_in: Json) -> Optional[List[JsonObject]]:
             'weight': dict_get(data_in, 'weight'),
             'quality': dict_get(data_in, 'quality')
         }
-        if loot_name is None:
-            raise ValueError('Missing \'name\' field in loot entry: %s' % repr(data_in))
         if loot_type is None:
             item, tag, lo, hi = parse_item_stack(loot_name, True)
             entry['type'] = 'minecraft:tag' if tag else 'minecraft:item'
