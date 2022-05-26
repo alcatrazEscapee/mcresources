@@ -1,5 +1,4 @@
-
-import surface_rules
+from mcresources import surface_rules
 
 
 def test_block_rule():

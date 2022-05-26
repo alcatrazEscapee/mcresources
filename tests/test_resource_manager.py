@@ -5,12 +5,12 @@
 import os
 import difflib
 
-import utils
+from mcresources import utils
+from mcresources.resource_manager import ResourceManager
 
-from resource_manager import ResourceManager
 
 rm = ResourceManager(domain='modid', resource_dir='generated', indent=2)
-os.chdir('../../sample')
+os.chdir('../sample')
 utils.clean_generated_resources('generated')
 os.makedirs('generated', exist_ok=True)
 
