@@ -21,10 +21,18 @@ makedoc(
         page('utils.md', utils),
     ),
     types=(
-        typedef(Json, 'Json'),
-        typedef(JsonObject, 'JsonObject'),
-        typedef(ResourceIdentifier, 'ResourceIdentifier'),
+        typedef('Json', Json),
+        typedef('JsonObject', JsonObject),
+        typedef('ResourceIdentifier', ResourceIdentifier),
+        typedef('T', T),
+        typedef('K', K),
+        typedef('V', V),
+        typedef('DefaultValue', DefaultValue),
+        typedef('MapValue', MapValue)
     ),
     link_root='https://github.com/alcatrazEscapee/mcresources/blob/main',
-    content_root='../mcresources.wiki/'
+    content_root='../mcresources.wiki/',
+    home_doc="""
+Wiki for `mcresources`, a resource generation library for Minecraft modding. This wiki is generated from the documentation in the mcresources repository
+""".strip()
 )
