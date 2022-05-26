@@ -11,10 +11,10 @@ from mcresources import block_states
 ```
 """
 
-from typing import Dict, List, Any
+from type_definitions import Json, JsonObject
 
 
-def slab_variants(block: str, block_slab: str, block_slab_top: str):
+def slab_variants(block: str, block_slab: str, block_slab_top: str) -> JsonObject:
     return {
         'type=bottom': {'model': block_slab},
         'type=top': {'model': block_slab_top},
@@ -22,7 +22,7 @@ def slab_variants(block: str, block_slab: str, block_slab_top: str):
     }
 
 
-def stairs_variants(stairs: str, stairs_inner: str, stairs_outer: str) -> Dict[str, Any]:
+def stairs_variants(stairs: str, stairs_inner: str, stairs_outer: str) -> JsonObject:
     return {
         'facing=east,half=bottom,shape=straight': {'model': stairs},
         'facing=west,half=bottom,shape=straight': {'model': stairs, 'y': 180, 'uvlock': True},
@@ -67,7 +67,7 @@ def stairs_variants(stairs: str, stairs_inner: str, stairs_outer: str) -> Dict[s
     }
 
 
-def fence_multipart(fence_post: str, fence_side) -> List[Any]:
+def fence_multipart(fence_post: str, fence_side: str) -> Json:
     return [
         {'model': fence_post},
         ({'north': 'true'}, {'model': fence_side, 'uvlock': True}),
@@ -77,7 +77,7 @@ def fence_multipart(fence_post: str, fence_side) -> List[Any]:
     ]
 
 
-def fence_gate_variants(fence_gate: str, fence_gate_open: str, fence_gate_wall: str, fence_gate_wall_open: str) -> Dict[str, Any]:
+def fence_gate_variants(fence_gate: str, fence_gate_open: str, fence_gate_wall: str, fence_gate_wall_open: str) -> JsonObject:
     return {
         'facing=south,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True},
         'facing=west,in_wall=false,open=false': {'model': fence_gate, 'uvlock': True, 'y': 90},
@@ -98,7 +98,7 @@ def fence_gate_variants(fence_gate: str, fence_gate_open: str, fence_gate_wall: 
     }
 
 
-def wall_multipart(wall_post: str, wall_side: str, wall_side_tall: str) -> List[Any]:
+def wall_multipart(wall_post: str, wall_side: str, wall_side_tall: str) -> Json:
     return [
         ({'up': 'true'}, {'model': wall_post}),
         ({'north': 'low'}, {'model': wall_side, 'uvlock': True}),
@@ -112,7 +112,7 @@ def wall_multipart(wall_post: str, wall_side: str, wall_side_tall: str) -> List[
     ]
 
 
-def door_blockstate(door_bottom: str, door_bottom_hinge: str, door_top: str, door_top_hinge: str):
+def door_blockstate(door_bottom: str, door_bottom_hinge: str, door_top: str, door_top_hinge: str) -> JsonObject:
     return {
         'facing=east,half=lower,hinge=left,open=false': {'model': door_bottom},
         'facing=south,half=lower,hinge=left,open=false': {'model': door_bottom, 'y': 90},
@@ -149,7 +149,7 @@ def door_blockstate(door_bottom: str, door_bottom_hinge: str, door_top: str, doo
     }
 
 
-def trapdoor_blockstate(trapdoor_bottom: str, trapdoor_top: str, trapdoor_open: str) -> Dict[str, Any]:
+def trapdoor_blockstate(trapdoor_bottom: str, trapdoor_top: str, trapdoor_open: str) -> JsonObject:
     return {
         'facing=north,half=bottom,open=false': {'model': trapdoor_bottom},
         'facing=south,half=bottom,open=false': {'model': trapdoor_bottom, 'y': 180},
@@ -170,7 +170,7 @@ def trapdoor_blockstate(trapdoor_bottom: str, trapdoor_top: str, trapdoor_open: 
     }
 
 
-def button_blockstate(button: str, pressed: str) -> Dict[str, Any]:
+def button_blockstate(button: str, pressed: str) -> JsonObject:
     return {
         'face=floor,facing=east,powered=false': {'model': button, 'y': 90},
         'face=floor,facing=west,powered=false': {'model': button, 'y': 270},
@@ -199,7 +199,7 @@ def button_blockstate(button: str, pressed: str) -> Dict[str, Any]:
     }
 
 
-def pressure_plate_variants(pressure_plate: str, pressure_plate_down: str) -> Dict[str, Any]:
+def pressure_plate_variants(pressure_plate: str, pressure_plate_down: str) -> JsonObject:
     return {
         'powered=false': {'model': pressure_plate},
         'powered=true': {'model': pressure_plate_down}

@@ -3,6 +3,12 @@ from mcresources.type_definitions import *
 
 from github_wiki_pydoc import makedoc, page, typedef
 
+import logging
+import sys
+
+logging.basicConfig(stream=sys.stdout, level=logging.INFO, format='%(levelname)s : %(message)s')
+
+
 makedoc(
     pages=(
         page('ResourceManager.md', ResourceManager),
