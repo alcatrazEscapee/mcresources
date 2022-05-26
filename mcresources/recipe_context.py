@@ -17,8 +17,8 @@ class RecipeContext:
 
     def with_advancement(self, unlock_item: Json, parent: str = 'minecraft:recipes/root') -> 'RecipeContext':
         """
-        Shortcut to ResourceManager#advancement, with a standard recipe advancement
-        :param unlock_item: The item required to unlock the recipe. Uses the 'minecraft:inventory_changed' trigger
+        Shortcut to {@link ResourceManager#advancement}, with a standard recipe advancement
+        :param unlock_item: The item required to unlock the recipe. Uses the `minecraft:inventory_changed` trigger
         :param parent: the parent advancement
         """
         recipe_name = self.res.join()

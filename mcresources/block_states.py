@@ -2,6 +2,15 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
+"""
+A collection of helper functions for creating common vanilla block state Jsons.
+
+Usage:
+```python
+from mcresources import block_states
+```
+"""
+
 from typing import Dict, List, Any
 
 

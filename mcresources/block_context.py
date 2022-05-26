@@ -19,42 +19,53 @@ class BlockContext:
 
     def with_blockstate(self, model: str = None, variants: JsonObject = None, use_default_model: bool = True) -> 'BlockContext':
         """
-        Shortcut for ResourceManager#blockstate
+        Shortcut for {@link ResourceManager#blockstate}
+        :param model: the model, used if there are no variants. Defaults to 'domain:block/name/parts'
+        :param variants: the variants, as they would be present in json
+        :param use_default_model: if a model is missing for a variant, should this populate the variant using the assumed model
         """
         self.rm.blockstate(self.res, model, variants, use_default_model)
         return self
 
     def with_blockstate_multipart(self, *parts: Json) -> 'BlockContext':
         """
-        Shortcut for ResourceManager#blockstate_multipart
+        Shortcut for {@link ResourceManager#blockstate_multipart}
+        :param parts: The parts. Each element can be a 2-element sequence of a 'when' and 'apply' json, or a single 'apply' json.
         """
         self.rm.blockstate_multipart(self.res, *parts)
         return self
 
     def with_block_model(self, textures: Union[Dict[str, str], str] = None, parent: Optional[str] = 'block/cube_all', elements: Json = None) -> 'BlockContext':
         """
-        Shortcut for ResourceManager#block_model
+        Shortcut for {@link ResourceManager#block_model}
+        :param textures: the textures for the model. Defaults to 'domain:block/name/parts'
+        :param parent: the parent model. If none, it is omitted
+        :param elements: elements of the model. Can be a single element, which will get expanded to a list of one element
+        :param no_textures: If true, textures will be ignored.
         """
         self.rm.block_model(self.res, textures, parent, elements)
         return self
 
     def with_block_loot(self, *loot_pools: Json) -> 'BlockContext':
         """
-        Shortcut for ResourceManager#block_loot
+        Shortcut for {@link ResourceManager#block_loot}
+        :param loot_pools: Loot pools. Each argument is interpreted as a single pool. Loot pools may be a single string (which will be expanded to a single default `minecraft:item` entry), or a dictionary, which will be expanded into either a single loot pool, or single loot entry based on context, or a sequence of loot entries, which will be expanded into a `minecraft:alternatives` loot entry, and loot pool.
         """
         self.rm.block_loot(self.res, *loot_pools)
         return self
 
     def with_item_model(self) -> 'BlockContext':
         """
-        Shortcut for a block item model, which generates a model with a single parent reference to the block model of the same name
+        Shortcut for a block item model, which generates a model with a single parent reference to the block model of the same name.
         """
         self.rm.item_model(self.res, parent=utils.resource_location(self.rm.domain, 'block/' + self.res.path), no_textures=True)
         return self
 
     def with_tag(self, tag_name_parts: Sequence[str] = None, replace: bool = None) -> 'BlockContext':
         """
-        Shortcut for ResourceManager#block_tag
+        Shortcut for {@link ResourceManager#block_tag}
+        :param tag_name_parts: The resource location for the tag
+        :param replace: If the tag should replace previous values
         """
         if tag_name_parts is None:
             tag_name_parts = self.res
@@ -64,7 +75,7 @@ class BlockContext:
 
     def with_lang(self, block_name: str, language: Optional[str] = None) -> 'BlockContext':
         """
-        Shortcut for ResourceManager#lang using the block name
+        Shortcut for {@link ResourceManager#lang} using the block name
         """
         self.rm.lang(('block.%s.%s' % self.res).replace('/', '.'), block_name, language=language)
         return self

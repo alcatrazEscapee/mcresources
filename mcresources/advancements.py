@@ -1,3 +1,16 @@
+#  Part of mcresources by Alex O'Neill
+#  Work under copyright. Licensed under MIT
+#  For more information see the project LICENSE file
+
+"""
+A collection of helper functions for creating common vanilla advancement JSONs.
+
+Usage:
+```python
+from mcresources import advancements
+```
+"""
+
 from mcresources.type_definitions import Json, ResourceIdentifier
 from mcresources import utils
 

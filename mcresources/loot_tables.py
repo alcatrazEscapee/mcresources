@@ -2,6 +2,15 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
+"""
+Common functions for creating loot table related objects, such as loot conditions, functions, or loot pools.
+
+Usage:
+```python
+from mcresources import loot_tables
+```
+"""
+
 from mcresources.type_definitions import Json, JsonObject
 from mcresources import utils
 

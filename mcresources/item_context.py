@@ -19,14 +19,19 @@ class ItemContext:
 
     def with_item_model(self, *textures: Json, parent: str = 'item/generated', no_textures: bool = False) -> 'ItemContext':
         """
-        Shortcut for ResourceManager#item_model
+        Shortcut for {@link ResourceManager#item_model}
+        :param textures: the textures for the model. Defaults to 'domain:item/name/parts'
+        :param parent: the parent model.
+        :param no_textures: if the textures element should be ignored
         """
         self.rm.item_model(self.res, *textures, parent=parent, no_textures=no_textures)
         return self
 
     def with_tag(self, tag_name_parts: Sequence[str] = None, replace: bool = None) -> 'ItemContext':
         """
-        Shortcut for ResourceManager#item_tag
+        Shortcut for {@link ResourceManager#item_tag}
+        :param tag_name_parts: The resource location for the tag
+        :param replace: If the tag should replace previous values
         """
         if tag_name_parts is None:
             tag_name_parts = self.res
@@ -36,7 +41,7 @@ class ItemContext:
 
     def with_lang(self, item_name: str, language: Optional[str] = None) -> 'ItemContext':
         """
-        Shortcut for ResourceManager#lang with the item name
+        Shortcut for {@link ResourceManager#lang} with the item name
         """
         self.rm.lang(('item.%s.%s' % self.res).replace('/', '.'), item_name, language=language)
         return self

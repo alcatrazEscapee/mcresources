@@ -15,6 +15,21 @@ from collections import defaultdict
 
 
 class ResourceManager:
+    """
+    This is the central class for generating resources to a specific domain (modid), and output path. It contains methods for generating individual resource types and files. Refer to the documentation on each method for specifics.
+
+    Example Usage:
+    ```python
+    from mcresources import ResourceManager
+
+    rm = ResourceManager('my_fancy_modid')
+    # resource generation here
+    rm.flush()  # call flush to finish any tag or lang files, see note below
+    ```
+
+    <strong>Important:</strong> When generating files such as tags or lang, the `ResourceManager` does not create the files every time `.tag()` or `.lang()` is invoked. Rather, it collects all values from all invocations, until a call to `.flush()` is made, which then writes all tag and lang files together.
+    """
+
     def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
         """
         Creates a new Resource Manager. This is the supplier for all resource creation calls.
@@ -271,25 +286,46 @@ class ResourceManager:
                 self.tags_buffer[root_domain][res].replace = replace
 
     def item_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+        """
+        Creates or appends to an item tag
+        :param name_parts: The resource location, including path elements.
+        :param values: The resource location values for the tag
+        :param replace: If the tag should replace previous values
+        """
         self.tag(name_parts, 'items', *values, replace=replace)
 
     def block_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+        """
+        Creates or appends to a block tag
+        :param name_parts: The resource location, including path elements.
+        :param values: The resource location values for the tag
+        :param replace: If the tag should replace previous values
+        """
         self.tag(name_parts, 'blocks', *values, replace=replace)
 
     def entity_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+        """
+        Creates or appends to an entity tag
+        :param name_parts: The resource location, including path elements.
+        :param values: The resource location values for the tag
+        :param replace: If the tag should replace previous values
+        """
         self.tag(name_parts, 'entity_types', *values, replace=replace)
 
     def fluid_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+        """
+        Creates or appends to a fluid tag
+        :param name_parts: The resource location, including path elements.
+        :param values: The resource location values for the tag
+        :param replace: If the tag should replace previous values
+        """
         self.tag(name_parts, 'fluids', *values, replace=replace)
 
     def block_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json) -> BlockContext:
         """
         Creates a loot table for a block
         :param name_parts: The resource location, including path elements.
-        :param loot_pools: Loot pools. Each argument is interpreted as a single pool.
-            Loot pools may be a single string (which will be expanded to a single default 'minecraft:item' entry),
-            or a dictionary, which will be expanded into either a single loot pool, or single loot entry based on context,
-            or a sequence of loot entries, which will be expanded into a 'minecraft:alternatives' loot entry, and loot pool.
+        :param loot_pools: Loot pools. Each argument is interpreted as a single pool. Loot pools may be a single string (which will be expanded to a single default `minecraft:item` entry), or a dictionary, which will be expanded into either a single loot pool, or single loot entry based on context, or a sequence of loot entries, which will be expanded into a `minecraft:alternatives` loot entry, and loot pool.
         """
         res = self.loot(name_parts, *loot_pools, path='blocks', loot_type='minecraft:block')
         return BlockContext(self, res)
@@ -297,11 +333,18 @@ class ResourceManager:
     def entity_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json):
         """
         Creates a loot table for an entity.
-        Parameters are the same as above.
+        Parameters are the same as {@link ResourceManager#block_loot}.
         """
         self.loot(name_parts, *loot_pools, path='entities', loot_type='minecraft:entity')
 
     def loot(self, name_parts: ResourceIdentifier, *loot_pools: Json, path: str, loot_type: str) -> ResourceLocation:
+        """
+        Creates a generic loot table.
+        :param name_parts: The resource location, including path elements.
+        :param loot_pools: Loot pools. Each argument is interpreted as a single pool. Loot pools may be a single string (which will be expanded to a single default `minecraft:item` entry), or a dictionary, which will be expanded into either a single loot pool, or single loot entry based on context, or a sequence of loot entries, which will be expanded into a `minecraft:alternatives` loot entry, and loot pool.
+        :param path: The root loot table path.
+        :param loot_type: The type of the loot table.
+        """
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'loot_tables', path, res.path), {
             'type': loot_type,
