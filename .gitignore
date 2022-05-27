@@ -1,13 +1,26 @@
-# PyCharm
-/venv/
-/.idea/
-*.iml
-*.xml
+*
+!*/
+!/.gitignore
 
-# Auto generated test files
-generated/
+!/.github/workflows/*.yml
 
-# Python Packaging
-/build/
-/dist/
-/mcresources.egg-info/
+!/benchmarks/**/*.py
+!/benchmarks/README.md
+
+!/mcresources/**/*.py
+
+!/sample/test/**/*.json
+
+!/tests/**/*.py
+
+!/docs.py
+
+!/LICENSE.txt
+!/README.md
+!/requirements.txt
+
+!/setup.cfg
+!/setup.py
+
+__pycache__
+*.pyc
