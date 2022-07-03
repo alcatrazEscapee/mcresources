@@ -2,7 +2,7 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from mcresources.type_definitions import Json, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig
+from mcresources.type_definitions import Json, JsonObject, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig
 from mcresources import utils
 
 from mcresources.block_context import BlockContext
@@ -138,7 +138,7 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def custom_block_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: Dict[str, Any]) -> BlockContext:
+    def custom_block_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: JsonObject) -> BlockContext:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
             'loader': utils.resource_location(loader).join(),
@@ -167,7 +167,7 @@ class ResourceManager:
         })
         return ItemContext(self, res)
 
-    def custom_item_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: Dict[str, Any]) -> ItemContext:
+    def custom_item_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: JsonObject) -> ItemContext:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
             'loader': utils.resource_location(loader).join(),
@@ -215,7 +215,7 @@ class ResourceManager:
         })
         return RecipeContext(self, res)
 
-    def recipe(self, name_parts: ResourceIdentifier, type_in: str, data_in: Dict[str, Any], group: str = None, conditions: Json = None) -> RecipeContext:
+    def recipe(self, name_parts: ResourceIdentifier, type_in: Optional[str], data_in: JsonObject, group: Optional[str] = None, conditions: Json = None) -> RecipeContext:
         """
         Creates a non-crafting recipe file, used for custom mod recipes using vanilla's data pack system
         :param name_parts: The resource location, including path elements.
@@ -233,15 +233,16 @@ class ResourceManager:
         })
         return RecipeContext(self, res)
 
-    def data(self, name_parts: ResourceIdentifier, data_in: Dict[str, Any], root_domain: str = 'data'):
+    def data(self, name_parts: ResourceIdentifier, data_in: JsonObject, root_domain: str = 'data', prefix_path: str = ''):
         """
         Creates a generic data file. Used for anything and everything under the sun.
         :param name_parts: The resource location, including path elements.
         :param data_in: Data to be inserted into the json
         :param root_domain: The root location (either data or assets) to insert into
+        :param prefix_path: A prefix for the path to be inserted to. For example, `prefix_path = 'recipes'` and `name_parts = 'minecraft:foo'` will place data at `data/minecraft/recipes/foo/`
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, root_domain, res.domain, res.path), data_in)
+        self.write((*self.resource_dir, root_domain, res.domain, prefix_path + res.path), data_in)
 
     def advancement(self, name_parts: ResourceIdentifier, display: Json = None, parent: str = None, criteria: Dict[str, Dict[str, Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, Json] = None):
         """
