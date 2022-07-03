@@ -309,6 +309,19 @@ def blockstate_multipart_parts(data_in: Sequence[Json]) -> List[JsonObject]:
     return [part(p) for p in data_in]
 
 
+def tag_entry(data_in: Union[ResourceIdentifier, JsonObject], domain: str) -> Union[str, JsonObject]:
+    if isinstance(data_in, Dict):
+        if 'id' not in data_in:
+            raise ValueError('Dictionary tag entry must have \'id\' field, and optional \'required\' field')
+        return data_in
+    else:
+        loc = resource_location(domain, data_in).join()
+        if loc != '' and loc[-1] == '?':
+            # Optional entry, required = False
+            return {'id': loc[:-1], 'required': False}
+        return loc
+
+
 def lang_parts(data_in: Sequence[Json], entries: Dict[str, str] = None) -> Dict[str, str]:
     if entries is None:
         entries = {}

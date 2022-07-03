@@ -66,7 +66,7 @@ class ResourceManager:
             for tag_res, tag in tags.items():
                 self.write((*self.resource_dir, 'data', tag_res.domain, 'tags', tag_type, tag_res.path), {
                     'replace': tag.replace,
-                    'values': [v.join() for v in tag.values]
+                    'values': tag.values
                 })
 
         self.lang_buffer.clear()
@@ -265,16 +265,16 @@ class ResourceManager:
             'rewards': rewards
         })
 
-    def tag(self, name_parts: ResourceIdentifier, root_domain: str, *values: ResourceIdentifier, replace: bool = None):
+    def tag(self, name_parts: ResourceIdentifier, root_domain: str, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """
         Creates or appends to a tag entry
         :param name_parts: The resource location, including path elements.
-        :param root_domain: The root domain of the tag. Should be 'blocks', 'items', 'fluids', or 'entity_types'
-        :param values: The resource location values for the tag
+        :param root_domain: The root domain of the tag. Should be 'blocks', 'items', 'fluids', or 'entity_types', or a world generation folder.
+        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
         :param replace: If the tag should replace previous values
         """
         res = utils.resource_location(self.domain, name_parts)
-        values = [utils.resource_location(self.domain, v) for v in values]
+        values = [utils.tag_entry(v, self.domain) for v in values]
         if res not in self.tags_buffer[root_domain]:
             if replace is None:
                 replace = False
@@ -286,38 +286,38 @@ class ResourceManager:
             if replace is not None:
                 self.tags_buffer[root_domain][res].replace = replace
 
-    def item_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+    def item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """
         Creates or appends to an item tag
         :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag
+        :param values:The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
         :param replace: If the tag should replace previous values
         """
         self.tag(name_parts, 'items', *values, replace=replace)
 
-    def block_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+    def block_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """
         Creates or appends to a block tag
         :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag
+        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
         :param replace: If the tag should replace previous values
         """
         self.tag(name_parts, 'blocks', *values, replace=replace)
 
-    def entity_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+    def entity_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """
         Creates or appends to an entity tag
         :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag
+        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
         :param replace: If the tag should replace previous values
         """
         self.tag(name_parts, 'entity_types', *values, replace=replace)
 
-    def fluid_tag(self, name_parts: ResourceIdentifier, *values: ResourceIdentifier, replace: bool = None):
+    def fluid_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """
         Creates or appends to a fluid tag
         :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag
+        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
         :param replace: If the tag should replace previous values
         """
         self.tag(name_parts, 'fluids', *values, replace=replace)

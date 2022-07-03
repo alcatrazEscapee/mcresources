@@ -75,6 +75,13 @@ def test_parse_item_stack():
     assert ('e', False, 3, 4) == utils.parse_item_stack('3-4 e')
     assert ('f', True, 5, 6) == utils.parse_item_stack('5-6 #f')
 
+def test_tag_entry():
+    assert 'minecraft:foo' == utils.tag_entry('foo', 'minecraft')
+    assert 'domain:foo' == utils.tag_entry('domain:foo', 'minecraft')
+    assert {'id': 'foo:bar', 'required': False} == utils.tag_entry({'id': 'foo:bar', 'required': False}, 'minecraft')
+    assert {'id': 'minecraft:buzz', 'required': False} == utils.tag_entry('buzz?', 'minecraft')
+    assert {'id': 'fizz:buzz', 'required': False} == utils.tag_entry('fizz:buzz?', 'minecraft')
+
 def test_lang_parts():
     assert {'a': 'b'} == utils.lang_parts(['a', 'b'])
     assert {'a': 'b', 'c': 'd'} == utils.lang_parts([{'a': 'b'}, 'c', 'd'])
