@@ -11,7 +11,7 @@ from mcresources import block_states
 ```
 """
 
-from type_definitions import Json, JsonObject
+from mcresources.type_definitions import Json, JsonObject
 
 
 def slab_variants(block: str, block_slab: str, block_slab_top: str) -> JsonObject:
