@@ -2,7 +2,7 @@
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
 
-from mcresources.type_definitions import Json, JsonObject, ResourceLocation
+from mcresources.type_definitions import Json, JsonObject, ResourceLocation, ResourceIdentifier
 from mcresources import utils, block_states
 
 from typing import Optional, Union, Dict, Sequence
@@ -71,6 +71,18 @@ class BlockContext:
             tag_name_parts = self.res
         tag_res = utils.resource_location(self.rm.domain, tag_name_parts)
         self.rm.block_tag(tag_res, self.res, replace=replace)
+        return self
+
+    def with_item_tag(self, tag_name_parts: ResourceIdentifier = None, replace: bool = None) -> 'BlockContext':
+        """
+        Shortcut for {@link ResourceManager#item_tag}. Creates an item tag, assuming this block has an identically named item.
+        :param tag_name_parts: The resource location for the tag.
+        :param replace: If the tag should replace previous values
+        """
+        if tag_name_parts is None:
+            tag_name_parts = self.res
+        tag_res = utils.resource_location(self.rm.domain, tag_name_parts)
+        self.rm.item_tag(tag_res, self.res, replace=replace)
         return self
 
     def with_lang(self, block_name: str, language: Optional[str] = None) -> 'BlockContext':

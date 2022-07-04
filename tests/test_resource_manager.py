@@ -3,6 +3,9 @@
 #  For more information see the project LICENSE file
 
 import os
+import sys
+
+import pytest
 import difflib
 
 from mcresources import utils
@@ -89,10 +92,12 @@ def test_item_tag():
     rm.flush()
     assert_file_equal('data/modid/tags/items/my_items.json')
 
+def test_item_context_with_tag_no_domain():
     rm.item('item1').with_tag('my_items')
     rm.flush()
     assert_file_equal('data/modid/tags/items/my_items.json')
 
+def test_item_tag_multiple_values():
     rm.item_tag(('ingots', 'iron'), 'modid:iron_ingot', 'othermod:iron_ingot', replace=True)
     rm.flush()
     assert_file_equal('data/modid/tags/items/ingots/iron.json')
@@ -102,15 +107,22 @@ def test_block_tag():
     rm.flush()
     assert_file_equal('data/modid/tags/blocks/my_blocks.json')
 
+def test_block_context_with_tag_other_domain():
     rm.block('block1').with_tag('othermod:their_blocks')
     rm.flush()
     assert_file_equal('data/othermod/tags/blocks/their_blocks.json')
 
+def test_block_context_with_tag_no_domain():
     rm.block('block2').with_tag('someones/block')
     rm.flush()
     assert_file_equal('data/modid/tags/blocks/someones/block.json')
 
-    # Check duplicates
+def test_block_context_with_item_tag():
+    rm.block('block3').with_item_tag('blocks_as_items')
+    rm.flush()
+    assert_file_equal('data/modid/tags/items/blocks_as_items.json')
+
+def test_block_tag_with_duplicates():
     rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', 'othermod:iron_block', 'othermod:iron_block', replace=True)
     rm.flush()
     assert_file_equal('data/modid/tags/blocks/blocks/iron.json')
@@ -120,6 +132,7 @@ def test_entity_tag():
     rm.flush()
     assert_file_equal('data/modid/tags/entity_types/my_entities.json')
 
+def test_entity_tag_multiple_values():
     rm.entity_tag(('things', 'stuff'), 'modid:my_entity', 'minecraft:other_entity', replace=True)
     rm.flush()
     assert_file_equal('data/modid/tags/entity_types/things/stuff.json')
@@ -129,6 +142,7 @@ def test_fluid_tag():
     rm.flush()
     assert_file_equal('data/modid/tags/fluids/my_fluids.json')
 
+def test_fluid_tag_multiple_values():
     rm.fluid_tag(['special', 'lavas'], 'modid:lavathing', 'othermod:otherlava', replace=True)
     rm.flush()
     assert_file_equal('data/modid/tags/fluids/special/lavas.json')
@@ -328,11 +342,19 @@ def test_template_pool():
 
 
 def assert_file_equal(path: str):
-    assert os.path.isfile('test/' + path), 'No expected resource at %s' % path
-    with open('test/' + path) as expected_file:
-        expected = expected_file.read().split('\n')
+    if not os.path.isfile('test/' + path):
+        with open('test/' + path, 'w', encoding='utf-8') as new_file:
+            new_file.write('{}\n')
+        pytest.fail('No expected resource at %s, creating blank file' % path)
+
+    with open('test/' + path, 'r', encoding='utf-8') as expected_file:
+        expected = expected_file.read()
 
     assert os.path.isfile('generated/' + path), 'No generated resource at %s' % path
-    with open('generated/' + path) as actual_file:
-        actual = actual_file.read().split('\n')
-        assert expected == actual, 'Diff: %s' % '\n'.join(difflib.unified_diff(expected, actual, 'actual', 'expected', n=3))
+    with open('generated/' + path, 'r', encoding='utf-8') as actual_file:
+        actual = actual_file.read()
+
+    if expected != actual:
+        diff = '\n'.join(difflib.unified_diff(expected.split('\n'), actual.split('\n'), 'actual', 'expected', n=3))
+        print('\nAssertion Failed: File Content Not Equal\n=== Expected ===\n%s\n=== Actual ===\n%s\n=== Diff ===\n%s' % (expected, actual, diff), file=sys.stderr)
+        pytest.fail('File Content Not Equal')
