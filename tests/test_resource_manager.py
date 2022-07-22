@@ -12,7 +12,7 @@ from mcresources import utils
 from mcresources.resource_manager import ResourceManager
 
 
-rm = ResourceManager(domain='modid', resource_dir='generated', indent=2)
+rm = ResourceManager(domain='modid', resource_dir='generated', indent=2, ensure_ascii=False)
 os.chdir('../sample')
 utils.clean_generated_resources('generated')
 os.makedirs('generated', exist_ok=True)
@@ -339,6 +339,20 @@ def test_processor_list():
 
 def test_template_pool():
     pass
+
+def test_ensure_ascii():
+    try:
+        rm.ensure_ascii = True
+        rm.block_tag('ensure_ascii_true', '𝓝𝓸𝓷 𝓐𝓢𝓒𝓘𝓘 𝓣𝓮𝔁𝓽')
+        rm.flush()
+        assert_file_equal('data/modid/tags/blocks/ensure_ascii_true.json')
+
+        rm.ensure_ascii = False
+        rm.block_tag('ensure_ascii_false', '𝓝𝓸𝓷 𝓐𝓢𝓒𝓘𝓘 𝓣𝓮𝔁𝓽')
+        rm.flush()
+        assert_file_equal('data/modid/tags/blocks/ensure_ascii_false.json')
+    finally:
+        rm.ensure_ascii = True
 
 
 def assert_file_equal(path: str):

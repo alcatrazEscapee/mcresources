@@ -30,15 +30,17 @@ class ResourceManager:
     <strong>Important:</strong> When generating files such as tags or lang, the `ResourceManager` does not create the files every time `.tag()` or `.lang()` is invoked. Rather, it collects all values from all invocations, until a call to `.flush()` is made, which then writes all tag and lang files together.
     """
 
-    def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
+    def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, ensure_ascii: bool = False, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
         """
         Creates a new Resource Manager. This is the supplier for all resource creation calls.
         :param domain: the domain / mod id for current resources.
         :param indent: the indentation level for all generated json files
+        :param ensure_ascii: The ensure_ascii passed to json.dump - if non-ascii characters should be replaced with escape sequences.
         """
         self.resource_dir = utils.str_path(resource_dir)
         self.domain = domain
         self.indent = indent
+        self.ensure_ascii = ensure_ascii
         self.default_language = default_language
         self.on_error = on_error
 
@@ -265,63 +267,6 @@ class ResourceManager:
             'rewards': rewards
         })
 
-    def tag(self, name_parts: ResourceIdentifier, root_domain: str, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
-        """
-        Creates or appends to a tag entry
-        :param name_parts: The resource location, including path elements.
-        :param root_domain: The root domain of the tag. Should be 'blocks', 'items', 'fluids', or 'entity_types', or a world generation folder.
-        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
-        :param replace: If the tag should replace previous values
-        """
-        res = utils.resource_location(self.domain, name_parts)
-        values = [utils.tag_entry(v, self.domain) for v in values]
-        if res not in self.tags_buffer[root_domain]:
-            if replace is None:
-                replace = False
-            tag = Tag(replace)
-            tag.add_all(values)
-            self.tags_buffer[root_domain][res] = tag
-        else:
-            self.tags_buffer[root_domain][res].add_all(values)
-            if replace is not None:
-                self.tags_buffer[root_domain][res].replace = replace
-
-    def item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
-        """
-        Creates or appends to an item tag
-        :param name_parts: The resource location, including path elements.
-        :param values:The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
-        :param replace: If the tag should replace previous values
-        """
-        self.tag(name_parts, 'items', *values, replace=replace)
-
-    def block_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
-        """
-        Creates or appends to a block tag
-        :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
-        :param replace: If the tag should replace previous values
-        """
-        self.tag(name_parts, 'blocks', *values, replace=replace)
-
-    def entity_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
-        """
-        Creates or appends to an entity tag
-        :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
-        :param replace: If the tag should replace previous values
-        """
-        self.tag(name_parts, 'entity_types', *values, replace=replace)
-
-    def fluid_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
-        """
-        Creates or appends to a fluid tag
-        :param name_parts: The resource location, including path elements.
-        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
-        :param replace: If the tag should replace previous values
-        """
-        self.tag(name_parts, 'fluids', *values, replace=replace)
-
     def block_loot(self, name_parts: ResourceIdentifier, *loot_pools: Json) -> BlockContext:
         """
         Creates a loot table for a block
@@ -490,6 +435,74 @@ class ResourceManager:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'template_pool', res.path), data)
 
+    # === Tags === #
+
+    def item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization for {@link #tag} for item tags. """
+        self.tag(name_parts, 'items', *values, replace=replace)
+
+    def block_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization for {@link #tag} for block tags. """
+        self.tag(name_parts, 'blocks', *values, replace=replace)
+
+    def entity_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for entity tags. """
+        self.tag(name_parts, 'entity_types', *values, replace=replace)
+
+    def fluid_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for fluid tags """
+        self.tag(name_parts, 'fluids', *values, replace=replace)
+
+    def dimension_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for dimension tags """
+        self.tag(name_parts, 'dimension', *values, replace=replace)
+
+    def dimension_type_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for dimension type tags """
+        self.tag(name_parts, 'dimension_type', *values, replace=replace)
+
+    def configured_carver_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for configured carver tags """
+        self.tag(name_parts, 'worldgen/configured_carver', *values, replace=replace)
+
+    def configured_structure_feature_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for configured structure feature tags """
+        self.tag(name_parts, 'worldgen/configured_structure_feature', *values, replace=replace)
+
+    def configured_feature_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for configured feature tags """
+        self.tag(name_parts, 'worldgen/configured_feature', *values, replace=replace)
+
+    def placed_feature_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for placed feature tags """
+        self.tag(name_parts, 'worldgen/placed_feature', *values, replace=replace)
+
+    def biome_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for biome tags """
+        self.tag(name_parts, 'worldgen/biome', *values, replace=replace)
+
+    def tag(self, name_parts: ResourceIdentifier, root_domain: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """
+        Creates or appends to a tag entry
+        :param name_parts: The resource location, including path elements.
+        :param root_domain: The root domain of the tag. Should be 'blocks', 'items', 'fluids', or 'entity_types', or a world generation folder.
+        :param values: The resource location values for the tag. Can specify optional tags by suffixing with `?`, i.e. `'minecraft:foo?'`. Can also accept explicit optional tags via a dictionary with `id` and `required`.
+        :param replace: If the tag should replace previous values
+        """
+        res = utils.resource_location(self.domain, name_parts)
+        values = [utils.tag_entry(v, self.domain) for v in values]
+        root = '/'.join(utils.str_path(root_domain))
+        if res not in self.tags_buffer[root]:
+            if replace is None:
+                replace = False
+            tag = Tag(replace)
+            tag.add_all(values)
+            self.tags_buffer[root][res] = tag
+        else:
+            self.tags_buffer[root][res].add_all(values)
+            if replace is not None:
+                self.tags_buffer[root][res].replace = replace
+
     def write(self, path_parts: Sequence[str], data: Json):
         """
         Writes data to a file, inserting an autogenerated comment and deletes None entries from the data
@@ -497,7 +510,7 @@ class ResourceManager:
         :param data: The json data to write
         """
         data = utils.del_none({'__comment__': 'This file was automatically created by mcresources', **data})
-        flag = utils.write(path_parts, data, self.indent, self.on_error)
+        flag = utils.write(path_parts, data, self.indent, self.ensure_ascii, self.on_error)
         if flag == utils.WriteFlag.NEW:
             self.new_files += 1
         elif flag == utils.WriteFlag.MODIFIED:

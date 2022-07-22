@@ -55,12 +55,13 @@ def del_none(data_in: Json) -> Json:
         raise ValueError('None passed to `del_none`, should not be possible.')
 
 
-def write(path_parts: Sequence[str], data: Json, indent: int = 2, on_error: Callable[[str, Exception], Any] = None) -> WriteFlag:
+def write(path_parts: Sequence[str], data: Json, indent: int = 2, ensure_ascii: bool = False, on_error: Callable[[str, Exception], Any] = None) -> WriteFlag:
     """
     Writes json to a file.
     :param path_parts: The path elements of the file
     :param data: The data to write
     :param indent: The indent level for the json output
+    :param ensure_ascii: The ensure_ascii passed to json.dump - if non-ascii characters should be replaced with escape sequences.
     :param on_error: A consumer of a file name and error if one occurs
     :return: 0 if the file was new, 1 if the file was modified, 2 if the file was not modified, 3 if an error occurred
     """
@@ -75,7 +76,7 @@ def write(path_parts: Sequence[str], data: Json, indent: int = 2, on_error: Call
                 return WriteFlag.UNCHANGED
             exists = True
         with open(path, 'w', encoding='utf-8') as file:
-            json.dump(data, file, indent=indent)
+            json.dump(data, file, indent=indent, ensure_ascii=ensure_ascii)
             return WriteFlag.MODIFIED if exists else WriteFlag.NEW
     except Exception as e:
         on_error(path, e)
@@ -117,16 +118,6 @@ def str_path(data_in: Sequence[str]) -> List[str]:
         return [*flatten_list([str_path(s) for s in data_in])]
     else:
         raise ValueError('Unknown object %s at str_path' % str(data_in))
-
-
-def str_list(data_in: Sequence[str]) -> List[str]:
-    # Converts an iterable or string to a string list
-    if isinstance(data_in, str):
-        return [data_in]
-    elif isinstance(data_in, Sequence):
-        return [*flatten_list(data_in)]
-    else:
-        raise ValueError('Unknown object %s at str_list' % str(data_in))
 
 
 def domain_path_parts(name_parts: Sequence[str], default_domain: str) -> Tuple[str, List[str]]:

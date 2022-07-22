@@ -14,11 +14,6 @@ def test_str_path():
     assert ['a', 'b', 'c', 'd'] == utils.str_path('a/b/c/d')
     assert ['a', 'b', 'c', 'd'] == utils.str_path(['a', ['b', 'c/d']])
 
-def test_str_list():
-    assert ['a', 'b/c', 'd'] == utils.str_list(['a', 'b/c', 'd'])
-    assert ['a/b/c/d'] == utils.str_list('a/b/c/d')
-    assert ['a', 'b', 'c/d'] == utils.str_list(['a', ['b', 'c/d']])
-
 def test_domain_path_parts():
     assert ('modid', ['block', 'dirt']) == utils.domain_path_parts('block/dirt', 'modid')
     assert ('modid', ['block', 'dirt']) == utils.domain_path_parts(('block', 'dirt'), 'modid')
