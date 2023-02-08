@@ -190,7 +190,7 @@ class ResourceManager:
         self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shapeless',
             'group': group,
-            'ingredients': utils.item_stack_list(ingredients),
+            'ingredients': utils.ingredient_list(ingredients),
             'result': utils.item_stack(result),
             'conditions': utils.recipe_condition(conditions)
         })

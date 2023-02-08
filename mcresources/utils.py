@@ -227,6 +227,15 @@ def item_stack(data_in: Json) -> JsonObject:
         raise ValueError('Unknown object %s at item_stack' % str(data_in))
 
 
+def ingredient_list(data_in: Json) -> List[JsonObject]:
+    if isinstance(data_in, str) or isinstance(data_in, Dict):
+        return [ingredient(data_in)]
+    elif is_sequence(data_in):  # Treat a top-level sequence without flattening
+        return [ingredient(s) for s in data_in]
+    else:
+        raise ValueError('Unknown object %s at ingredient_list' % str(data_in))
+
+
 def item_stack_list(data_in: Json) -> List[JsonObject]:
     if isinstance(data_in, str) or isinstance(data_in, Dict):
         return [item_stack(data_in)]

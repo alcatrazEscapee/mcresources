@@ -77,7 +77,11 @@ def test_custom_item_model():
     assert_file_equal('assets/modid/models/item/item_custom_loader.json')
 
 def test_crafting_shapeless():
-    pass
+    rm.crafting_shapeless('basic_shapeless', 'minecraft:foo', 'domain:my_item')
+    assert_file_equal('data/modid/recipes/basic_shapeless.json')
+
+    rm.crafting_shapeless('shapeless_multi_ingredient', ['minecraft:bar', 'modid:fizz', {'tag': 'modid:buzz'}, '#minecraft:baz', ('a:b', 'b:c')], 'domain:my_item')
+    assert_file_equal('data/modid/recipes/shapeless_multi_ingredient.json')
 
 def test_crafting_shaped():
     rm.crafting_shaped('my_block', ('XBX', 'X  ', '  B'), {'X': 'domain:my_item', 'B': 'minecraft:stone'}, 'domain:my_block').with_advancement('minecraft:dirt')
