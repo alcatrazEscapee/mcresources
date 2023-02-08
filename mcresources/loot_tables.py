@@ -44,11 +44,11 @@ def or_condition(*terms: Json) -> JsonObject:
         'terms': utils.loot_conditions(terms)
     }
 
-def not_condition(term: Json) -> JsonObject:
+def inverted_condition(term: Json) -> JsonObject:
     condition = utils.loot_conditions(term)
-    assert len(condition) == 1, 'Expected one condition for not_condition() term'
+    assert len(condition) == 1, 'Expected one condition for inverted_condition() term'
     return {
-        'condition': 'minecraft:not',
+        'condition': 'minecraft:inverted',
         'term': condition[0]
     }
 
