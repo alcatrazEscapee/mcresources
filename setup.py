@@ -26,6 +26,7 @@ setuptools.setup(
     url='https://github.com/alcatrazEscapee/mcresources',
     keywords=['python', 'minecraft', 'resources', 'modding', 'forge'],
     install_requires=[],
+    package_data={"pixelmatch": ["py.typed"]},
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         # Chose either "3 - Alpha", "4 - Beta" or "5 - Production/Stable" as the current state of your package

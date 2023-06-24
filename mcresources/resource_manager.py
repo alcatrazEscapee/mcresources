@@ -177,6 +177,12 @@ class ResourceManager:
         })
         return ItemContext(self, res)
 
+    def atlas(self, name_parts: ResourceIdentifier, *sources: Json):
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'assets', res.domain, 'atlases', res.path), {
+            'sources': [s for s in sources]
+        })
+
     def crafting_shapeless(self, name_parts: ResourceIdentifier, ingredients: Json, result: Json, group: str = None, conditions: Optional[Json] = None) -> RecipeContext:
         """
         Creates a shapeless crafting recipe.
@@ -206,6 +212,7 @@ class ResourceManager:
         :param group: The group.
         :param conditions: Any conditions for the recipe to be enabled.
         """
+        utils.validate_crafting_pattern(pattern)
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shaped',
@@ -253,12 +260,14 @@ class ResourceManager:
         :param display: The display data. Inserted as is.
         :param parent: The parent advancement registry name
         :param criteria: The criteria for an advancement. Inserted as is.
-        :param requirements: The requirements. If None, will default to a list of all the requirements (OR'd together).
+        :param requirements: The requirements. If None or 'or', the criteria names will in one list. If 'and', the criteria will each get their own sublist, which requires all of them to be achieved.
         :param rewards: The rewards. Inserted as is.
         """
         res = utils.resource_location(self.domain, name_parts)
-        if requirements is None:
+        if requirements is None or requirements == 'or':
             requirements = [[k for k in criteria.keys()]]
+        elif requirements == 'and':
+            requirements = [[k] for k in criteria.keys()]
         self.write((*self.resource_dir, 'data', res.domain, 'advancements', res.path), {
             'parent': parent,
             'criteria': criteria,
