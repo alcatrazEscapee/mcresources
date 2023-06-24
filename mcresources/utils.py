@@ -570,3 +570,16 @@ def block_state(data: Json):
         return data
     else:
         raise ValueError('Unknown object %s at block_state' % str(data))
+    
+def validate_crafting_pattern(pattern: Sequence[str], max_width: int = 3, max_height: int = 3):
+    height = len(pattern)
+    if height > max_height or height == 0:
+        raise ValueError('Pattern must be 1-%s lines long, found %s' % (max_height, height))
+    length = -1
+    for sequence in pattern:
+        if length == -1:
+            length = len(sequence)
+        elif length != len(sequence):
+            raise ValueError('Pattern must be square: %s. Expected: %s, Found: %s' % (pattern, length, len(sequence)))
+        elif length > max_width:
+            raise ValueError('Pattern must be 1-%s characters wide, found %s' % (max_width, length))

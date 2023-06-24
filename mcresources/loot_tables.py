@@ -146,3 +146,9 @@ def copy_block_entity_nbt() -> JsonObject:
             'op': 'replace'
         }]
     }
+
+def inverted(condition: JsonObject):
+    return {
+        'condition': 'minecraft:inverted',
+        'term': condition
+    }

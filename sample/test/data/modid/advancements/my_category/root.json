@@ -1,0 +1,29 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "criteria": {
+    "crit": {
+      "trigger": "minecraft:tick"
+    }
+  },
+  "display": {
+    "icon": {
+      "item": "domain:item"
+    },
+    "title": {
+      "translate": "modid.advancements.my_category.root.title"
+    },
+    "description": {
+      "translate": "modid.advancements.my_category.root.description"
+    },
+    "frame": "task",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "background.png"
+  },
+  "requirements": [
+    [
+      "crit"
+    ]
+  ]
+}

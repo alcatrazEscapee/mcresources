@@ -1,0 +1,54 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "parent": "modid:my_category/root",
+  "criteria": {
+    "crit1": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "domain:sword"
+            ]
+          }
+        ]
+      }
+    },
+    "crit2": {
+      "trigger": "minecraft:inventory_changed",
+      "conditions": {
+        "items": [
+          {
+            "items": [
+              "domain:axe"
+            ]
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "icon": {
+      "item": "domain:item"
+    },
+    "title": {
+      "translate": "modid.advancements.my_category.child.title"
+    },
+    "description": {
+      "translate": "modid.advancements.my_category.child.description"
+    },
+    "frame": "challenge",
+    "show_toast": true,
+    "announce_to_chat": true,
+    "hidden": false,
+    "background": "background.png"
+  },
+  "requirements": [
+    [
+      "crit1"
+    ],
+    [
+      "crit2"
+    ]
+  ]
+}

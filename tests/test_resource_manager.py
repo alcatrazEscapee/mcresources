@@ -8,12 +8,13 @@ import sys
 import pytest
 import difflib
 
-from mcresources import utils
+from mcresources import utils, advancements
 from mcresources.resource_manager import ResourceManager
 
 
 rm = ResourceManager(domain='modid', resource_dir='generated', indent=2, ensure_ascii=False)
 os.chdir('../sample')
+os.makedirs('generated', exist_ok=True)
 utils.clean_generated_resources('generated')
 os.makedirs('generated', exist_ok=True)
 
@@ -90,6 +91,13 @@ def test_crafting_shaped():
 
 def test_recipe():
     pass
+
+def test_advancements():
+    category = advancements.AdvancementCategory(rm, 'my_category', 'background.png')
+    root = category.advancement('root', 'domain:item', 'My Advancement Tree', 'The tree.', parent=None, criteria={'crit': advancements.first_tick()})
+    root.add_child('child', 'domain:item', 'My Advancement Tree', 'The tree.', criteria={'crit1': advancements.inventory_changed('domain:sword'), 'crit2': advancements.inventory_changed('domain:axe')}, requirements='and', frame='challenge')
+    assert_file_equal('data/modid/advancements/my_category/root.json')
+    assert_file_equal('data/modid/advancements/my_category/root.json')
 
 def test_item_tag():
     rm.item_tag('my_items', 'modid:item1')
