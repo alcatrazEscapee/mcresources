@@ -177,6 +177,12 @@ class ResourceManager:
         })
         return ItemContext(self, res)
 
+    def atlas(self, name_parts: ResourceIdentifier, *sources: Json):
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'assets', res.domain, 'atlases', res.path), {
+            'sources': [s for s in sources]
+        })
+
     def crafting_shapeless(self, name_parts: ResourceIdentifier, ingredients: Json, result: Json, group: str = None, conditions: Optional[Json] = None) -> RecipeContext:
         """
         Creates a shapeless crafting recipe.

@@ -4,19 +4,19 @@
 
 import os
 import sys
+sys.path.append('..')
 
 import pytest
 import difflib
 
-from mcresources import utils, advancements
+
+from mcresources import utils, atlases, advancements
 from mcresources.resource_manager import ResourceManager
 
 
 rm = ResourceManager(domain='modid', resource_dir='generated', indent=2, ensure_ascii=False)
-os.chdir('../sample')
 os.makedirs('generated', exist_ok=True)
 utils.clean_generated_resources('generated')
-os.makedirs('generated', exist_ok=True)
 
 
 def test_blockstate():
@@ -76,6 +76,12 @@ def test_item_model_multiple_layers():
 def test_custom_item_model():
     rm.custom_item_model('item_custom_loader', 'test_loader', {'raw_data': {'more_raw_data': 3}})
     assert_file_equal('assets/modid/models/item/item_custom_loader.json')
+
+def test_atlas():
+    print('test')
+    rm.atlas('custom_atlas', atlases.single('modid:chests/iron'), atlases.directory('block'))
+    assert_file_equal('assets/modid/atlases/custom_atlas.json')
+
 
 def test_crafting_shapeless():
     rm.crafting_shapeless('basic_shapeless', 'minecraft:foo', 'domain:my_item')
