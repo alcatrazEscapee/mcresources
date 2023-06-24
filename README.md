@@ -2,17 +2,18 @@
 
 This is a python module aimed to enable simple generation of the many json files that are required for Minecraft modding.
 
-### Pack Format
+### Data Format
 
-Updates of this tool will track the latest pack format (`pack_format` in a resource pack) as soon as possible. In order to generate resources compliant with a specific pack format, the latest version can be found below
+Updates of this tool will track the format of the latest version of Minecraft. For each specific Minecraft version, the latest version of `mcresources`, targeting that version, can be found below:
 
-Pack Format | Minimum Minecraft Version | Latest mcresources Version
----|---|---
-8 | 1.18 | Latest
-7 | 1.17 | 1.4.6
-6 | 1.16.2 | 1.4.6
-5 | 1.15 | 1.3.3
-4 | 1.13 | 0.0.2
+| Minecraft Version | Latest mcresources Version |
+|-------------------|----------------------------|
+| 1.20              | Latest                     |
+| 1.18              | 1.5.11                     |
+| 1.17              | 1.4.6                      |
+| 1.16.2            | 1.4.6                      |
+| 1.15              | 1.3.3                      |
+| 1.13              | 0.0.2                      |
 
 ---
 

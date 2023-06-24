@@ -4,19 +4,16 @@
 
 import os
 import sys
-sys.path.append('..')
-
 import pytest
 import difflib
-
 
 from mcresources import utils, atlases, advancements
 from mcresources.resource_manager import ResourceManager
 
 
 rm = ResourceManager(domain='modid', resource_dir='generated', indent=2, ensure_ascii=False)
-os.makedirs('generated', exist_ok=True)
-utils.clean_generated_resources('generated')
+os.makedirs('../generated', exist_ok=True)
+utils.clean_generated_resources('../generated')
 
 
 def test_blockstate():
@@ -374,6 +371,8 @@ def test_ensure_ascii():
 
 
 def assert_file_equal(path: str):
+    path = os.path.join('../generated', path)
+
     if not os.path.isfile('test/' + path):
         with open('test/' + path, 'w', encoding='utf-8') as new_file:
             new_file.write('{}\n')
