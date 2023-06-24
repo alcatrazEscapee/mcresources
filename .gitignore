@@ -15,6 +15,7 @@
 !/tests/**/*.py
 
 !/docs.py
+!/github_wiki_pydoc.py
 
 !/LICENSE.txt
 !/README.md
