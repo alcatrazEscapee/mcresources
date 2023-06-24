@@ -9,13 +9,12 @@ sys.path.append('..')
 import pytest
 import difflib
 
-from mcresources import utils
-from mcresources import atlases
+
+from mcresources import utils, atlases, advancements
 from mcresources.resource_manager import ResourceManager
 
 
 rm = ResourceManager(domain='modid', resource_dir='generated', indent=2, ensure_ascii=False)
-os.chdir('../sample')
 os.makedirs('generated', exist_ok=True)
 utils.clean_generated_resources('generated')
 
@@ -85,7 +84,11 @@ def test_atlas():
 
 
 def test_crafting_shapeless():
-    pass
+    rm.crafting_shapeless('basic_shapeless', 'minecraft:foo', 'domain:my_item')
+    assert_file_equal('data/modid/recipes/basic_shapeless.json')
+
+    rm.crafting_shapeless('shapeless_multi_ingredient', ['minecraft:bar', 'modid:fizz', {'tag': 'modid:buzz'}, '#minecraft:baz', ('a:b', 'b:c')], 'domain:my_item')
+    assert_file_equal('data/modid/recipes/shapeless_multi_ingredient.json')
 
 def test_crafting_shaped():
     rm.crafting_shaped('my_block', ('XBX', 'X  ', '  B'), {'X': 'domain:my_item', 'B': 'minecraft:stone'}, 'domain:my_block').with_advancement('minecraft:dirt')
@@ -94,6 +97,13 @@ def test_crafting_shaped():
 
 def test_recipe():
     pass
+
+def test_advancements():
+    category = advancements.AdvancementCategory(rm, 'my_category', 'background.png')
+    root = category.advancement('root', 'domain:item', 'My Advancement Tree', 'The tree.', parent=None, criteria={'crit': advancements.first_tick()})
+    root.add_child('child', 'domain:item', 'My Advancement Tree', 'The tree.', criteria={'crit1': advancements.inventory_changed('domain:sword'), 'crit2': advancements.inventory_changed('domain:axe')}, requirements='and', frame='challenge')
+    assert_file_equal('data/modid/advancements/my_category/root.json')
+    assert_file_equal('data/modid/advancements/my_category/root.json')
 
 def test_item_tag():
     rm.item_tag('my_items', 'modid:item1')

@@ -37,7 +37,7 @@ jobs:
           body: |
             [This was an automatic build]
             // todo: add changelog
-          draft: false
+          draft: true
           prerelease: false
       - name: Build and publish
         env:

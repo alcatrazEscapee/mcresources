@@ -7,6 +7,7 @@
 !/benchmarks/**/*.py
 !/benchmarks/README.md
 
+!/mcresources/py.typed
 !/mcresources/**/*.py
 
 !/sample/test/**/*.json

@@ -1,0 +1,29 @@
+{
+  "__comment__": "This file was automatically created by mcresources",
+  "type": "minecraft:crafting_shapeless",
+  "ingredients": [
+    {
+      "item": "minecraft:bar"
+    },
+    {
+      "item": "modid:fizz"
+    },
+    {
+      "tag": "modid:buzz"
+    },
+    {
+      "tag": "minecraft:baz"
+    },
+    [
+      {
+        "item": "a:b"
+      },
+      {
+        "item": "b:c"
+      }
+    ]
+  ],
+  "result": {
+    "item": "domain:my_item"
+  }
+}
