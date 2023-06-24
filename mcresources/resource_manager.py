@@ -454,6 +454,11 @@ class ResourceManager:
         """ Specialization for {@link #tag} for block tags. """
         self.tag(name_parts, 'blocks', *values, replace=replace)
 
+    def block_and_item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Calls both `.block_tag()` and `.item_tag()` with the same arguments. """
+        self.tag(name_parts, 'items', *values, replace=replace)
+        self.tag(name_parts, 'blocks', *values, replace=replace)
+
     def entity_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization of {@link #tag} for entity tags. """
         self.tag(name_parts, 'entity_types', *values, replace=replace)
