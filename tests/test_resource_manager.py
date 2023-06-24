@@ -7,6 +7,7 @@ import sys
 import pytest
 import difflib
 
+import loot_tables
 from mcresources import utils, atlases, advancements
 from mcresources.resource_manager import ResourceManager
 
@@ -213,6 +214,20 @@ def test_block_loot_set_count_implicit_with_entry_with_no_functions():
     })
     assert_file_equal('data/modid/loot_tables/blocks/block9.json')
 
+def test_block_loot_all_of_condition():
+    rm.block_loot('block10', {
+        'name': 'stone',
+        'conditions': loot_tables.all_of('minecraft:killed_by_player', loot_tables.random_chance(0.123))
+    })
+    assert_file_equal('data/modid/loot_tables/blocks/block10.json')
+
+def test_block_loot_any_of_condition():
+    rm.block_loot('block11', {
+        'name': 'stone',
+        'conditions': loot_tables.any_of(loot_tables.survives_explosion(), loot_tables.random_chance(0.321))
+    })
+    assert_file_equal('data/modid/loot_tables/blocks/block11.json')
+
 def test_lang():
     rm.lang('key', 'value')
     rm.lang('key', 'VALUE', language='not_en_us')
@@ -348,12 +363,6 @@ def test_noise():
 def test_noise_settings():
     rm.noise_settings('overworld', True, True, False, False, True, True, 'minecraft:stone', 'minecraft:water[level=0]', 63, {'complicated': True}, {'very_complicated': True}, {'superbly_complicated': True})
     assert_file_equal('data/modid/worldgen/noise_settings/overworld.json')
-
-def test_processor_list():
-    pass
-
-def test_template_pool():
-    pass
 
 def test_ensure_ascii():
     try:

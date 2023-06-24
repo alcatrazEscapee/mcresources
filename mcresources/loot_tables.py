@@ -27,38 +27,36 @@ def pool(*entries: Json, conditions: Optional[Json] = None, functions: Optional[
         'bonus_rolls': bonus_rolls
     }
 
-def alternatives(*entries: Json, conditions: Optional[Json] = None, functions: Optional[Json] = None) -> JsonObject:
-    return {
-        'type': 'minecraft:alternatives',
-        'children': entries,
-        'conditions': conditions,
-        'functions': functions
-    }
-
 
 # Loot Conditions
 
-def or_condition(*terms: Json) -> JsonObject:
+def all_of(*terms: Json) -> Json:
     return {
-        'condition': 'minecraft:alternative',
+        'condition': 'minecraft:any_of',
         'terms': utils.loot_conditions(terms)
     }
 
-def inverted_condition(term: Json) -> JsonObject:
+def any_of(*terms: Json) -> Json:
+    return {
+        'condition': 'minecraft:all_of',
+        'terms': utils.loot_conditions(terms)
+    }
+
+def inverted(term: Json) -> Json:
     condition = utils.loot_conditions(term)
-    assert len(condition) == 1, 'Expected one condition for inverted_condition() term'
+    assert len(condition) == 1, 'Expected one condition for inverted() term'
     return {
         'condition': 'minecraft:inverted',
         'term': condition[0]
     }
 
-def random_chance(chance: float) -> JsonObject:
+def random_chance(chance: float) -> Json:
     return {
         'condition': 'minecraft:random_chance',
         'chance': chance
     }
 
-def block_state_property(data: Json) -> JsonObject:
+def block_state_property(data: Json) -> Json:
     """ Accepts a block like 'minecraft:grass[snowy=true]', or a dictionary with 'Name' and 'Properties' entries """
     block_state = utils.block_state(data)
     assert 'Name' in block_state, 'Missing Name'
@@ -69,13 +67,13 @@ def block_state_property(data: Json) -> JsonObject:
         'properties': block_state['Properties']
     }
 
-def match_tag(tag: str) -> JsonObject:
+def match_tag(tag: str) -> Json:
     return {
         'condition': 'minecraft:match_tool',
         'predicate': {'tag': tag}
     }
 
-def silk_touch() -> JsonObject:
+def silk_touch() -> Json:
     return {
         'condition': 'minecraft:match_tool',
         'predicate': {
@@ -86,17 +84,15 @@ def silk_touch() -> JsonObject:
         }
     }
 
-def fortune_table(chances: Sequence[float]) -> JsonObject:
+def fortune_table(chances: Sequence[float]) -> Json:
     return {
         'condition': 'minecraft:table_bonus',
         'enchantment': 'minecraft:fortune',
         'chances': chances
     }
 
-def survives_explosion() -> JsonObject:
-    return {
-        'condition': 'minecraft:survives_explosion'
-    }
+def survives_explosion() -> Json:
+    return 'minecraft:survives_explosion'
 
 
 # Loot Functions
@@ -145,10 +141,4 @@ def copy_block_entity_nbt() -> JsonObject:
             'target': 'BlockEntityTag',
             'op': 'replace'
         }]
-    }
-
-def inverted(condition: JsonObject):
-    return {
-        'condition': 'minecraft:inverted',
-        'term': condition
     }
