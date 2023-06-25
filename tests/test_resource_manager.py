@@ -12,9 +12,9 @@ from mcresources import utils, atlases, advancements
 from mcresources.resource_manager import ResourceManager
 
 
-rm = ResourceManager(domain='modid', resource_dir='generated', indent=2, ensure_ascii=False)
-os.makedirs('../generated', exist_ok=True)
-utils.clean_generated_resources('../generated')
+rm = ResourceManager(domain='modid', resource_dir='actual', indent=2, ensure_ascii=False)
+os.makedirs('actual', exist_ok=True)
+utils.clean_generated_resources('actual')
 
 
 def test_blockstate():
@@ -240,14 +240,14 @@ def test_lang():
 def test_block_lang():
     rm.block('sample_block').with_lang('Sample Block', 'en_us2')
     rm.block('othermod:stuff_block').with_lang('Other Block', 'en_us2')
-    rm.block('sample/slash/block').with_lang('Sample Slash Block', 'en_us2')
+    rm.block('expected/slash/block').with_lang('Sample Slash Block', 'en_us2')
     rm.flush()
     assert_file_equal('assets/modid/lang/en_us2.json')
 
 def test_item_lang():
     rm.item('sample_item').with_lang('Sample Item', 'en_us3')
     rm.item('othermod:stuff_item').with_lang('Other Item', 'en_us3')
-    rm.item('sample/slash/item').with_lang('Sample Slash Item', 'en_us3')
+    rm.item('expected/slash/item').with_lang('Sample Slash Item', 'en_us3')
     rm.flush()
     assert_file_equal('assets/modid/lang/en_us3.json')
 
@@ -380,18 +380,18 @@ def test_ensure_ascii():
 
 
 def assert_file_equal(path: str):
-    path = os.path.join('../generated', path)
-
-    if not os.path.isfile('test/' + path):
-        with open('test/' + path, 'w', encoding='utf-8') as new_file:
+    if not os.path.isfile('expected/' + path):
+        with open('expected/' + path, 'w', encoding='utf-8') as new_file:
             new_file.write('{}\n')
         pytest.fail('No expected resource at %s, creating blank file' % path)
 
-    with open('test/' + path, 'r', encoding='utf-8') as expected_file:
+    with open('expected/' + path, 'r', encoding='utf-8') as expected_file:
         expected = expected_file.read()
 
-    assert os.path.isfile('generated/' + path), 'No generated resource at %s' % path
-    with open('generated/' + path, 'r', encoding='utf-8') as actual_file:
+    if not os.path.isfile('actual/' + path):
+        pytest.fail('No generated resource at %s' % path)
+
+    with open('actual/' + path, 'r', encoding='utf-8') as actual_file:
         actual = actual_file.read()
 
     if expected != actual:

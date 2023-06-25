@@ -10,8 +10,7 @@
 !/mcresources/py.typed
 !/mcresources/**/*.py
 
-!/sample/test/**/*.json
-
+!/tests/expected/**/*.json
 !/tests/**/*.py
 
 !/docs.py

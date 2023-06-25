@@ -41,13 +41,13 @@ def alternatives(*entries: Json, conditions: Optional[Json] = None, functions: O
 
 def all_of(*terms: Json) -> Json:
     return {
-        'condition': 'minecraft:any_of',
+        'condition': 'minecraft:all_of',
         'terms': utils.loot_conditions(terms)
     }
 
 def any_of(*terms: Json) -> Json:
     return {
-        'condition': 'minecraft:all_of',
+        'condition': 'minecraft:any_of',
         'terms': utils.loot_conditions(terms)
     }
 

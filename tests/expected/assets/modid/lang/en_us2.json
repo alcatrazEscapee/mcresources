@@ -2,5 +2,5 @@
   "__comment__": "This file was automatically created by mcresources",
   "block.modid.sample_block": "Sample Block",
   "block.othermod.stuff_block": "Other Block",
-  "block.modid.sample.slash.block": "Sample Slash Block"
+  "block.modid.expected.slash.block": "Sample Slash Block"
 }
