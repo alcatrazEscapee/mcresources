@@ -28,6 +28,15 @@ def pool(*entries: Json, conditions: Optional[Json] = None, functions: Optional[
     }
 
 
+def alternatives(*entries: Json, conditions: Optional[Json] = None, functions: Optional[Json] = None) -> JsonObject:
+    return {
+        'type': 'minecraft:alternatives',
+        'children': entries,
+        'conditions': conditions,
+        'functions': functions
+    }
+
+
 # Loot Conditions
 
 def all_of(*terms: Json) -> Json:
