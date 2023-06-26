@@ -350,7 +350,7 @@ class ResourceManager:
             'ambient_light': ambient_light
         })
 
-    def biome(self, name_parts: ResourceIdentifier, precipitation: str = 'none', category: str = 'none', temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Optional[Json] = None, air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners: Optional[Json] = None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs: Optional[Json] = None):
+    def biome(self, name_parts: ResourceIdentifier, has_precipitation: bool, category: str = 'none', temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Optional[Json] = None, air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners: Optional[Json] = None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs: Optional[Json] = None):
         """ Creates a biome, with all possible optional parameters filled in to the minimum required state. Parameters are exactly as they appear in the final biome. """
         if effects is None:
             effects = {}
@@ -368,7 +368,7 @@ class ResourceManager:
             spawn_costs = {}
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
-            'precipitation': precipitation,
+            'has_precipitation': has_precipitation,
             'category': category,
             'temperature': temperature,
             'temperature_modifier': temperature_modifier,
