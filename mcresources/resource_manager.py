@@ -444,6 +444,18 @@ class ResourceManager:
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'template_pool', res.path), data)
 
+    def world_preset(self, name_parts: ResourceIdentifier, dimensions: Json, is_normal: bool = False):
+        """
+        Creates a world preset from the provided data.
+        :param name_parts: The resource location, including path elements.
+        :param dimensions: The world preset dimensions.
+        :param is_normal: If `True`, then the world preset will be tagged as `minecraft:normal`
+        """
+        res = utils.resource_location(self.domain, name_parts)
+        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'world_preset', res.path), {'dimensions': dimensions})
+        if is_normal:
+            self.world_preset_tag('minecraft:normal', name_parts)
+
     # === Tags === #
 
     def item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
@@ -494,6 +506,10 @@ class ResourceManager:
     def biome_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization of {@link #tag} for biome tags """
         self.tag(name_parts, 'worldgen/biome', *values, replace=replace)
+
+    def world_preset_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
+        """ Specialization of {@link #tag} for world preset tags """
+        self.tag(name_parts, 'worldgen/world_preset', *values, replace=replace)
 
     def tag(self, name_parts: ResourceIdentifier, root_domain: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """
