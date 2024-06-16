@@ -350,26 +350,23 @@ class ResourceManager:
             'ambient_light': ambient_light
         })
 
-    def biome(self, name_parts: ResourceIdentifier, has_precipitation: bool, category: str = 'none', temperature: float = 0, temperature_modifier: str = 'none', downfall: float = 0.5, effects: Optional[Json] = None, air_carvers: Optional[Sequence[str]] = None, water_carvers: Optional[Sequence[str]] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners: Optional[Json] = None, player_spawn_friendly: bool = True, creature_spawn_probability: float = 0.5, parent: Optional[str] = None, spawn_costs: Optional[Json] = None):
+    def biome(self, name_parts: ResourceIdentifier, has_precipitation: bool = True, temperature: float = 0, temperature_modifier: str = None, downfall: float = 0.5, effects: Json = None, air_carvers: Sequence[str] = None, water_carvers: Sequence[str] = None, features: Sequence[Sequence[str]] = None, structures: Sequence[str] = None, spawners: Json = None, creature_spawn_probability: float = 0.5, spawn_costs: Json = None):
         """ Creates a biome, with all possible optional parameters filled in to the minimum required state. Parameters are exactly as they appear in the final biome. """
         if effects is None:
             effects = {}
         for required_effect in ('fog_color', 'sky_color', 'water_color', 'water_fog_color'):
             if required_effect not in effects:
                 effects[required_effect] = 0
-
         if features is None:
             features = []
-        if structures is None:
-            structures = []
         if spawners is None:
             spawners = {}
         if spawn_costs is None:
             spawn_costs = {}
+
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
             'has_precipitation': has_precipitation,
-            'category': category,
             'temperature': temperature,
             'temperature_modifier': temperature_modifier,
             'downfall': downfall,
@@ -381,9 +378,7 @@ class ResourceManager:
             'features': features,
             'starts': structures,
             'spawners': spawners,
-            'player_spawn_friendly': player_spawn_friendly,
             'creature_spawn_probability': creature_spawn_probability,
-            'parent': parent,
             'spawn_costs': spawn_costs
         })
 

@@ -338,7 +338,8 @@ def test_dimension_type():
     assert_file_equal('data/modid/dimension_type/pink_type.json')
 
 def test_biome():
-    pass
+    rm.biome('ocean')
+    assert_file_equal('data/modid/worldgen/biome/ocean.json')
 
 def test_configured_carver():
     rm.configured_carver('cave', 'minecraft:cave', {'probability': 1})
