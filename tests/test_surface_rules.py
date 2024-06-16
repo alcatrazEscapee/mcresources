@@ -6,7 +6,6 @@ def test_block_rule():
         'type': 'minecraft:block',
         'result_state': {
             'Name': 'minecraft:dirt',
-            'Properties': {}
         }
     }
 
@@ -20,11 +19,11 @@ def test_sequence_rule():
         'sequence': [
             {
                 'type': 'minecraft:block',
-                'result_state': {'Name': 'minecraft:dirt', 'Properties': {}}
+                'result_state': {'Name': 'minecraft:dirt'}
             },
             {
                 'type': 'minecraft:block',
-                'result_state': {'Name': 'minecraft:stone', 'Properties': {}}
+                'result_state': {'Name': 'minecraft:stone'}
             }
         ]
     }

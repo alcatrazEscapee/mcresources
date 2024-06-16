@@ -550,7 +550,7 @@ def as_vertical_anchor(va: VerticalAnchor) -> VerticalAnchor:
     raise ValueError('Unknown VerticalAnchor: %s' % str(va))
 
 
-def block_state(data: Json):
+def block_state(data: Json) -> JsonObject:
     """ Converts a block state registry name, with optional properties to the format used by all block state codecs """
     if isinstance(data, str):
         property_map = {}
@@ -561,15 +561,17 @@ def block_state(data: Json):
                 property_map[key] = value
         else:
             name = data
-        return {'Name': name, 'Properties': property_map}
+        data = {'Name': name, 'Properties': property_map}
     elif isinstance(data, dict):
         if 'Name' not in data:
             raise ValueError('Missing \'Name\' key in block_state for object %s' % str(data))
         if 'Properties' not in data:
             data['Properties'] = {}
-        return data
     else:
         raise ValueError('Unknown object %s at block_state' % str(data))
+    if data['Properties'] == {}:  # Empty 'Properties' field can be elided
+        return {'Name': data['Name']}
+    return data
     
 def validate_crafting_pattern(pattern: Sequence[str], max_width: int = 3, max_height: int = 3):
     height = len(pattern)
