@@ -16,7 +16,8 @@ from collections import defaultdict
 
 class ResourceManager:
     """
-    This is the central class for generating resources to a specific domain (modid), and output path. It contains methods for generating individual resource types and files. Refer to the documentation on each method for specifics.
+    This is the central class for generating resources to a specific domain (modid), and output path. It contains methods for generating
+    individual resource types and files. Refer to the documentation on each method for specifics.
 
     Example Usage:
     ```python
@@ -28,6 +29,15 @@ class ResourceManager:
     ```
 
     <strong>Important:</strong> When generating files such as tags or lang, the `ResourceManager` does not create the files every time `.tag()` or `.lang()` is invoked. Rather, it collects all values from all invocations, until a call to `.flush()` is made, which then writes all tag and lang files together.
+
+    All resource generation methods take a `ResourceIdentifier` as the `name_parts. This is akin to a deconstructed `ResourceLocation` in Minecraft.
+    It accepts strings, or lists/tuples of strings, where sequences of strings are interpreted as `/` seperated parts, i.e.
+
+    ```
+    rm.block(('foo', 'bar'))  # Creates the block `modid:foo/bar`
+    ```
+
+    The namespace is assumed to be the same as the namespace of the `ResourceManager`, if omitted.
     """
 
     def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, ensure_ascii: bool = False, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
@@ -75,9 +85,15 @@ class ResourceManager:
         self.tags_buffer.clear()
 
     def block(self, name_parts: ResourceIdentifier) -> BlockContext:
+        """
+        Creates a new {@link BlockContext} without creating any resource files.
+        """
         return BlockContext(self, utils.resource_location(self.domain, name_parts))
 
     def item(self, name_parts: ResourceIdentifier) -> ItemContext:
+        """
+        Creates a new {@link ItemContext} without creating any resource files.`
+        """
         return ItemContext(self, utils.resource_location(self.domain, name_parts))
 
     def blockstate(self, name_parts: ResourceIdentifier, model: str = None, variants: Dict[str, Json] = None, use_default_model: bool = True) -> BlockContext:
@@ -301,7 +317,7 @@ class ResourceManager:
         :param loot_type: The type of the loot table.
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'loot_tables', path, res.path), {
+        self.write((*self.resource_dir, 'data', res.domain, 'loot_table', path, res.path), {
             'type': loot_type,
             'pools': [
                 utils.loot_pool(pool, path)
@@ -312,6 +328,8 @@ class ResourceManager:
 
     def lang(self, *args: Union[str, Sequence[str], Dict[str, str]], language: str = None):
         """
+        Adds lang entries to the `ResourceManager`. Note that this method does not create any resource files and requires a call to
+        {@link ResourceManager#flush} to generate all language files.
         :param args: The lang entries. Can be paired key, value strings, or a dictionary of key -> value maps
         :param language: The language key. Defaults to the default language supplied in the resource manager constructor
         """
@@ -382,13 +400,31 @@ class ResourceManager:
             'spawn_costs': spawn_costs
         })
 
-    def configured_carver(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
-        return self.configured(name_parts, feature, config, 'configured_carver')
+    def configured_carver(self, name_parts: ResourceIdentifier, carver: ResourceIdentifier, config: Json = None):
+        """
+        Creates a configured carver file from a carver name and an optional config.
+        :param name_parts: The resource location, including path elements
+        :param carver: The resource location of the world carver to use
+        :param config: The config JSON
+        """
+        return self.configured(name_parts, carver, config, 'configured_carver')
 
     def configured_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
+        """
+        Creates a configured feature file from a feature name and an optional config.
+        :param name_parts: The resource location, including path elements
+        :param feature: The resource location of the feature to use
+        :param config: The config JSON
+        """
         return self.configured(name_parts, feature, config, 'configured_feature')
 
     def configured_structure_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None):
+        """
+        Creates a configured structure feature file from a carver name and an optional config.
+        :param name_parts: The resource location, including path elements
+        :param feature: The resource location of the structure feature to use
+        :param config: The config JSON
+        """
         return self.configured(name_parts, feature, config, 'configured_structure_feature')
 
     def configured(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None, root: str = ''):
@@ -396,6 +432,15 @@ class ResourceManager:
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', root, res.path), utils.configure(feature, config))
 
     def placed_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, *placements: TypeWithOptionalConfig):
+        """
+        Creates a placed feature resource from a feature and a sequence of placements. Placements may be a resource location
+        identifying a placement modifier, which will be expanded as `{ type: "my_placement_modifier" }` or a pair of a resource location
+        and configuration data, or a raw JSON blob with a `type` field already included.
+
+        :param name_parts: The resource location, including path elements
+        :param feature: The resource location of the configured feature to use
+        :param placements: A list of placements.
+        """
         res = utils.resource_location(self.domain, name_parts)
         self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'placed_feature', res.path), {
             'feature': utils.resource_location(feature).join(),
@@ -455,24 +500,24 @@ class ResourceManager:
 
     def item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization for {@link #tag} for item tags. """
-        self.tag(name_parts, 'items', *values, replace=replace)
+        self.tag(name_parts, 'item', *values, replace=replace)
 
     def block_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization for {@link #tag} for block tags. """
-        self.tag(name_parts, 'blocks', *values, replace=replace)
+        self.tag(name_parts, 'block', *values, replace=replace)
 
     def block_and_item_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Calls both `.block_tag()` and `.item_tag()` with the same arguments. """
-        self.tag(name_parts, 'items', *values, replace=replace)
-        self.tag(name_parts, 'blocks', *values, replace=replace)
+        self.tag(name_parts, 'item', *values, replace=replace)
+        self.tag(name_parts, 'block', *values, replace=replace)
 
     def entity_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization of {@link #tag} for entity tags. """
-        self.tag(name_parts, 'entity_types', *values, replace=replace)
+        self.tag(name_parts, 'entity_type', *values, replace=replace)
 
     def fluid_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization of {@link #tag} for fluid tags """
-        self.tag(name_parts, 'fluids', *values, replace=replace)
+        self.tag(name_parts, 'fluid', *values, replace=replace)
 
     def dimension_tag(self, name_parts: ResourceIdentifier, *values: Union[ResourceIdentifier, JsonObject], replace: bool = None):
         """ Specialization of {@link #tag} for dimension tags """

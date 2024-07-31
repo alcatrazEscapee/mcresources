@@ -8,7 +8,8 @@ Updates of this tool will track the format of the latest version of Minecraft. F
 
 | Minecraft Version | Latest mcresources Version |
 |-------------------|----------------------------|
-| 1.20              | Latest                     |
+| 1.21              | Latest                     |
+| 1.20              | 1.6.2                      |
 | 1.18              | 1.5.11                     |
 | 1.17              | 1.4.6                      |
 | 1.16.2            | 1.4.6                      |

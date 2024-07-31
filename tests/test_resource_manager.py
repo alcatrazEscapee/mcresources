@@ -76,7 +76,6 @@ def test_custom_item_model():
     assert_file_equal('assets/modid/models/item/item_custom_loader.json')
 
 def test_atlas():
-    print('test')
     rm.atlas('custom_atlas', atlases.single('modid:chests/iron'), atlases.directory('block'))
     assert_file_equal('assets/modid/atlases/custom_atlas.json')
 
@@ -106,74 +105,74 @@ def test_advancements():
 def test_item_tag():
     rm.item_tag('my_items', 'modid:item1')
     rm.flush()
-    assert_file_equal('data/modid/tags/items/my_items.json')
+    assert_file_equal('data/modid/tags/item/my_items.json')
 
 def test_item_context_with_tag_no_domain():
     rm.item('item1').with_tag('my_items')
     rm.flush()
-    assert_file_equal('data/modid/tags/items/my_items.json')
+    assert_file_equal('data/modid/tags/item/my_items.json')
 
 def test_item_tag_multiple_values():
     rm.item_tag(('ingots', 'iron'), 'modid:iron_ingot', 'othermod:iron_ingot', replace=True)
     rm.flush()
-    assert_file_equal('data/modid/tags/items/ingots/iron.json')
+    assert_file_equal('data/modid/tags/item/ingots/iron.json')
 
 def test_block_tag():
     rm.block_tag('my_blocks', 'modid:block1')
     rm.flush()
-    assert_file_equal('data/modid/tags/blocks/my_blocks.json')
+    assert_file_equal('data/modid/tags/block/my_blocks.json')
 
 def test_block_context_with_tag_other_domain():
     rm.block('block1').with_tag('othermod:their_blocks')
     rm.flush()
-    assert_file_equal('data/othermod/tags/blocks/their_blocks.json')
+    assert_file_equal('data/othermod/tags/block/their_blocks.json')
 
 def test_block_context_with_tag_no_domain():
     rm.block('block2').with_tag('someones/block')
     rm.flush()
-    assert_file_equal('data/modid/tags/blocks/someones/block.json')
+    assert_file_equal('data/modid/tags/block/someones/block.json')
 
 def test_block_context_with_item_tag():
     rm.block('block3').with_item_tag('blocks_as_items')
     rm.flush()
-    assert_file_equal('data/modid/tags/items/blocks_as_items.json')
+    assert_file_equal('data/modid/tags/item/blocks_as_items.json')
 
 def test_block_tag_with_duplicates():
     rm.block_tag('blocks/iron', 'modid:iron_block', 'othermod:iron_block', 'othermod:iron_block', 'othermod:iron_block', replace=True)
     rm.flush()
-    assert_file_equal('data/modid/tags/blocks/blocks/iron.json')
+    assert_file_equal('data/modid/tags/block/blocks/iron.json')
 
 def test_entity_tag():
     rm.entity_tag('my_entities', 'modid:entity1')
     rm.flush()
-    assert_file_equal('data/modid/tags/entity_types/my_entities.json')
+    assert_file_equal('data/modid/tags/entity_type/my_entities.json')
 
 def test_entity_tag_multiple_values():
     rm.entity_tag(('things', 'stuff'), 'modid:my_entity', 'minecraft:other_entity', replace=True)
     rm.flush()
-    assert_file_equal('data/modid/tags/entity_types/things/stuff.json')
+    assert_file_equal('data/modid/tags/entity_type/things/stuff.json')
 
 def test_fluid_tag():
     rm.fluid_tag('my_fluids', 'modid:fluid')
     rm.flush()
-    assert_file_equal('data/modid/tags/fluids/my_fluids.json')
+    assert_file_equal('data/modid/tags/fluid/my_fluids.json')
 
 def test_fluid_tag_multiple_values():
     rm.fluid_tag(['special', 'lavas'], 'modid:lavathing', 'othermod:otherlava', replace=True)
     rm.flush()
-    assert_file_equal('data/modid/tags/fluids/special/lavas.json')
+    assert_file_equal('data/modid/tags/fluid/special/lavas.json')
 
 def test_block_loot_simple():
     rm.block_loot('block1', 'modid:block1')
-    assert_file_equal('data/modid/loot_tables/blocks/block1.json')
+    assert_file_equal('data/modid/loot_table/blocks/block1.json')
 
 def test_block_loot_set_count_implicit():
     rm.block_loot('block2', '3 modid:block3')
-    assert_file_equal('data/modid/loot_tables/blocks/block2.json')
+    assert_file_equal('data/modid/loot_table/blocks/block2.json')
 
 def test_block_loot_set_count_uniform_implicit():
     rm.block_loot('block3', '5-7 modid:block3')
-    assert_file_equal('data/modid/loot_tables/blocks/block3.json')
+    assert_file_equal('data/modid/loot_table/blocks/block3.json')
 
 def test_block_loot_one_entry():
     rm.block_loot('block4', {
@@ -181,7 +180,7 @@ def test_block_loot_one_entry():
         'conditions': ['minecraft:mystery_condition'],
         'functions': ['minecraft:mystery_function']
     })
-    assert_file_equal('data/modid/loot_tables/blocks/block4.json')
+    assert_file_equal('data/modid/loot_table/blocks/block4.json')
 
 def test_block_loot_one_pool():
     rm.block_loot('block5', {
@@ -189,15 +188,15 @@ def test_block_loot_one_pool():
         'rolls': 3,
         'entries': '1-2 modid:block5'
     })
-    assert_file_equal('data/modid/loot_tables/blocks/block5.json')
+    assert_file_equal('data/modid/loot_table/blocks/block5.json')
 
 def test_block_loot_multiple_entries_alternatives():
     rm.block_loot('block6', ('block6_first', 'block6_second'))
-    assert_file_equal('data/modid/loot_tables/blocks/block6.json')
+    assert_file_equal('data/modid/loot_table/blocks/block6.json')
 
 def test_block_loot_multiple_pools():
     rm.block_loot('block7', 'block7_first', 'block7_second')
-    assert_file_equal('data/modid/loot_tables/blocks/block7.json')
+    assert_file_equal('data/modid/loot_table/blocks/block7.json')
 
 def test_block_loot_set_count_implicit_with_entry():
     rm.block_loot('block8', {
@@ -205,28 +204,28 @@ def test_block_loot_set_count_implicit_with_entry():
         'conditions': ['minecraft:mystery_condition'],
         'functions': ['minecraft:mystery_function']
     })
-    assert_file_equal('data/modid/loot_tables/blocks/block8.json')
+    assert_file_equal('data/modid/loot_table/blocks/block8.json')
 
 def test_block_loot_set_count_implicit_with_entry_with_no_functions():
     rm.block_loot('block9', {
         'name': '3 modid:block9',
         'conditions': ['minecraft:mystery_condition']
     })
-    assert_file_equal('data/modid/loot_tables/blocks/block9.json')
+    assert_file_equal('data/modid/loot_table/blocks/block9.json')
 
 def test_block_loot_all_of_condition():
     rm.block_loot('block10', {
         'name': 'stone',
         'conditions': loot_tables.all_of('minecraft:killed_by_player', loot_tables.random_chance(0.123))
     })
-    assert_file_equal('data/modid/loot_tables/blocks/block10.json')
+    assert_file_equal('data/modid/loot_table/blocks/block10.json')
 
 def test_block_loot_any_of_condition():
     rm.block_loot('block11', {
         'name': 'stone',
         'conditions': loot_tables.any_of(loot_tables.survives_explosion(), loot_tables.random_chance(0.321))
     })
-    assert_file_equal('data/modid/loot_tables/blocks/block11.json')
+    assert_file_equal('data/modid/loot_table/blocks/block11.json')
 
 def test_lang():
     rm.lang('key', 'value')
@@ -370,12 +369,12 @@ def test_ensure_ascii():
         rm.ensure_ascii = True
         rm.block_tag('ensure_ascii_true', '𝓝𝓸𝓷 𝓐𝓢𝓒𝓘𝓘 𝓣𝓮𝔁𝓽')
         rm.flush()
-        assert_file_equal('data/modid/tags/blocks/ensure_ascii_true.json')
+        assert_file_equal('data/modid/tags/block/ensure_ascii_true.json')
 
         rm.ensure_ascii = False
         rm.block_tag('ensure_ascii_false', '𝓝𝓸𝓷 𝓐𝓢𝓒𝓘𝓘 𝓣𝓮𝔁𝓽')
         rm.flush()
-        assert_file_equal('data/modid/tags/blocks/ensure_ascii_false.json')
+        assert_file_equal('data/modid/tags/block/ensure_ascii_false.json')
     finally:
         rm.ensure_ascii = True
 
