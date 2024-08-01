@@ -17,30 +17,36 @@ class WriteFlag(enum.IntEnum):
     ERROR = enum.auto()
 
 
-def clean_generated_resources(path: str = 'src/main/resources'):
+def clean_generated_resources(path: str, exclude: set[str]) -> int:
     """
-    Recursively removes all files generated using by mcresources, as identified by the inserted comment.
-    Removes empty directories
-    :param path: the initial path to search through
+    Recursively removes all files generated using by mcresources, as identified by the inserted comment. Removes empty directories
+    :param path: The initial path to search through
+    :param exclude: A set of paths to exclude from removal. Typically obtained from `ResourceManager.written_files`
+    :return: The number of removed files
     """
+    removed: int = 0
     for subdir in os.listdir(path):
         sub_path = os.path.join(path, subdir)
         if os.path.isfile(sub_path):
             # File, check if valid and then delete
-            if subdir.endswith('.json'):
+            sub_path = os.path.normpath(sub_path)
+            if subdir.endswith('.json') and sub_path not in exclude:
                 delete = False
                 with open(sub_path, 'r', encoding='utf-8') as file:
                     if '"__comment__": "This file was automatically created by mcresources"' in file.read():
                         delete = True
                 if delete:
                     os.remove(sub_path)
+                    removed += 1
         else:
             # Folder, search recursively
-            clean_generated_resources(sub_path)
+            removed += clean_generated_resources(sub_path, exclude)
 
     if not os.listdir(path):
         # Delete empty folder
         os.rmdir(path)
+
+    return removed
 
 
 def del_none(data_in: Json) -> Json:
@@ -55,17 +61,16 @@ def del_none(data_in: Json) -> Json:
         raise ValueError('None passed to `del_none`, should not be possible.')
 
 
-def write(path_parts: Sequence[str], data: Json, indent: int = 2, ensure_ascii: bool = False, on_error: Callable[[str, Exception], Any] = None) -> WriteFlag:
+def write(path: str, data: Json, indent: int = 2, ensure_ascii: bool = False, on_error: Callable[[str, Exception], Any] = None) -> WriteFlag:
     """
     Writes json to a file.
-    :param path_parts: The path elements of the file
+    :param path: The path to the file
     :param data: The data to write
     :param indent: The indent level for the json output
     :param ensure_ascii: The ensure_ascii passed to json.dump - if non-ascii characters should be replaced with escape sequences.
     :param on_error: A consumer of a file name and error if one occurs
     :return: 0 if the file was new, 1 if the file was modified, 2 if the file was not modified, 3 if an error occurred
     """
-    path = os.path.join(*path_parts) + '.json'
     try:
         os.makedirs(os.path.dirname(path), exist_ok=True)
         exists = False

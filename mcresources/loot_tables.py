@@ -134,20 +134,3 @@ def explosion_decay() -> JsonObject:
     return {
         'function': 'minecraft:explosion_decay'
     }
-
-def copy_block_entity_name() -> JsonObject:
-    return {
-        'function': 'minecraft:copy_name',
-        'source': 'block_entity'
-    }
-
-def copy_block_entity_nbt() -> JsonObject:
-    return {
-        'function': 'minecraft:copy_nbt',
-        'source': 'block_entity',
-        'ops': [{
-            'source': '',
-            'target': 'BlockEntityTag',
-            'op': 'replace'
-        }]
-    }

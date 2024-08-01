@@ -1,6 +1,7 @@
 #  Part of mcresources by Alex O'Neill
 #  Work under copyright. Licensed under MIT
 #  For more information see the project LICENSE file
+import os.path
 
 from mcresources.type_definitions import Json, JsonObject, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig
 from mcresources import utils
@@ -40,18 +41,18 @@ class ResourceManager:
     The namespace is assumed to be the same as the namespace of the `ResourceManager`, if omitted.
     """
 
-    def __init__(self, domain: str = 'minecraft', resource_dir: Sequence[str] = ('src', 'main', 'resources'), indent: int = 2, ensure_ascii: bool = False, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
+    def __init__(self, domain: str = 'minecraft', resource_dir: str = 'src/main/resources', indent: int = 2, ensure_ascii: bool = False, default_language: str = 'en_us', on_error: Callable[[str, Exception], Any] = None):
         """
         Creates a new Resource Manager. This is the supplier for all resource creation calls.
         :param domain: the domain / mod id for current resources.
         :param indent: the indentation level for all generated json files
         :param ensure_ascii: The ensure_ascii passed to json.dump - if non-ascii characters should be replaced with escape sequences.
         """
-        self.resource_dir = utils.str_path(resource_dir)
-        self.domain = domain
-        self.indent = indent
-        self.ensure_ascii = ensure_ascii
-        self.default_language = default_language
+        self.resource_dir: str = os.path.normpath(resource_dir)
+        self.domain: str = domain
+        self.indent: int = indent
+        self.ensure_ascii: bool = ensure_ascii
+        self.default_language: str = default_language
         self.on_error = on_error
 
         if self.on_error is None:
@@ -66,17 +67,18 @@ class ResourceManager:
         self.modified_files: int = 0
         self.unchanged_files: int = 0
         self.error_files: int = 0
+        self.written_files: set[str] = set()
 
     def flush(self):
         """
         Flushes all buffered tags and lang files
         """
         for language, contents in self.lang_buffer.items():
-            self.write((*self.resource_dir, 'assets', self.domain, 'lang', language), contents)
+            self.write(('assets', self.domain, 'lang', language), contents)
 
         for tag_type, tags in self.tags_buffer.items():
             for tag_res, tag in tags.items():
-                self.write((*self.resource_dir, 'data', tag_res.domain, 'tags', tag_type, tag_res.path), {
+                self.write(('data', tag_res.domain, 'tags', tag_type, tag_res.path), {
                     'replace': tag.replace,
                     'values': tag.values
                 })
@@ -113,7 +115,7 @@ class ResourceManager:
             for key, prop in variants.items():
                 if 'model' not in prop:
                     prop['model'] = model
-        self.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
+        self.write(('assets', res.domain, 'blockstates', res.path), {
             'variants': variants
         })
         return BlockContext(self, res)
@@ -125,7 +127,7 @@ class ResourceManager:
         :param parts: The parts. Each element can be a 2-element sequence of a 'when' and 'apply' json, or a single 'apply' json.
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'assets', res.domain, 'blockstates', res.path), {
+        self.write(('assets', res.domain, 'blockstates', res.path), {
             'multipart': utils.blockstate_multipart_parts(parts)
         })
         return BlockContext(self, res)
@@ -149,7 +151,7 @@ class ResourceManager:
             textures = dict((k, res.join('block')) for k in textures)
         if isinstance(elements, Dict):
             elements = [elements]
-        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
+        self.write(('assets', res.domain, 'models', 'block', res.path), {
             'parent': parent,
             'textures': textures,
             'elements': elements
@@ -158,7 +160,7 @@ class ResourceManager:
 
     def custom_block_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: JsonObject) -> BlockContext:
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'block', res.path), {
+        self.write(('assets', res.domain, 'models', 'block', res.path), {
             'loader': utils.resource_location(loader).join(),
             **data,
         })
@@ -179,7 +181,7 @@ class ResourceManager:
             if textures is None or len(textures) == 0:
                 textures = res.join('item/'),
             textures = utils.item_model_textures(textures)
-        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
+        self.write(('assets', res.domain, 'models', 'item', res.path), {
             'parent': utils.resource_location(parent).join(simple=True),
             'textures': textures
         })
@@ -187,7 +189,7 @@ class ResourceManager:
 
     def custom_item_model(self, name_parts: ResourceIdentifier, loader: ResourceIdentifier, data: JsonObject) -> ItemContext:
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'assets', res.domain, 'models', 'item', res.path), {
+        self.write(('assets', res.domain, 'models', 'item', res.path), {
             'loader': utils.resource_location(loader).join(),
             **data
         })
@@ -195,7 +197,7 @@ class ResourceManager:
 
     def atlas(self, name_parts: ResourceIdentifier, *sources: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'assets', res.domain, 'atlases', res.path), {
+        self.write(('assets', res.domain, 'atlases', res.path), {
             'sources': [s for s in sources]
         })
 
@@ -209,7 +211,7 @@ class ResourceManager:
         :param conditions: Any conditions for the recipe to be enabled.
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
+        self.write(('data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shapeless',
             'group': group,
             'ingredients': utils.ingredient_list(ingredients),
@@ -230,7 +232,7 @@ class ResourceManager:
         """
         utils.validate_crafting_pattern(pattern)
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
+        self.write(('data', res.domain, 'recipes', res.path), {
             'type': 'minecraft:crafting_shaped',
             'group': group,
             'pattern': pattern,
@@ -250,7 +252,7 @@ class ResourceManager:
         :param conditions: Any conditions for the recipe to be enabled.
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'recipes', res.path), {
+        self.write(('data', res.domain, 'recipes', res.path), {
             'type': type_in,
             'group': group,
             **data_in,
@@ -267,7 +269,7 @@ class ResourceManager:
         :param prefix_path: A prefix for the path to be inserted to. For example, `prefix_path = 'recipes'` and `name_parts = 'minecraft:foo'` will place data at `data/minecraft/recipes/foo/`
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, root_domain, res.domain, prefix_path + res.path), data_in)
+        self.write((root_domain, res.domain, prefix_path + res.path), data_in)
 
     def advancement(self, name_parts: ResourceIdentifier, display: Json = None, parent: str = None, criteria: Dict[str, Dict[str, Json]] = None, requirements: Sequence[Sequence[str]] = None, rewards: Dict[str, Json] = None):
         """
@@ -284,7 +286,7 @@ class ResourceManager:
             requirements = [[k for k in criteria.keys()]]
         elif requirements == 'and':
             requirements = [[k] for k in criteria.keys()]
-        self.write((*self.resource_dir, 'data', res.domain, 'advancements', res.path), {
+        self.write(('data', res.domain, 'advancements', res.path), {
             'parent': parent,
             'criteria': criteria,
             'display': display,
@@ -317,7 +319,7 @@ class ResourceManager:
         :param loot_type: The type of the loot table.
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'loot_table', path, res.path), {
+        self.write(('data', res.domain, 'loot_table', path, res.path), {
             'type': loot_type,
             'pools': [
                 utils.loot_pool(pool, path)
@@ -342,14 +344,14 @@ class ResourceManager:
 
     def dimension(self, name_parts: ResourceIdentifier, dimension_type: ResourceIdentifier, generator: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'dimension', res.path), {
+        self.write(('data', res.domain, 'dimension', res.path), {
             'type': utils.resource_location(dimension_type).join(),
             'generator': generator
         })
 
     def dimension_type(self, name_parts: ResourceIdentifier, fixed_time: int, has_skylight: bool, has_ceiling: bool, ultrawarm: bool, natural: bool, coordinate_scale: float, piglin_safe: bool, bed_works: bool, respawn_anchor_works: bool, has_raids: bool, min_y: int, height: int, logical_height: int, infiniburn: ResourceIdentifier, effects: ResourceIdentifier, ambient_light: float):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'dimension_type', res.path), {
+        self.write(('data', res.domain, 'dimension_type', res.path), {
             'fixed_time': fixed_time,
             'has_skylight': has_skylight,
             'has_ceiling': has_ceiling,
@@ -383,7 +385,7 @@ class ResourceManager:
             spawn_costs = {}
 
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'biome', res.path), {
+        self.write(('data', res.domain, 'worldgen', 'biome', res.path), {
             'has_precipitation': has_precipitation,
             'temperature': temperature,
             'temperature_modifier': temperature_modifier,
@@ -429,7 +431,7 @@ class ResourceManager:
 
     def configured(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, config: Json = None, root: str = ''):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', root, res.path), utils.configure(feature, config))
+        self.write(('data', res.domain, 'worldgen', root, res.path), utils.configure(feature, config))
 
     def placed_feature(self, name_parts: ResourceIdentifier, feature: ResourceIdentifier, *placements: TypeWithOptionalConfig):
         """
@@ -442,7 +444,7 @@ class ResourceManager:
         :param placements: A list of placements.
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'placed_feature', res.path), {
+        self.write(('data', res.domain, 'worldgen', 'placed_feature', res.path), {
             'feature': utils.resource_location(feature).join(),
             'placement': [
                 utils.configured_placement(p)
@@ -452,14 +454,14 @@ class ResourceManager:
 
     def noise(self, name_parts: ResourceIdentifier, first_octave: float, *amplitudes: float):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'noise', res.path), {
+        self.write(('data', res.domain, 'worldgen', 'noise', res.path), {
             'firstOctave': first_octave,
             'amplitudes': amplitudes
         })
 
     def noise_settings(self, name_parts: ResourceIdentifier, ore_veins_enabled: bool, noodle_caves_enabled: bool, legacy_random_source: bool, disable_mob_generation: bool, aquifers_enabled: bool, noise_caves_enabled: bool, default_block: Json, default_fluid: Json, sea_level: int, noise: Json, surface_rule: Json, structures: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'noise_settings', res.path), {
+        self.write(('data', res.domain, 'worldgen', 'noise_settings', res.path), {
             'ore_veins_enabled': ore_veins_enabled,
             'noodle_caves_enabled': noodle_caves_enabled,
             'legacy_random_source': legacy_random_source,
@@ -476,13 +478,13 @@ class ResourceManager:
 
     def processor_list(self, name_parts: ResourceIdentifier, *processors: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'processor_list', res.path), {
+        self.write(('data', res.domain, 'worldgen', 'processor_list', res.path), {
             'processors': processors
         })
 
     def template_pool(self, name_parts: ResourceIdentifier, data: Json):
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'template_pool', res.path), data)
+        self.write(('data', res.domain, 'worldgen', 'template_pool', res.path), data)
 
     def world_preset(self, name_parts: ResourceIdentifier, dimensions: Json, is_normal: bool = False):
         """
@@ -492,7 +494,7 @@ class ResourceManager:
         :param is_normal: If `True`, then the world preset will be tagged as `minecraft:normal`
         """
         res = utils.resource_location(self.domain, name_parts)
-        self.write((*self.resource_dir, 'data', res.domain, 'worldgen', 'world_preset', res.path), {'dimensions': dimensions})
+        self.write(('data', res.domain, 'worldgen', 'world_preset', res.path), {'dimensions': dimensions})
         if is_normal:
             self.world_preset_tag('minecraft:normal', name_parts)
 
@@ -579,8 +581,10 @@ class ResourceManager:
         :param path_parts: The path elements of the file
         :param data: The json data to write
         """
+        path = os.path.normpath(os.path.join(self.resource_dir, *path_parts)) + '.json'
         data = utils.del_none({'__comment__': 'This file was automatically created by mcresources', **data})
-        flag = utils.write(path_parts, data, self.indent, self.ensure_ascii, self.on_error)
+        flag = utils.write(path, data, self.indent, self.ensure_ascii, self.on_error)
+        self.written_files.add(path)
         if flag == utils.WriteFlag.NEW:
             self.new_files += 1
         elif flag == utils.WriteFlag.MODIFIED:

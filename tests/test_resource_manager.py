@@ -14,7 +14,7 @@ from mcresources.resource_manager import ResourceManager
 
 rm = ResourceManager(domain='modid', resource_dir='actual', indent=2, ensure_ascii=False)
 os.makedirs('actual', exist_ok=True)
-utils.clean_generated_resources('actual')
+utils.clean_generated_resources('actual', set())
 
 
 def test_blockstate():
