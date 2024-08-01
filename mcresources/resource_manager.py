@@ -166,13 +166,14 @@ class ResourceManager:
         })
         return BlockContext(self, res)
 
-    def item_model(self, name_parts: ResourceIdentifier, *textures: Union[Json, str], parent: ResourceIdentifier = 'item/generated', no_textures: bool = False) -> ItemContext:
+    def item_model(self, name_parts: ResourceIdentifier, *textures: Json, parent: ResourceIdentifier = 'item/generated', no_textures: bool = False, overrides: list[Json] = None) -> ItemContext:
         """
         Creates an item model file
         :param name_parts: the resource location, including path elements.
         :param textures: the textures for the model. Defaults to 'domain:item/name/parts'
         :param parent: the parent model.
         :param no_textures: if the textures element should be ignored
+        :param overrides: overrides to add to the item model if present
         """
         res = utils.resource_location(self.domain, name_parts)
         if no_textures:
@@ -183,7 +184,8 @@ class ResourceManager:
             textures = utils.item_model_textures(textures)
         self.write(('assets', res.domain, 'models', 'item', res.path), {
             'parent': utils.resource_location(parent).join(simple=True),
-            'textures': textures
+            'textures': textures,
+            'overrides': overrides
         })
         return ItemContext(self, res)
 

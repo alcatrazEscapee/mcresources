@@ -54,11 +54,11 @@ class BlockContext:
         self.rm.block_loot(self.res, *loot_pools)
         return self
 
-    def with_item_model(self) -> 'BlockContext':
+    def with_item_model(self, overrides: list[Json] = None) -> 'BlockContext':
         """
         Shortcut for a block item model, which generates a model with a single parent reference to the block model of the same name.
         """
-        self.rm.item_model(self.res, parent=utils.resource_location(self.rm.domain, 'block/' + self.res.path), no_textures=True)
+        self.rm.item_model(self.res, parent=utils.resource_location(self.rm.domain, 'block/' + self.res.path), no_textures=True, overrides=overrides)
         return self
 
     def with_tag(self, tag_name_parts: Sequence[str] = None, replace: bool = None) -> 'BlockContext':

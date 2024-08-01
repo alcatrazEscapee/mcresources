@@ -71,6 +71,10 @@ def test_item_model_multiple_layers():
     rm.item_model('item_multiple_layers', 'layer_texture', 'layer2_texture')
     assert_file_equal('assets/modid/models/item/item_multiple_layers.json')
 
+def test_item_model_overrides():
+    rm.item_model('item_overrides', 'base_texture', overrides=[{'stuff here': 'yes'}])
+    assert_file_equal('assets/modid/models/item/item_overrides.json')
+
 def test_custom_item_model():
     rm.custom_item_model('item_custom_loader', 'test_loader', {'raw_data': {'more_raw_data': 3}})
     assert_file_equal('assets/modid/models/item/item_custom_loader.json')

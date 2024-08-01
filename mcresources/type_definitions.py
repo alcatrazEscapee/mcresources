@@ -12,8 +12,8 @@ DefaultValue = TypeVar('DefaultValue')
 MapValue = TypeVar('MapValue')
 
 # Json
-JsonObject = Dict[str, 'Json']
-Json = Union[JsonObject, Sequence['Json'], str, int, bool, None]
+JsonObject = dict[str, 'Json']
+Json = JsonObject | Sequence['Json'] | str | int | bool | None
 
 # Util
 
