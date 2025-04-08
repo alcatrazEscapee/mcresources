@@ -11,11 +11,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-        path: mcresources
+        with:
+          path: mcresources
       - name: Checkout Docs
         uses: actions/checkout@v4
-        repository: alcatrazEscapee/mcresources.wiki
-        path: wiki
+        with:
+          repository: alcatrazEscapee/mcresources.wiki
+          path: wiki
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
@@ -40,7 +42,6 @@ jobs:
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
-        working-directory: ./mcresources
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
