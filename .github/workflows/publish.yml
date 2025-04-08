@@ -47,7 +47,7 @@ jobs:
         with:
           name: mcresources ${{ steps.get_version.outputs.result }}
           tag_name: v${{ steps.get_version.outputs.result }}
-          body_path: ./CHANGELOG.txt
+          body_path: ./mcresources/CHANGELOG.txt
       - name: Publish
         working-directory: ./mcresources
         env:
