@@ -1,6 +1,3 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
 import os.path
 
 from mcresources.type_definitions import Json, JsonObject, ResourceLocation, ResourceIdentifier, TypeWithOptionalConfig

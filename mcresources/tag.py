@@ -1,7 +1,3 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
 from mcresources.type_definitions import JsonObject
 from typing import List, Union
 

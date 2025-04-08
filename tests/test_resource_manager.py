@@ -1,14 +1,9 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
 import os
 import sys
 import pytest
 import difflib
 
-import loot_tables
-from mcresources import utils, atlases, advancements
+from mcresources import utils, atlases, advancements, loot_tables
 from mcresources.resource_manager import ResourceManager
 
 

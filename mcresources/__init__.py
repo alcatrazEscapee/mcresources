@@ -1,7 +1,8 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
+# Imports used by the end-user package
+# I still don't quite understand python packaging, and how they interact with
+# package installations, but this seems to work.
+#
+# Don't remove these, even if they seem unused
 from mcresources.resource_manager import ResourceManager
 
 from mcresources.block_context import BlockContext

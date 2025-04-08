@@ -1,7 +1,3 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
 """
 A collection of helper functions for creating common vanilla block state Jsons.
 

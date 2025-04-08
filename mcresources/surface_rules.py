@@ -1,7 +1,3 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
 """
 A collection of functions for creating vanilla surface rule JSONs in a builder style format.
 Each function returns exactly the JSON matching the name of the function, so `block` returns a `minecraft:block` surface rule.

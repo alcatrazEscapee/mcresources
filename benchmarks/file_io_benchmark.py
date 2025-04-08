@@ -1,7 +1,3 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
 # This is a profile of different file I/O methods, in order to both maximize performance and minimize unnecessary file writes
 # Run with python -m cProfile file_io_benchmark.py
 # Variables: JSON size and complexity, File Match / Equal Percent

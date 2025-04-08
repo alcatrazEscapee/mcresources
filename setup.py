@@ -1,9 +1,4 @@
-#  Part of mcresources by Alex O'Neill
-#  Work under copyright. Licensed under MIT
-#  For more information see the project LICENSE file
-
 import os
-
 import setuptools
 
 # Read README.md into the setuptools long description
@@ -21,8 +16,8 @@ setuptools.setup(
     description='A Python Data Generator for Minecraft Modding',
     long_description=long_description,
     long_description_content_type='text/markdown',
-    author='Alex O\'Neill',
-    author_email='alex@molleroneill.com',
+    author='AlcatrazEscapee',
+    author_email='ellie@molleroneill.com',
     url='https://github.com/alcatrazEscapee/mcresources',
     keywords=['python', 'minecraft', 'resources', 'modding', 'forge'],
     install_requires=[],
