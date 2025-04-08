@@ -13,6 +13,7 @@
 !/tests/expected/**/*.json
 !/tests/**/*.py
 
+!/CHANGELOG.txt
 !/LICENSE.txt
 !/README.md
 !/requirements.txt

@@ -9,16 +9,23 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Set up Python
+      - name: Checkout
+        uses: actions/checkout@v4
+        path: mcresources
+      - name: Checkout Docs
+        uses: actions/checkout@v4
+        repository: alcatrazEscapee/mcresources.wiki
+        path: wiki
+      - name: Setup Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.x'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install -r requirements.txt
           pip install setuptools wheel twine
-      - name: Get the version
+      - name: Read version
         id: get_version
         uses: actions/github-script@v7
         with:
@@ -26,20 +33,22 @@ jobs:
           result-encoding: string
           script: |
             return '${{ github.ref }}'.replace('refs/tags/v', '');
+      - name: Test
+        working-directory: ./mcresources
+        run: |
+          python -m pytest
       - name: Create Release
         id: create_release
         uses: softprops/action-gh-release@v2
+        working-directory: ./mcresources
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           name: mcresources ${{ steps.get_version.outputs.result }}
           tag_name: v${{ steps.get_version.outputs.result }}
-          body: |
-            [This was an automatic build]
-            // todo: add changelog
-          draft: true
-          prerelease: false
-      - name: Build and publish
+          body_path: ./CHANGELOG.txt
+      - name: Publish
+        working-directory: ./mcresources
         env:
           TWINE_USERNAME: __token__
           TWINE_PASSWORD: ${{ secrets.PYPI_API_TOKEN }}
@@ -47,3 +56,12 @@ jobs:
         run: |
           python setup.py sdist bdist_wheel
           twine upload dist/*
+      - name: Update Docs
+        working-directory: ./mcresources
+        run: |
+          python docs.py
+      - name: Publish Docs
+        uses: OrlovM/Wiki-Action@v1
+        with:
+          path: wiki
+          token: ${{ secrets.GITHUB_TOKEN }}
