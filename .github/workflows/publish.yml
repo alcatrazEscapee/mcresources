@@ -1,9 +1,12 @@
-name: Upload Python Package
+name: Publish
 
 on:
   push:
     tags:
       - 'v*'
+
+permissions:
+  contents: write
 
 jobs:
   deploy:
@@ -41,6 +44,7 @@ jobs:
           python -m pytest
       - name: Create Release
         id: create_release
+        if: ${{ steps.get_version.outputs.result != 'v0' }}
         uses: softprops/action-gh-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -49,6 +53,7 @@ jobs:
           tag_name: v${{ steps.get_version.outputs.result }}
           body_path: ./mcresources/CHANGELOG.txt
       - name: Publish
+        if: ${{ steps.get_version.outputs.result != 'v0' }}
         working-directory: ./mcresources
         env:
           TWINE_USERNAME: __token__
@@ -62,7 +67,6 @@ jobs:
         run: |
           python docs.py
       - name: Publish Docs
-        uses: OrlovM/Wiki-Action@v1
+        uses: spenserblack/actions-wiki@v0.3.0
         with:
           path: wiki
-          token: ${{ secrets.GITHUB_TOKEN }}
