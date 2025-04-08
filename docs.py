@@ -35,7 +35,7 @@ def main():
             typedef('MapValue', MapValue)
         ),
         link_root='https://github.com/alcatrazEscapee/mcresources/blob/main',
-        content_root='../mcresources.wiki/',
+        content_root='../wiki/',
         home_doc="""
     Wiki for `mcresources`, a resource generation library for Minecraft modding. This wiki is generated from the documentation in the mcresources repository
     """.strip()
