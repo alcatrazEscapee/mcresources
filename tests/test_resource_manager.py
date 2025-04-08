@@ -7,9 +7,13 @@ from mcresources import utils, atlases, advancements, loot_tables
 from mcresources.resource_manager import ResourceManager
 
 
-rm = ResourceManager(domain='modid', resource_dir='actual', indent=2, ensure_ascii=False)
-os.makedirs('actual', exist_ok=True)
-utils.clean_generated_resources('actual', set())
+ROOT_DIR = os.path.dirname(os.path.abspath(__file__))
+ACTUAL_DIR = os.path.join(ROOT_DIR, 'actual')
+EXPECTED_DIR = os.path.join(ROOT_DIR, 'expected')
+
+rm = ResourceManager(domain='modid', resource_dir=ACTUAL_DIR, indent=2, ensure_ascii=False)
+os.makedirs(ACTUAL_DIR, exist_ok=True)
+utils.clean_generated_resources(ACTUAL_DIR, set())
 
 
 def test_blockstate():
@@ -379,18 +383,21 @@ def test_ensure_ascii():
 
 
 def assert_file_equal(path: str):
-    if not os.path.isfile('expected/' + path):
-        with open('expected/' + path, 'w', encoding='utf-8') as new_file:
+    expected_path = os.path.join(EXPECTED_DIR, path)
+    actual_path = os.path.join(ACTUAL_DIR, path)
+
+    if not os.path.isfile(expected_path):
+        with open(expected_path, 'w', encoding='utf-8') as new_file:
             new_file.write('{}\n')
         pytest.fail('No expected resource at %s, creating blank file' % path)
 
-    with open('expected/' + path, 'r', encoding='utf-8') as expected_file:
+    with open(expected_path, 'r', encoding='utf-8') as expected_file:
         expected = expected_file.read()
 
-    if not os.path.isfile('actual/' + path):
+    if not os.path.isfile(actual_path):
         pytest.fail('No generated resource at %s' % path)
 
-    with open('actual/' + path, 'r', encoding='utf-8') as actual_file:
+    with open(actual_path, 'r', encoding='utf-8') as actual_file:
         actual = actual_file.read()
 
     if expected != actual:
